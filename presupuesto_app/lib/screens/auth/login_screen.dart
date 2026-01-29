@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,8 +15,32 @@ class _LoginScreenState extends State<LoginScreen> {
   String errorMessage = '';
 
   void login() {
-    final email = emailController.text;
+    final email = emailController.text.trim();
     final password = passwordController.text;
+
+    if (email == 'admin@admin.com' && password == 'admin123') {
+      setState(() {
+        errorMessage = '';
+      });
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login exitoso')));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      setState(() {
+        errorMessage = 'Usuario o contraseña incorrectos.';
+      });
+    }
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        errorMessage = 'Por favor completa todos los campos.';
+      });
+    }
   }
 
   @override
