@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => setState(() => _currentIndex = 0),
               ),
               _NavItem(
-                icon: Icons.wallet,
+                icon: Icons.wallet,//esto
                 label: 'Presupuestos',
                 isActive: _currentIndex == 1,
                 onTap: () => setState(() => _currentIndex = 1),

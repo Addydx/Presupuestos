@@ -52,25 +52,15 @@ class _HomeScreenState extends State<HomeScreen> {
             shape: const CircleBorder(
               side: BorderSide(color: Color( 0xFFE5E5E5)),//borde del boton
             ),
-            child: const Icon(Icons.add, color: Colors.amber,),
+            child: const Icon(Icons.add, color: Colors.amber,),//icono del boton y su color del boton
             ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.wallet), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ''),
-        ],
-      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),//esto es para hacer un notch en el bottom app bar
+        notchMargin: 6,//esto sirve para darle un margen al notch
+        color: Colors.white,
+        clipBehavior: Clip.antiAlias,
+        elevation: 6,//esto es para darle una sombra al bottom app bar 
+      )
     );
   }
 }
