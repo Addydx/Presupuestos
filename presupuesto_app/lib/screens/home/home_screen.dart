@@ -14,6 +14,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  // Lógica simple para el número de proyectos activos
+  int _activeProjects = 5; // Número de proyectos activos (puedes cambiarlo dinámicamente)
+
   final List<Widget> _screens = [
     const Center(child: Text('Que onda ')),
     const PresupuestoScreen(),
@@ -29,10 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentIndex == 0
               ? 'Hola bienvenido'
               : _currentIndex == 1
-              ? 'Presupuestos'
-              : _currentIndex == 2
-              ? 'Proyectos'
-              : 'Configuraciones',
+                  ? 'Presupuestos'
+                  : _currentIndex == 2
+                      ? 'Proyectos'
+                      : 'Configuraciones',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         centerTitle: false,
@@ -41,7 +44,30 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Container(color: Colors.grey.shade300, height: 1),
         ),
       ),
-      body: _screens[_currentIndex],
+      body: Column(
+        children: [
+          if (_currentIndex == 0) // Mostrar las tarjetas solo en la pantalla de inicio
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _InfoCard(
+                    title: 'Proyectos Activos',
+                    value: '$_activeProjects',
+                    color: Colors.blue,
+                  ),
+                  _InfoCard(
+                    title: 'Próximamente',
+                    value: '...',
+                    color: Colors.green,
+                  ),
+                ],
+              ),
+            ),
+          Expanded(child: _screens[_currentIndex]),
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -62,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ), //color del icono del boton
       ),
       bottomNavigationBar: BottomAppBar(
-        ////////
         shape: const CircularNotchedRectangle(),
         notchMargin: 6, //espacio entre el boton y el bottom app bar
         color: Colors.white, //color del bottom app bar
@@ -137,6 +162,54 @@ class _NavItem extends StatelessWidget {
           Icon(icon, color: color),
           const SizedBox(height: 4),
           Text(label, style: TextStyle(fontSize: 11, color: color)),
+        ],
+      ),
+    );
+  }
+}
+
+class _InfoCard extends StatelessWidget {
+  final String title;
+  final String value;
+  final Color color;
+
+  const _InfoCard({
+    required this.title,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.4,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
         ],
       ),
     );
