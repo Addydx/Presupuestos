@@ -3,6 +3,7 @@ import 'package:presupuesto_app/screens/settings/settings_screen.dart';
 import 'package:presupuesto_app/screens/presupuesto/presupuesto_screen.dart';
 import 'package:presupuesto_app/screens/proyectos/proyectos_screens.dart';
 import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,7 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _currentIndex == 0 ? 'Hola bienvenido' : _currentIndex == 1 ? 'Presupuestos' : _currentIndex == 2 ? 'Proyectos' : 'Configuraciones',
+          _currentIndex == 0
+              ? 'Hola bienvenido'
+              : _currentIndex == 1
+              ? 'Presupuestos'
+              : _currentIndex == 2
+              ? 'Proyectos'
+              : 'Configuraciones',
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         centerTitle: false,
@@ -35,26 +42,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: _screens[_currentIndex],
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const NewPresupuestoScrren(),
-            ),
+            MaterialPageRoute(builder: (_) => const NewPresupuestoScrren()),
           );
         },
         backgroundColor: Colors.white,
         elevation: 0,
         highlightElevation: 0,
-        shape: const CircleBorder(
-          side: BorderSide(color: Color(0xFFE5E5E5)),
-        ),
+        shape: const CircleBorder(side: BorderSide(color: Color(0xFFE5E5E5))),
         child: const Icon(Icons.add, color: Colors.black),
       ),
       bottomNavigationBar: BottomAppBar(
+        ///////
         shape: const CircularNotchedRectangle(),
         notchMargin: 6,
         color: Colors.white,
@@ -122,13 +125,7 @@ class _NavItem extends StatelessWidget {
         children: [
           Icon(icon, color: color),
           const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: color,
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 11, color: color)),
         ],
       ),
     );
