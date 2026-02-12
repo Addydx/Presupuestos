@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/proyecto.dart';
 
 class NuevoProyectoScreen extends StatefulWidget {
   const NuevoProyectoScreen({super.key});
@@ -136,14 +137,26 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // TODO: Guardar proyecto en base de datos
+                      // Crear el nuevo proyecto con un ID único
+                      final nuevoProyecto = Proyecto(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        nombreProyecto: _nombreProyectoController.text.trim(),
+                        nombreCliente: _nombreClienteController.text.trim(),
+                        descripcion:
+                            _descripcionController.text.trim().isEmpty
+                                ? null
+                                : _descripcionController.text.trim(),
+                      );
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Proyecto guardado correctamente'),
                           backgroundColor: Colors.green,
                         ),
                       );
-                      Navigator.pop(context);
+
+                      // Retornar el proyecto creado a la pantalla anterior
+                      Navigator.pop(context, nuevoProyecto);
                     }
                   },
                   style: ElevatedButton.styleFrom(

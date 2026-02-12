@@ -1,10 +1,42 @@
 import 'package:flutter/material.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
+import '../../models/proyecto.dart';
 
-//statelessWidget es una pantalla que no cambia.
-class ProyectosScreens extends StatelessWidget {
+/// StatefulWidget para manejar la lista de proyectos dinámicamente
+class ProyectosScreens extends StatefulWidget {
   const ProyectosScreens({super.key});
+
+  @override
+  State<ProyectosScreens> createState() => _ProyectosScreensState();
+}
+
+class _ProyectosScreensState extends State<ProyectosScreens> {
+  // Lista de proyectos que se actualiza dinámicamente
+  final List<Proyecto> _proyectos = [
+    // Proyecto de ejemplo inicial
+    Proyecto(
+      id: '1',
+      nombreProyecto: 'Casa Residencial García',
+      nombreCliente: 'Juan García López',
+      imagenPath: 'assets/images/construccion-de-una-casa-de-dos-pisos-1.webp',
+    ),
+  ];
+
+  /// Navega a la pantalla de nuevo proyecto y agrega el resultado a la lista
+  Future<void> _crearNuevoProyecto() async {
+    final nuevoProyecto = await Navigator.push<Proyecto>(
+      context,
+      MaterialPageRoute(builder: (context) => const NuevoProyectoScreen()),
+    );
+
+    // Si se retornó un proyecto, agregarlo a la lista
+    if (nuevoProyecto != null) {
+      setState(() {
+        _proyectos.add(nuevoProyecto);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +50,7 @@ class ProyectosScreens extends StatelessWidget {
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NuevoProyectoScreen(),
-                  ),
-                );
-              },
+              onPressed: _crearNuevoProyecto,
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text(
                 'Crear Nuevo Proyecto',
@@ -44,23 +69,63 @@ class ProyectosScreens extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          // Tarjeta de proyecto de ejemplo
-          _ProyectoCard(
-            nombreProyecto: 'Casa Residencial García',
-            nombreCliente: 'Juan García López',
-            imagenAsset:
-                'assets/images/construccion-de-una-casa-de-dos-pisos-1.webp',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => const ProyectosVista(
-                        nombreProyecto: 'Casa Residencial García',
+          // Lista de proyectos
+          Expanded(
+            child:
+                _proyectos.isEmpty
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.folder_open,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No hay proyectos',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Crea tu primer proyecto',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
                       ),
-                ),
-              );
-            },
+                    )
+                    : ListView.builder(
+                      itemCount: _proyectos.length,
+                      itemBuilder: (context, index) {
+                        final proyecto = _proyectos[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: _ProyectoCard(
+                            nombreProyecto: proyecto.nombreProyecto,
+                            nombreCliente: proyecto.nombreCliente,
+                            imagenAsset: proyecto.imagenPath,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ProyectosVista(
+                                        nombreProyecto: proyecto.nombreProyecto,
+                                      ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),
