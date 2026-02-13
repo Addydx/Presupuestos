@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
 import '../../models/proyecto.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 /// StatefulWidget para manejar la lista de proyectos dinámicamente
 class ProyectosScreens extends StatefulWidget {
@@ -13,15 +14,24 @@ class ProyectosScreens extends StatefulWidget {
 
 class _ProyectosScreensState extends State<ProyectosScreens> {
   // Lista de proyectos que se actualiza dinámicamente
-  final List<Proyecto> _proyectos = [
-    // Proyecto de ejemplo inicial
-    Proyecto(
-      id: '1',
-      nombreProyecto: 'Casa Residencial García',
-      nombreCliente: 'Juan García López',
-      imagenPath: 'assets/images/construccion-de-una-casa-de-dos-pisos-1.webp',
-    ),
-  ];
+  final List<Proyecto> _proyectos = [];
+  late Box<Proyecto> _proyectosBox;
+
+  @override
+  void initState() {
+    super.initState();
+    _initHive();
+  }
+
+  Future<void> _initHive() async {
+    await Hive.initFlutter();
+    Hive.registerAdapter(ProyectoAdapter());
+    _proyectosBox = await Hive.openBox<Proyecto>('proyectos');
+
+    setState(() {
+      _proyectos.addAll(_proyectosBox.values);
+    });
+  }
 
   /// Navega a la pantalla de nuevo proyecto y agrega el resultado a la lista
   Future<void> _crearNuevoProyecto() async {
@@ -34,8 +44,15 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
     if (nuevoProyecto != null) {
       setState(() {
         _proyectos.add(nuevoProyecto);
+        _proyectosBox.add(nuevoProyecto);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _proyectosBox.close();
+    super.dispose();
   }
 
   @override
