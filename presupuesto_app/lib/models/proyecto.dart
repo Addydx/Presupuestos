@@ -1,10 +1,25 @@
-/// Modelo de datos para representar un proyecto
+import 'package:hive/hive.dart';
+
+part 'proyecto.g.dart';
+
+@HiveType(typeId: 0)
 class Proyecto {
+  @HiveField(0)
   final String id;
+
+  @HiveField(1)
   final String nombreProyecto;
+
+  @HiveField(2)
   final String nombreCliente;
+
+  @HiveField(3)
   final String? descripcion;
+
+  @HiveField(4)
   final String? imagenPath;
+
+  @HiveField(5)
   final DateTime fechaCreacion;
 
   Proyecto({
@@ -16,7 +31,6 @@ class Proyecto {
     DateTime? fechaCreacion,
   }) : fechaCreacion = fechaCreacion ?? DateTime.now();
 
-  /// Crea una copia del proyecto con los campos modificados
   Proyecto copyWith({
     String? id,
     String? nombreProyecto,
