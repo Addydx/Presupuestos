@@ -30,6 +30,10 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
 
     setState(() {
       _proyectos.addAll(_proyectosBox.values);
+      debugPrint('Proyectos cargados desde Hive: \n');
+      for (var proyecto in _proyectos) {
+        debugPrint(proyecto.toString());
+      }
     });
   }
 
@@ -45,6 +49,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
       setState(() {
         _proyectos.add(nuevoProyecto);
         _proyectosBox.add(nuevoProyecto);
+        debugPrint('Proyecto guardado en Hive: ${nuevoProyecto.toString()}');
       });
     }
   }
