@@ -15,7 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
   // Lógica simple para el número de proyectos activos
-  int _activeProjects = 5; // Número de proyectos activos (puedes cambiarlo dinámicamente)
+  int _activeProjects =
+      5; // Número de proyectos activos (puedes cambiarlo dinámicamente)
 
   final List<Widget> _screens = [
     const Center(child: Text('Que onda ')),
@@ -30,23 +31,52 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: Text(
           _currentIndex == 0
-              ? 'Hola bienvenido'
+              ? 'Inicio'
               : _currentIndex == 1
-                  ? 'Presupuestos'
-                  : _currentIndex == 2
-                      ? 'Proyectos'
-                      : 'Configuraciones',
-          style: const TextStyle(fontWeight: FontWeight.w600),
+              ? 'Presupuestos'
+              : _currentIndex == 2
+              ? 'Proyectos'
+              : 'Configuraciones',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
-        centerTitle: false,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.grey.shade300, height: 1),
-        ),
+        centerTitle: true,
+        backgroundColor: const Color(0xFF4682B4), // Azul acero
+        elevation: 4,
+        actions: [
+          if (_currentIndex ==
+              3) // Mostrar un botón de ayuda solo en Configuraciones
+            IconButton(
+              icon: const Icon(Icons.help_outline, color: Colors.white),
+              onPressed: () {
+                // Acción del botón de ayuda
+                showDialog(
+                  context: context,
+                  builder:
+                      (context) => AlertDialog(
+                        title: const Text('Ayuda'),
+                        content: const Text(
+                          'Aquí puedes configurar tu aplicación.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cerrar'),
+                          ),
+                        ],
+                      ),
+                );
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
-          if (_currentIndex == 0) // Mostrar las tarjetas solo en la pantalla de inicio
+          if (_currentIndex ==
+              0) // Mostrar las tarjetas solo en la pantalla de inicio
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -55,12 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   _InfoCard(
                     title: 'Proyectos Activos',
                     value: '$_activeProjects',
-                    color: Colors.blue,
+                    color: const Color(0xFF4682B4), // Azul acero
                   ),
                   _InfoCard(
                     title: 'Próximamente',
                     value: '...',
-                    color: Colors.green,
+                    color: const Color(0xFF228B22), // Verde progreso
                   ),
                 ],
               ),
@@ -76,24 +106,24 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (_) => const NewPresupuestoScrren()),
           );
         },
-        backgroundColor: Colors.white, //color del boton
-        elevation: 0,
-        highlightElevation: 0,
+        backgroundColor: const Color(0xFFFFC300), // Amarillo primario
+        elevation: 6,
+        highlightElevation: 8,
         shape: const CircleBorder(
-          side: BorderSide(color: Color(0xFFE5E5E5)), //borde del boton
+          side: BorderSide(color: Colors.white), // Borde blanco para contraste
         ),
         child: const Icon(
           Icons.add,
-          color: Color.fromARGB(255, 7, 255, 11),
-        ), //color del icono del boton
+          color: Colors.white, // Icono blanco para consistencia
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
-        notchMargin: 6, //espacio entre el boton y el bottom app bar
-        color: Colors.white, //color del bottom app bar
+        notchMargin: 6, // Espacio entre el botón y el bottom app bar
+        color: const Color(0xFF4682B4), // Azul acero
         clipBehavior:
-            Clip.antiAlias, //para que el boton se vea bien con el bottom app bar
-        elevation: 6, //sobra del bottom app bar
+            Clip.antiAlias, // Para que el botón se vea bien con el bottom app bar
+        elevation: 6, // Sombra del bottom app bar
         child: SizedBox(
           height: 64,
           child: Row(
@@ -101,28 +131,29 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _NavItem(
                 icon: Icons.home,
-                label: '',
+                label: 'Inicio',
                 index: 0,
                 currentIndex: _currentIndex,
                 onTap: () => setState(() => _currentIndex = 0),
               ),
               _NavItem(
                 icon: Icons.wallet,
-                label: '',
+                label: 'Presupuestos',
                 index: 1,
                 currentIndex: _currentIndex,
                 onTap: () => setState(() => _currentIndex = 1),
               ),
+              const SizedBox(width: 48), // Espacio para el botón flotante
               _NavItem(
                 icon: Icons.folder,
-                label: '',
+                label: 'Proyectos',
                 index: 2,
                 currentIndex: _currentIndex,
                 onTap: () => setState(() => _currentIndex = 2),
               ),
               _NavItem(
                 icon: Icons.settings,
-                label: '',
+                label: 'Configuración',
                 index: 3,
                 currentIndex: _currentIndex,
                 onTap: () => setState(() => _currentIndex = 3),
