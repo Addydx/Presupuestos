@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
 
 class NewPresupuestoScrren extends StatefulWidget {
-  const NewPresupuestoScrren({super.key});
+  final String proyectoId;
+  const NewPresupuestoScrren({super.key, required this.proyectoId});
 
   @override
   State<NewPresupuestoScrren> createState() => _NewPresupuestoScrrenState();
@@ -164,13 +166,14 @@ class _NewPresupuestoScrrenState extends State<NewPresupuestoScrren> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Aquí puedes manejar el guardado del presupuesto
-                      print(
-                        'Presupuesto guardado: ${_nombrePresupuestoController.text}',
+                      final presupuesto = Presupuesto(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        nombre: _nombrePresupuestoController.text.trim(),
+                        descripcion: _descripcionController.text.trim(),
+                        gastos: _gastos,
+                        proyectoId: widget.proyectoId,//se tiene que realcionar con un proyecto existente
                       );
-                      print('Descripción: ${_descripcionController.text}');
-                      print('Gastos: $_gastos');
-                      Navigator.pop(context);
+                      Navigator.pop(context, presupuesto);
                     }
                   },
                   style: ElevatedButton.styleFrom(

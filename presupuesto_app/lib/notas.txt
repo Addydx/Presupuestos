@@ -1,0 +1,7 @@
+Home -> 
+Mostrar proyectos activos.
+Mostrar presupuestos recientes.
+Proyectos en espera.
+Enconces el presupuesto/proyecto debe tener la posiblidad de seleccionar un estado
+Activo/Terminado/Completado/Finalizado o lo que sea habra que pensar cuales son los estados.
+

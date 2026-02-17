@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'proyecto.dart';
+part of 'Proyectos/proyecto.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator

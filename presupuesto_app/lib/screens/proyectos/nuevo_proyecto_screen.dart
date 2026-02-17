@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/proyecto.dart';
+import '../../models/Proyectos/proyecto.dart';
 
 class NuevoProyectoScreen extends StatefulWidget {
   const NuevoProyectoScreen({super.key});

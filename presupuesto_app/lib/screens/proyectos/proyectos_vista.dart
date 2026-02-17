@@ -1,29 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
 
 class ProyectosVista extends StatelessWidget {
-  final String nombreProyecto;
+  // Recibimos el proyecto completo porque en la vista se usan varios datos
+  // (nombre del proyecto, cliente y descripción).
+  final Proyecto proyecto;
 
-  const ProyectosVista({super.key, required this.nombreProyecto});
+  const ProyectosVista({super.key, required this.proyecto});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(nombreProyecto)),
-      body: Center(
+      appBar: AppBar(title: Text(proyecto.nombreProyecto)),
+      body: Padding(
+        padding: const EdgeInsets.all(16),//esto sirve para darle un poco de espacio a los bordes de la pantalla
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.construction, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
             Text(
-              'Detalles del proyecto',
-              style: TextStyle(fontSize: 20, color: Colors.grey[600]),
+              proyecto.nombreProyecto, 
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
-              'Próximamente...',
-              style: TextStyle(fontSize: 16, color: Colors.grey[400]),
+              'Cliente: ${proyecto.nombreCliente}',
+              style: const TextStyle(fontSize: 16),//esto es para mostrar el nombre del cliente
             ),
+            const SizedBox(height:10),
+            if (proyecto.descripcion !=null)//esto es para mostrar la descripcion del proyecto si es que existe
+            Text(proyecto.descripcion!),
           ],
         ),
       ),

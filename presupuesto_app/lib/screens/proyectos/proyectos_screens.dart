@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
-import '../../models/proyecto.dart';
+import '../../models/Proyectos/proyecto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// StatefulWidget para manejar la lista de proyectos dinámicamente
@@ -139,7 +139,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) => ProyectosVista(
-                                        nombreProyecto: proyecto.nombreProyecto,
+                                        proyecto: proyecto,
                                       ),
                                 ),
                               );
