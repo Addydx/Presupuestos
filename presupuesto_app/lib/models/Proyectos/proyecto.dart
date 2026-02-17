@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 
-part '../proyecto.g.dart';
+part 'proyecto.g.dart';
 
 @HiveType(typeId: 0)
 class Proyecto {

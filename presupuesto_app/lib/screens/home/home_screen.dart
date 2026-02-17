@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/screens/settings/settings_screen.dart';
-import 'package:presupuesto_app/screens/presupuesto/presupuesto_screen.dart';
 import 'package:presupuesto_app/screens/proyectos/proyectos_screens.dart';
-import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const Center(child: Text('Que onda ')),
-    const PresupuestoScreen(),
     const ProyectosScreens(),
     const SettingsScreen(),
   ];
@@ -33,19 +30,33 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentIndex == 0
               ? 'Inicio'
               : _currentIndex == 1
-              ? 'Presupuestos'
-              : _currentIndex == 2
               ? 'Proyectos'
               : 'Configuraciones',
           style: const TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
             fontSize: 20,
+            letterSpacing: 0.2,
             color: Colors.white,
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFF4682B4), // Azul acero
-        elevation: 4,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 6,
+        shadowColor: Colors.black.withOpacity(0.2),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4682B4), Color(0xFF2E5F8A)],
+            ),
+          ),
+        ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),
+        ),
+        toolbarHeight: 64,
         actions: [
           if (_currentIndex ==
               3) // Mostrar un botón de ayuda solo en Configuraciones
@@ -98,25 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(child: _screens[_currentIndex]),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const NewPresupuestoScrren()),
-          );
-        },
-        backgroundColor: const Color(0xFFFFC300), // Amarillo primario
-        elevation: 6,
-        highlightElevation: 8,
-        shape: const CircleBorder(
-          side: BorderSide(color: Colors.white), // Borde blanco para contraste
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white, // Icono blanco para consistencia
-        ),
-      ),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 6, // Espacio entre el botón y el bottom app bar
@@ -137,26 +129,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () => setState(() => _currentIndex = 0),
               ),
               _NavItem(
-                icon: Icons.wallet,
-                label: 'Presupuestos',
+                icon: Icons.folder,
+                label: 'Proyectos',
                 index: 1,
                 currentIndex: _currentIndex,
                 onTap: () => setState(() => _currentIndex = 1),
               ),
-              const SizedBox(width: 48), // Espacio para el botón flotante
-              _NavItem(
-                icon: Icons.folder,
-                label: 'Proyectos',
-                index: 2,
-                currentIndex: _currentIndex,
-                onTap: () => setState(() => _currentIndex = 2),
-              ),
               _NavItem(
                 icon: Icons.settings,
                 label: 'Configuración',
-                index: 3,
+                index: 2,
                 currentIndex: _currentIndex,
-                onTap: () => setState(() => _currentIndex = 3),
+                onTap: () => setState(() => _currentIndex = 2),
               ),
             ],
           ),
