@@ -15,9 +15,8 @@ class ProyectosVista extends StatefulWidget {
 }
 
 class _ProyectosVistaState extends State<ProyectosVista> {
-  Presupuesto? _presupuesto;
-    List<Presupuesto> _presupuestos = [];
-//añadir esta nueva para luego modificarla en la mac
+  List<Presupuesto> _presupuestos = [];
+  //añadir esta nueva para luego modificarla en la mac
 
   Future<void> _crearPresupuesto() async {
     final nuevoPresupuesto = await Navigator.push<Presupuesto>(
@@ -30,7 +29,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
 
     if (nuevoPresupuesto != null) {
       setState(() {
-        _presupuesto = nuevoPresupuesto;
+        _presupuestos.add(nuevoPresupuesto);
       });
     }
   }
@@ -49,6 +48,11 @@ class _ProyectosVistaState extends State<ProyectosVista> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.proyecto.nombreProyecto)),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _crearPresupuesto,
+        icon: const Icon(Icons.add),
+        label: const Text('Nuevo Presupuesto'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -78,25 +82,12 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                     const SizedBox(height: 10),
                     Text(widget.proyecto.descripcion!),
                   ],
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _crearPresupuesto,
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                        _presupuesto == null
-                            ? 'Crear presupuesto'
-                            : 'Reemplazar presupuesto',
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          if (_presupuesto == null)
+          if (_presupuestos.isEmpty)
             Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
@@ -117,36 +108,36 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _presupuesto!.nombre,
+                      _presupuestos.last.nombre,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    if (_presupuesto!.descripcion != null &&
-                        _presupuesto!.descripcion!.trim().isNotEmpty) ...[
+                    if (_presupuestos.last.descripcion != null &&
+                        _presupuestos.last.descripcion!.trim().isNotEmpty) ...[
                       const SizedBox(height: 8),
-                      Text(_presupuesto!.descripcion!),
+                      Text(_presupuestos.last.descripcion!),
                     ],
                     const SizedBox(height: 12),
                     Text(
-                      'Total: ${_calcularTotal(_presupuesto!.gastos).toStringAsFixed(2)}',
+                      'Total: ${_calcularTotal(_presupuestos.last.gastos).toStringAsFixed(2)}',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (_presupuesto!.gastos.isEmpty)
+                    if (_presupuestos.last.gastos.isEmpty)
                       const Text('Sin gastos registrados.')
                     else
                       ListView.separated(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _presupuesto!.gastos.length,
+                        itemCount: _presupuestos.last.gastos.length,
                         separatorBuilder: (_, __) => const Divider(height: 16),
                         itemBuilder: (context, index) {
-                          final gasto = _presupuesto!.gastos[index];
+                          final gasto = _presupuestos.last.gastos[index];
                           final nombre = (gasto['nombre'] ?? '').toString();
                           final montoValor = gasto['monto'];
                           final monto =
