@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
+import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
 
-class ProyectosVista extends StatelessWidget {
+class ProyectosVista extends StatefulWidget {
   // Recibimos el proyecto completo porque en la vista se usan varios datos
   // (nombre del proyecto, cliente y descripción).
   final Proyecto proyecto;
@@ -9,28 +11,164 @@ class ProyectosVista extends StatelessWidget {
   const ProyectosVista({super.key, required this.proyecto});
 
   @override
+  State<ProyectosVista> createState() => _ProyectosVistaState();
+}
+
+class _ProyectosVistaState extends State<ProyectosVista> {
+  Presupuesto? _presupuesto;
+    List<Presupuesto> _presupuestos = [];
+//añadir esta nueva para luego modificarla en la mac
+
+  Future<void> _crearPresupuesto() async {
+    final nuevoPresupuesto = await Navigator.push<Presupuesto>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => NewPresupuestoScrren(proyectoId: widget.proyecto.id),
+      ),
+    );
+
+    if (nuevoPresupuesto != null) {
+      setState(() {
+        _presupuesto = nuevoPresupuesto;
+      });
+    }
+  }
+
+  double _calcularTotal(List<Map<String, dynamic>> gastos) {
+    return gastos.fold<double>(0, (acumulado, gasto) {
+      final monto = gasto['monto'];
+      if (monto is num) {
+        return acumulado + monto.toDouble();
+      }
+      return acumulado;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(proyecto.nombreProyecto)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),//esto sirve para darle un poco de espacio a los bordes de la pantalla
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              proyecto.nombreProyecto, 
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+      appBar: AppBar(title: Text(widget.proyecto.nombreProyecto)),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Cliente: ${proyecto.nombreCliente}',
-              style: const TextStyle(fontSize: 16),//esto es para mostrar el nombre del cliente
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.proyecto.nombreProyecto,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Cliente: ${widget.proyecto.nombreCliente}',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  if (widget.proyecto.descripcion != null &&
+                      widget.proyecto.descripcion!.trim().isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(widget.proyecto.descripcion!),
+                  ],
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _crearPresupuesto,
+                      icon: const Icon(Icons.add),
+                      label: Text(
+                        _presupuesto == null
+                            ? 'Crear presupuesto'
+                            : 'Reemplazar presupuesto',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height:10),
-            if (proyecto.descripcion !=null)//esto es para mostrar la descripcion del proyecto si es que existe
-            Text(proyecto.descripcion!),
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          if (_presupuesto == null)
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('Este proyecto aún no tiene presupuesto.'),
+              ),
+            )
+          else
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _presupuesto!.nombre,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (_presupuesto!.descripcion != null &&
+                        _presupuesto!.descripcion!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(_presupuesto!.descripcion!),
+                    ],
+                    const SizedBox(height: 12),
+                    Text(
+                      'Total: ${_calcularTotal(_presupuesto!.gastos).toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (_presupuesto!.gastos.isEmpty)
+                      const Text('Sin gastos registrados.')
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _presupuesto!.gastos.length,
+                        separatorBuilder: (_, __) => const Divider(height: 16),
+                        itemBuilder: (context, index) {
+                          final gasto = _presupuesto!.gastos[index];
+                          final nombre = (gasto['nombre'] ?? '').toString();
+                          final montoValor = gasto['monto'];
+                          final monto =
+                              montoValor is num ? montoValor.toDouble() : 0.0;
+
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  nombre.isEmpty ? 'Gasto sin nombre' : nombre,
+                                ),
+                              ),
+                              Text(monto.toStringAsFixed(2)),
+                            ],
+                          );
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
