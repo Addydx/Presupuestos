@@ -2,26 +2,26 @@ import 'package:hive/hive.dart';
 
 // Este import es necesario para que Dart reconozca HiveType, HiveField y HiveObject.
 @HiveType(typeId: 1)
-class Presupuesto extends HiveObject {
+class Presupuesto {
   @HiveField(0)
-  String id;
+  final String id;
 
   @HiveField(1)
-  String nombre;
+  final String nombre;
 
   @HiveField(2)
-  String? descripcion;
+  final String descripcion;
 
   @HiveField(3)
-  List<Map<String, dynamic>> gastos;
+  final List<Map<String, dynamic>> gastos;
 
   @HiveField(4)
-  String proyectoId;
+  final String proyectoId;
 
   Presupuesto({
     required this.id,
     required this.nombre,
-    this.descripcion,
+    required this.descripcion,
     required this.gastos,
     required this.proyectoId,
   });

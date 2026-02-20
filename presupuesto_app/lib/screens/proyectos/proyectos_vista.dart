@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
 import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
+import 'package:hive/hive.dart';
 
 class ProyectosVista extends StatefulWidget {
-  // Recibimos el proyecto completo porque en la vista se usan varios datos
-  // (nombre del proyecto, cliente y descripción).
   final Proyecto proyecto;
 
   const ProyectosVista({super.key, required this.proyecto});
@@ -16,7 +15,26 @@ class ProyectosVista extends StatefulWidget {
 
 class _ProyectosVistaState extends State<ProyectosVista> {
   List<Presupuesto> _presupuestos = [];
-  //añadir esta nueva para luego modificarla en la mac
+
+  @override
+  void initState() {
+    super
+        .initState(); // Esto es para cargar los presupuestos del proyecto al iniciar
+    _cargarPresupuestos();
+  }
+
+  void _cargarPresupuestos() {
+    final box = Hive.box<Presupuesto>('presupuestos');
+    if (!box.isOpen) {
+      throw Exception('La caja de presupuestos no está abierta');
+    }
+    final todos =
+        box.values.where((p) => p.proyectoId == widget.proyecto.id).toList();
+    setState(() {
+      _presupuestos = todos;
+    });
+    print(_presupuestos.length);
+  }
 
   Future<void> _crearPresupuesto() async {
     final nuevoPresupuesto = await Navigator.push<Presupuesto>(
@@ -98,66 +116,53 @@ class _ProyectosVistaState extends State<ProyectosVista> {
               ),
             )
           else
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _presupuestos.last.nombre,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
+            ListView.builder(
+              //esto es una lista de presupuestos
+              shrinkWrap:
+                  true, //esto es para que la lista se adapte al contenido
+              physics:
+                  const NeverScrollableScrollPhysics(), //esto es para que la lista no sea scrolleable
+              itemCount:
+                  _presupuestos
+                      .length, //esto es para que la lista tenga el mismo numero de elementos que presupuestos
+              itemBuilder: (context, index) {
+                //esto es para construir cada elmento de la lista
+                final presupuesto =
+                    _presupuestos[index]; //esto es para obtener el presupuesto en la posicion index
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    //shape es para darle forma a la tarjeta
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Padding(
+                    //esto es para darle espacio a la tarjeta
+                    padding: const EdgeInsets.all(
+                      16,
+                    ), //esto es para darle espacio a la tarjeta
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          presupuesto.nombre,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (presupuesto.descripcion != null &&
+                            presupuesto.descripcion!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(presupuesto.descripcion!),
+                        ],
+                        const SizedBox(height: 12),
+                        Text(
+                          'Total: \$${_calcularTotal(presupuesto.gastos).toStringAsFixed(2)}',
+                        ),
+                      ],
                     ),
-                    if (_presupuestos.last.descripcion != null &&
-                        _presupuestos.last.descripcion!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(_presupuestos.last.descripcion!),
-                    ],
-                    const SizedBox(height: 12),
-                    Text(
-                      'Total: ${_calcularTotal(_presupuestos.last.gastos).toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    if (_presupuestos.last.gastos.isEmpty)
-                      const Text('Sin gastos registrados.')
-                    else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _presupuestos.last.gastos.length,
-                        separatorBuilder: (_, __) => const Divider(height: 16),
-                        itemBuilder: (context, index) {
-                          final gasto = _presupuestos.last.gastos[index];
-                          final nombre = (gasto['nombre'] ?? '').toString();
-                          final montoValor = gasto['monto'];
-                          final monto =
-                              montoValor is num ? montoValor.toDouble() : 0.0;
-
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  nombre.isEmpty ? 'Gasto sin nombre' : nombre,
-                                ),
-                              ),
-                              Text(monto.toStringAsFixed(2)),
-                            ],
-                          );
-                        },
-                      ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
         ],
       ),
