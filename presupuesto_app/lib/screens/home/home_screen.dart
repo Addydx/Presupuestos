@@ -17,7 +17,7 @@ class _HomeScreenState extends State<HomeScreen> {
       5; // Número de proyectos activos (puedes cambiarlo dinámicamente)
 
   final List<Widget> _screens = [
-    const Center(child: Text('Que onda ')),
+    const Center(child: Text('Proximamente ')),
     const ProyectosScreens(),
     const SettingsScreen(),
   ];
