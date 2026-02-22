@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
+import 'package:hive/hive.dart';
 
 class NewPresupuestoScrren extends StatefulWidget {
-  const NewPresupuestoScrren({super.key});
+  final String proyectoId;
+  const NewPresupuestoScrren({super.key, required this.proyectoId});
 
   @override
   State<NewPresupuestoScrren> createState() => _NewPresupuestoScrrenState();
@@ -162,15 +165,21 @@ class _NewPresupuestoScrrenState extends State<NewPresupuestoScrren> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // Aquí puedes manejar el guardado del presupuesto
-                      print(
-                        'Presupuesto guardado: ${_nombrePresupuestoController.text}',
+                      final presupuesto = Presupuesto(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        nombre: _nombrePresupuestoController.text.trim(),
+                        descripcion: _descripcionController.text.trim(),
+                        gastos: List<Map<String, dynamic>>.from(_gastos),
+                        proyectoId:
+                            widget
+                                .proyectoId, //se tiene que realcionar con un proyecto existente
                       );
-                      print('Descripción: ${_descripcionController.text}');
-                      print('Gastos: $_gastos');
-                      Navigator.pop(context);
+                      final box = Hive.box<Presupuesto>('Presupuestos');
+                      await box.put(presupuesto.id, presupuesto);
+
+                      Navigator.pop(context, presupuesto);
                     }
                   },
                   style: ElevatedButton.styleFrom(

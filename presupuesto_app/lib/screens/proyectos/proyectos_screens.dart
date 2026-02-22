@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
-import '../../models/proyecto.dart';
+import '../../models/Proyectos/proyecto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// StatefulWidget para manejar la lista de proyectos dinámicamente
@@ -20,21 +20,12 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
   @override
   void initState() {
     super.initState();
-    _initHive();
-  }
-
-  Future<void> _initHive() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(ProyectoAdapter());
-    _proyectosBox = await Hive.openBox<Proyecto>('proyectos');
-
-    setState(() {
-      _proyectos.addAll(_proyectosBox.values);
-      debugPrint('Proyectos cargados desde Hive: \n');
-      for (var proyecto in _proyectos) {
-        debugPrint(proyecto.toString());
-      }
-    });
+    _proyectosBox = Hive.box<Proyecto>('proyectos');
+    _proyectos.addAll(_proyectosBox.values);
+    debugPrint('Proyectos cargados desde Hive: \n');
+    for (var proyecto in _proyectos) {
+      debugPrint(proyecto.toString());
+    }
   }
 
   /// Navega a la pantalla de nuevo proyecto y agrega el resultado a la lista
@@ -56,7 +47,6 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
 
   @override
   void dispose() {
-    _proyectosBox.close();
     super.dispose();
   }
 
@@ -138,9 +128,8 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => ProyectosVista(
-                                        nombreProyecto: proyecto.nombreProyecto,
-                                      ),
+                                      (context) =>
+                                          ProyectosVista(proyecto: proyecto),
                                 ),
                               );
                             },
