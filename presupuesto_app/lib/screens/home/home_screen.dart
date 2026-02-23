@@ -12,10 +12,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  // Lógica simple para el número de proyectos activos
-  int _activeProjects =
-      5; // Número de proyectos activos (puedes cambiarlo dinámicamente)
-
   final List<Widget> _screens = [
     const Center(child: Text('Proximamente ')),
     const ProyectosScreens(),
@@ -84,31 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          if (_currentIndex ==
-              0) // Mostrar las tarjetas solo en la pantalla de inicio
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _InfoCard(
-                    title: 'Proyectos Activos',
-                    value: '$_activeProjects',
-                    color: const Color(0xFF4682B4), // Azul acero
-                  ),
-                  _InfoCard(
-                    title: 'Próximamente',
-                    value: '...',
-                    color: const Color(0xFF228B22), // Verde progreso
-                  ),
-                ],
-              ),
-            ),
-          Expanded(child: _screens[_currentIndex]),
-        ],
-      ),
+      body: Column(children: [Expanded(child: _screens[_currentIndex])]),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 6, // Espacio entre el botón y el bottom app bar
@@ -177,54 +149,6 @@ class _NavItem extends StatelessWidget {
           Icon(icon, color: color),
           const SizedBox(height: 4),
           Text(label, style: TextStyle(fontSize: 11, color: color)),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final Color color;
-
-  const _InfoCard({
-    required this.title,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
         ],
       ),
     );
