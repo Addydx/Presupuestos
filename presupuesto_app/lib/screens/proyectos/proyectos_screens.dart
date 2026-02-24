@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/screens/settings/settings_screen.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
 import '../../models/Proyectos/proyecto.dart';
@@ -52,93 +53,109 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Botón de crear nuevo proyecto
-          SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: _crearNuevoProyecto,
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
-                'Crear Nuevo Proyecto',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Proyectos'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Botón de crear nuevo proyecto
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: _crearNuevoProyecto,
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text(
+                  'Crear Nuevo Proyecto',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          // Lista de proyectos
-          Expanded(
-            child:
-                _proyectos.isEmpty
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.folder_open,
-                            size: 64,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No hay proyectos',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.grey[600],
+            const SizedBox(height: 20),
+            // Lista de proyectos
+            Expanded(
+              child:
+                  _proyectos.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.folder_open,
+                              size: 64,
+                              color: Colors.grey[400],
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Crea tu primer proyecto',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
+                            const SizedBox(height: 16),
+                            Text(
+                              'No hay proyectos',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.grey[600],
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              'Crea tu primer proyecto',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount: _proyectos.length,
+                        itemBuilder: (context, index) {
+                          final proyecto = _proyectos[index];
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: _ProyectoCard(
+                              nombreProyecto: proyecto.nombreProyecto,
+                              nombreCliente: proyecto.nombreCliente,
+                              imagenAsset: proyecto.imagenPath,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            ProyectosVista(proyecto: proyecto),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
                       ),
-                    )
-                    : ListView.builder(
-                      itemCount: _proyectos.length,
-                      itemBuilder: (context, index) {
-                        final proyecto = _proyectos[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: _ProyectoCard(
-                            nombreProyecto: proyecto.nombreProyecto,
-                            nombreCliente: proyecto.nombreCliente,
-                            imagenAsset: proyecto.imagenPath,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          ProyectosVista(proyecto: proyecto),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
