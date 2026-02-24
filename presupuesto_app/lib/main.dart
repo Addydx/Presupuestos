@@ -24,11 +24,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Login Presupuesto App',
-      home: HomeScreen(),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white, // Fondo blanco predeterminado
+        primarySwatch: Colors.blue,
+      ),
+      home: const HomeScreen(),
     );
   }
 }
