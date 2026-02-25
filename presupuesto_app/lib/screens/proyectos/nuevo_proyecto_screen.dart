@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/Proyectos/proyecto.dart';
+import '../../models/proyectos/proyecto.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
