@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:hive/hive.dart';
 
 class NewPresupuestoScrren extends StatefulWidget {

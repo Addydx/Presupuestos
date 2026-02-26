@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:presupuesto_app/screens/settings/settings_screen.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
-import '../../models/Proyectos/proyecto.dart';
+import '../../models/proyectos/proyecto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 /// StatefulWidget para manejar la lista de proyectos dinámicamente

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
-import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
 import 'package:hive/hive.dart';
 

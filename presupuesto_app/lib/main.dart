@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
-import 'package:presupuesto_app/screens/proyectos/proyectos_screens.dart';
-import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
-import 'package:presupuesto_app/models/Presupuesto/presupuesto.g.dart';
+
+import 'package:presupuesto_app/models/proyectos/proyecto.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.g.dart';
+
+import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
+
   Hive.registerAdapter(ProyectoAdapter());
   Hive.registerAdapter(PresupuestoAdapter());
+
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');
 
@@ -30,7 +34,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white, // Fondo blanco predeterminado
         primarySwatch: Colors.blue,
       ),
-      home: const ProyectosScreens(),
+      home: const SplashScreen(),
     );
   }
 }
