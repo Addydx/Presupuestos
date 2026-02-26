@@ -54,18 +54,8 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Proyectos'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
+      appBar: AppBar(title: const Text('Proyectos'), actions: [
+          
         ],
       ),
       body: Padding(
