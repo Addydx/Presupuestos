@@ -1,9 +1,10 @@
 import 'package:hive/hive.dart';
-import '../gastoReal/gasto.dart';
+import 'package:presupuesto_app/models/presupuesto/gastoReal.dart';
+
+part 'presupuesto.g.dart';
 
 @HiveType(typeId: 1)
 class Presupuesto extends HiveObject {
-
   @HiveField(0)
   String id;
 
@@ -39,14 +40,12 @@ class Presupuesto extends HiveObject {
     DateTime? fechaCreacion,
   }) : fechaCreacion = fechaCreacion ?? DateTime.now();
 
-  double get totalDirectos =>
-      costosDirectos.fold(0, (sum, g) => sum + g.monto);
+  double get totalDirectos => costosDirectos.fold(0, (sum, g) => sum + g.monto);
 
   double get totalIndirectos =>
       costosIndirectos.fold(0, (sum, g) => sum + g.monto);
 
   double get subtotal => totalDirectos + totalIndirectos;
 
-  double get totalFinal =>
-      subtotal + (subtotal * margenGanancia / 100);
+  double get totalFinal => subtotal + (subtotal * margenGanancia / 100);
 }

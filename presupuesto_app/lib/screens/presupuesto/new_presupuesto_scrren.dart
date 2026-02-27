@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/models/Presupuesto/gasto.dart';
+import 'package:presupuesto_app/models/presupuesto/gastoReal.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:hive/hive.dart';
 
@@ -168,14 +168,25 @@ class _NewPresupuestoScrrenState extends State<NewPresupuestoScrren> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      final costosDirectos =
+                          _gastos.map((g) {
+                            return Gasto(
+                              nombre: g['nombre'],
+                              monto: g['monto'],
+                              tipo: 'directo',
+                            );
+                          }).toList();
+
                       final presupuesto = Presupuesto(
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
                         nombre: _nombrePresupuestoController.text.trim(),
                         descripcion: _descripcionController.text.trim(),
-                        gastos: List<Map<String, dynamic>>.from(_gastos),
-                        proyectoId:
-                            widget.proyectoId, //se tiene que realcionar con un proyecto existente
+                        costosDirectos: costosDirectos,
+                        costosIndirectos: [],
+                        margenGanancia: 0,
+                        proyectoId: widget.proyectoId,
                       );
+
                       final box = Hive.box<Presupuesto>('presupuestos');
                       await box.put(presupuesto.id, presupuesto);
 

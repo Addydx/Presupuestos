@@ -4,7 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
-import 'package:presupuesto_app/models/presupuesto/presupuesto.g.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 

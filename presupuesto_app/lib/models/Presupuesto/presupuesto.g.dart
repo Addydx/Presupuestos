@@ -1,5 +1,10 @@
-import 'package:hive/hive.dart';
-import 'presupuesto.dart';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'presupuesto.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
   @override
@@ -15,22 +20,18 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
       id: fields[0] as String,
       nombre: fields[1] as String,
       descripcion: fields[2] as String,
-      gastos:
-          (fields[3] as List<dynamic>)
-              .map(
-                (dynamic e) => (e as Map<dynamic, dynamic>).map(
-                  (key, value) => MapEntry(key as String, value),
-                ),
-              )
-              .toList(),
-      proyectoId: fields[4] as String,
+      costosDirectos: (fields[3] as List).cast<Gasto>(),
+      costosIndirectos: (fields[4] as List).cast<Gasto>(),
+      margenGanancia: fields[5] as double,
+      proyectoId: fields[6] as String,
+      fechaCreacion: fields[7] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Presupuesto obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,9 +39,15 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
       ..writeByte(2)
       ..write(obj.descripcion)
       ..writeByte(3)
-      ..write(obj.gastos.map((gasto) => gasto.cast<String, dynamic>()).toList())
+      ..write(obj.costosDirectos)
       ..writeByte(4)
-      ..write(obj.proyectoId);
+      ..write(obj.costosIndirectos)
+      ..writeByte(5)
+      ..write(obj.margenGanancia)
+      ..writeByte(6)
+      ..write(obj.proyectoId)
+      ..writeByte(7)
+      ..write(obj.fechaCreacion);
   }
 
   @override
