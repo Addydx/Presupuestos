@@ -64,14 +64,14 @@ class _ProyectosVistaState extends State<ProyectosVista> {
   }
 
   SliverAppBar _buildHeader() {//esto es para construir el header del proyecto, con la imagen y el nombre del proyecto
-    return SliverAppBar(
+    return SliverAppBar(s
       expandedHeight: 180,//esto es para que el header tenga una altura de 180 pixeles
       pinned: true,
       backgroundColor: Colors.white,//esto es para que el header tenga un fondo blanco
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
-          children: [
+          children: [s
             widget.proyecto.imagenPath != null &&//esto es para mostrar la imagen del proyecto si es que tiene una, y si no tiene una imagen se muestra un contenedor gris
                     widget.proyecto.imagenPath!.isNotEmpty//esto es para verificar que la ruta de la imagen no este vacia
                 ? Image.file(//aqui se muestra la imagen del proyecto, y se usa Image.file para mostrar la imagen desde el sistema de archivos, y se le pasa la ruta de la imagen que se guardo en el proyecto

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Presupuesto/gasto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:hive/hive.dart';
 
@@ -173,10 +174,9 @@ class _NewPresupuestoScrrenState extends State<NewPresupuestoScrren> {
                         descripcion: _descripcionController.text.trim(),
                         gastos: List<Map<String, dynamic>>.from(_gastos),
                         proyectoId:
-                            widget
-                                .proyectoId, //se tiene que realcionar con un proyecto existente
+                            widget.proyectoId, //se tiene que realcionar con un proyecto existente
                       );
-                      final box = Hive.box<Presupuesto>('Presupuestos');
+                      final box = Hive.box<Presupuesto>('presupuestos');
                       await box.put(presupuesto.id, presupuesto);
 
                       Navigator.pop(context, presupuesto);
