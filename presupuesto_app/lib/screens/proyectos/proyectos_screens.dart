@@ -5,6 +5,8 @@ import 'nuevo_proyecto_screen.dart';
 import '../../models/proyectos/proyecto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'dart:io';
+
 /// StatefulWidget para manejar la lista de proyectos dinámicamente
 class ProyectosScreens extends StatefulWidget {
   const ProyectosScreens({super.key});
@@ -185,9 +187,9 @@ class _ProyectoCard extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(color: Colors.grey[300]),
                   child:
-                      imagenAsset != null
-                          ? Image.asset(
-                            imagenAsset!,
+                      imagenAsset != null && imagenAsset!.isNotEmpty//esto es para mostrar la imagen del proyecto si existe, sino muestra un icono por defecto
+                          ? Image.file(
+                            File(imagenAsset!),
                             fit: BoxFit.cover,
                             width: double.infinity,
                           )
