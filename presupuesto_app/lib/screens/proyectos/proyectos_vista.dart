@@ -3,6 +3,7 @@ import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
 import 'package:hive/hive.dart';
+import 'dart:io';
 
 class ProyectosVista extends StatefulWidget {
   final Proyecto proyecto;
@@ -64,6 +65,17 @@ class _ProyectosVistaState extends State<ProyectosVista> {
 
   @override
   Widget build(BuildContext context) {
+    print('Ruta de la imagen: \\${widget.proyecto.imagenPath}');
+    if (widget.proyecto.imagenPath != null) {
+      final existeImagen = File(widget.proyecto.imagenPath!).existsSync();
+      print('¿Existe la imagen?: \\${existeImagen}');
+      if (!existeImagen) {
+        print('Advertencia: La imagen no se encuentra en la ruta especificada.');
+      }
+    } else {
+      print('Advertencia: No se ha proporcionado una ruta para la imagen.');
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.proyecto.nombreProyecto)),
       floatingActionButton: FloatingActionButton.extended(
@@ -71,98 +83,107 @@ class _ProyectosVistaState extends State<ProyectosVista> {
         icon: const Icon(Icons.add),
         label: const Text('Nuevo Presupuesto'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+      body: CustomScrollView(
+        slivers: [
+          // HEADER CON IMAGEN
+          SliverAppBar(
+            expandedHeight: 260,
+            pinned: true,
+            floating: false,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(widget.proyecto.nombreProyecto),
+              background:
+                  widget.proyecto.imagenPath != null &&
+                          File(widget.proyecto.imagenPath!).existsSync()
+                      ? Image.file(
+                        File(widget.proyecto.imagenPath!),
+                        fit: BoxFit.cover,
+                      )
+                      : Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image, size: 80),
+                      ),
             ),
+          ),
+
+          // INFORMACIÓN DEL PROYECTO
+          SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.proyecto.nombreProyecto,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    'Cliente: ${widget.proyecto.nombreCliente}',
+                    style: const TextStyle(fontSize: 18),
                   ),
                   const SizedBox(height: 10),
-                  Text(
-                    'Cliente: ${widget.proyecto.nombreCliente}',
-                    style: const TextStyle(fontSize: 16),
-                  ),
                   if (widget.proyecto.descripcion != null &&
-                      widget.proyecto.descripcion!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 10),
+                      widget.proyecto.descripcion!.trim().isNotEmpty)
                     Text(widget.proyecto.descripcion!),
-                  ],
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 16),
+
+          // LISTA DE PRESUPUESTOS
           if (_presupuestos.isEmpty)
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('Este proyecto aún no tiene presupuesto.'),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Este proyecto aún no tiene presupuesto.'),
+                  ),
+                ),
               ),
             )
           else
-            ListView.builder(
-              //esto es una lista de presupuestos
-              shrinkWrap:
-                  true, //esto es para que la lista se adapte al contenido
-              physics:
-                  const NeverScrollableScrollPhysics(), //esto es para que la lista no sea scrolleable
-              itemCount:
-                  _presupuestos
-                      .length, //esto es para que la lista tenga el mismo numero de elementos que presupuestos
-              itemBuilder: (context, index) {
-                //esto es para construir cada elmento de la lista
-                final presupuesto =
-                    _presupuestos[index]; //esto es para obtener el presupuesto en la posicion index
-                return Card(
-                  shape: RoundedRectangleBorder(
-                    //shape es para darle forma a la tarjeta
-                    borderRadius: BorderRadius.circular(14),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final presupuesto = _presupuestos[index];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                  child: Padding(
-                    //esto es para darle espacio a la tarjeta
-                    padding: const EdgeInsets.all(
-                      16,
-                    ), //esto es para darle espacio a la tarjeta
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          presupuesto.nombre,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            presupuesto.nombre,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        if (presupuesto.descripcion != null &&
-                            presupuesto.descripcion!.trim().isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(presupuesto.descripcion!),
+                          if (presupuesto.descripcion != null &&
+                              presupuesto.descripcion!.trim().isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(presupuesto.descripcion!),
+                          ],
+                          const SizedBox(height: 12),
+                          Text(
+                            'Total: \$${_calcularTotal(presupuesto.gastos).toStringAsFixed(2)}',
+                          ),
                         ],
-                        const SizedBox(height: 12),
-                        Text(
-                          'Total: \$${_calcularTotal(presupuesto.gastos).toStringAsFixed(2)}',
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 );
-              },
+              }, childCount: _presupuestos.length),
             ),
         ],
       ),

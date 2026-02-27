@@ -194,6 +194,13 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                             _descripcionController.text.trim().isEmpty
                                 ? null
                                 : _descripcionController.text.trim(),
+                        imagenPath:
+                            _imagenProyecto
+                                ?.path, // Guardar la ruta de la imagen
+                      );
+
+                      print(
+                        'Ruta de la imagen guardada: \\${_imagenProyecto?.path}',
                       );
 
                       ScaffoldMessenger.of(context).showSnackBar(
