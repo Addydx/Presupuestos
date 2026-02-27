@@ -69,7 +69,6 @@ class _ProyectosVistaState extends State<ProyectosVista> {
       pinned: true,
       backgroundColor: Colors.white,//esto es para que el header tenga un fondo blanco
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(widget.proyecto.nombreProyecto),
         background: Stack(
           fit: StackFit.expand,
           children: [
