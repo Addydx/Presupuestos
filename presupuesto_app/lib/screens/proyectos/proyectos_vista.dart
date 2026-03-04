@@ -63,6 +63,18 @@ class _ProyectosVistaState extends State<ProyectosVista> {
     });
   }
 
+  String _formatearRangoFechas(DateTime? inicio, DateTime? fin) {
+    if (inicio == null && fin == null) {
+      return 'Sin fechas definidas';
+    } else if (inicio != null && fin == null) {
+      return 'Inicio: ${inicio.day}/${inicio.month}/${inicio.year}';
+    } else if (inicio == null && fin != null) {
+      return 'Fin: ${fin.day}/${fin.month}/${fin.year}';
+    } else {
+      return '${inicio!.day}/${inicio.month}/${inicio.year} - ${fin!.day}/${fin.month}/${fin.year}';
+    }
+  }
+
   SliverAppBar _buildHeader() {
     //esto es para construir el header del proyecto, con la imagen y el nombre del proyecto
     return SliverAppBar(
@@ -127,6 +139,45 @@ class _ProyectosVistaState extends State<ProyectosVista> {
             widget.proyecto.descripcion!.trim().isNotEmpty) ...[
           const SizedBox(height: 14),
           Text(widget.proyecto.descripcion!),
+        ],
+
+        // Ubicación
+        if (widget.proyecto.ubicacion != null &&
+            widget.proyecto.ubicacion!.trim().isNotEmpty) ...[
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Icon(Icons.location_on, size: 18, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  widget.proyecto.ubicacion!,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ),
+            ],
+          ),
+        ],
+
+        // Fechas
+        if (widget.proyecto.fechaInicio != null ||
+            widget.proyecto.fechaFin != null) ...[
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _formatearRangoFechas(
+                    widget.proyecto.fechaInicio,
+                    widget.proyecto.fechaFin,
+                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+              ),
+            ],
+          ),
         ],
 
         const SizedBox(height: 24),

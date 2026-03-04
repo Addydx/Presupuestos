@@ -15,17 +15,57 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
   final _nombreProyectoController = TextEditingController();
   final _nombreClienteController = TextEditingController();
   final _descripcionController = TextEditingController();
+  final _ubicacionController = TextEditingController();
+  final _fechaInicioController = TextEditingController();
+  final _fechaFinController = TextEditingController();
   File?
   _imagenProyecto; //esto es para almacenar la imagen seleccionada del proyecto
   final ImagePicker _picker =
       ImagePicker(); //esto es para seleccionar la imagen del proyecto desde la galeria o la camara
+  DateTime? _fechaInicio;
+  DateTime? _fechaFin;
 
   @override
   void dispose() {
     _nombreProyectoController.dispose();
     _nombreClienteController.dispose();
     _descripcionController.dispose();
+    _ubicacionController.dispose();
+    _fechaInicioController.dispose();
+    _fechaFinController.dispose();
     super.dispose();
+  }
+
+  Future<void> _seleccionarFechaInicio() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _fechaInicio ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != _fechaInicio) {
+      setState(() {
+        _fechaInicio = picked;
+        _fechaInicioController.text =
+            '${picked.day}/${picked.month}/${picked.year}';
+      });
+    }
+  }
+
+  Future<void> _seleccionarFechaFin() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _fechaFin ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null && picked != _fechaFin) {
+      setState(() {
+        _fechaFin = picked;
+        _fechaFinController.text =
+            '${picked.day}/${picked.month}/${picked.year}';
+      });
+    }
   }
 
   Future<void> _seleccionarImagen() async {
@@ -176,6 +216,64 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              // Campo ubicación
+              const Text(
+                'Ubicación del proyecto',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _ubicacionController,
+                decoration: InputDecoration(
+                  hintText: 'Ej: Calle Principal 123, Apartamento 4B',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.location_on),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Campo fecha de inicio
+              const Text(
+                'Fecha de inicio',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _fechaInicioController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  hintText: 'Selecciona una fecha',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.calendar_today),
+                ),
+                onTap: _seleccionarFechaInicio,
+              ),
+              const SizedBox(height: 20),
+
+              // Campo fecha de fin
+              const Text(
+                'Fecha de fin',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _fechaFinController,
+                readOnly: true,
+                decoration: InputDecoration(
+                  hintText: 'Selecciona una fecha',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  prefixIcon: const Icon(Icons.calendar_today),
+                ),
+                onTap: _seleccionarFechaFin,
+              ),
               const SizedBox(height: 32),
 
               // Botón de guardar
@@ -197,6 +295,12 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                         imagenPath:
                             _imagenProyecto
                                 ?.path, // Guardar la ruta de la imagen
+                        ubicacion:
+                            _ubicacionController.text.trim().isEmpty
+                                ? null
+                                : _ubicacionController.text.trim(),
+                        fechaInicio: _fechaInicio,
+                        fechaFin: _fechaFin,
                       );
 
                       print(

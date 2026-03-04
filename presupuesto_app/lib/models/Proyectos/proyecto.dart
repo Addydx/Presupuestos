@@ -22,6 +22,15 @@ class Proyecto {
   @HiveField(5)
   final DateTime fechaCreacion;
 
+  @HiveField(6)
+  final String? ubicacion;
+
+  @HiveField(7)
+  final DateTime? fechaInicio;
+
+  @HiveField(8)
+  final DateTime? fechaFin;
+
   Proyecto({
     required this.id,
     required this.nombreProyecto,
@@ -29,6 +38,9 @@ class Proyecto {
     this.descripcion,
     this.imagenPath,
     DateTime? fechaCreacion,
+    this.ubicacion,
+    this.fechaInicio,
+    this.fechaFin,
   }) : fechaCreacion = fechaCreacion ?? DateTime.now();
 
   Proyecto copyWith({
@@ -38,6 +50,9 @@ class Proyecto {
     String? descripcion,
     String? imagenPath,
     DateTime? fechaCreacion,
+    String? ubicacion,
+    DateTime? fechaInicio,
+    DateTime? fechaFin,
   }) {
     return Proyecto(
       id: id ?? this.id,
@@ -46,6 +61,9 @@ class Proyecto {
       descripcion: descripcion ?? this.descripcion,
       imagenPath: imagenPath ?? this.imagenPath,
       fechaCreacion: fechaCreacion ?? this.fechaCreacion,
+      ubicacion: ubicacion ?? this.ubicacion,
+      fechaInicio: fechaInicio ?? this.fechaInicio,
+      fechaFin: fechaFin ?? this.fechaFin,
     );
   }
 }
