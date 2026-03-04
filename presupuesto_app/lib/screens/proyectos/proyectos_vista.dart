@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
-import 'package:presupuesto_app/screens/presupuesto/new_presupuesto_scrren.dart';
-import 'package:hive/hive.dart';
 import 'dart:io';
 
 class ProyectosVista extends StatefulWidget {
@@ -15,52 +12,10 @@ class ProyectosVista extends StatefulWidget {
 }
 
 class _ProyectosVistaState extends State<ProyectosVista> {
-  List<Presupuesto> _presupuestos = [];
-
   @override
   void initState() {
-    super
-        .initState(); // Esto es para cargar los presupuestos del proyecto al iniciar
-    _cargarPresupuestos();
-  }
-
-  void _cargarPresupuestos() {
-    final box = Hive.box<Presupuesto>('presupuestos');
-    if (!box.isOpen) {
-      throw Exception('La caja de presupuestos no está abierta');
-    }
-    final todos =
-        box.values.where((p) => p.proyectoId == widget.proyecto.id).toList();
-    setState(() {
-      _presupuestos = todos;
-    });
-    print(_presupuestos.length);
-  }
-
-  Future<void> _crearPresupuesto() async {
-    final nuevoPresupuesto = await Navigator.push<Presupuesto>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => NewPresupuestoScrren(proyectoId: widget.proyecto.id),
-      ),
-    );
-
-    if (nuevoPresupuesto != null) {
-      setState(() {
-        _presupuestos.add(nuevoPresupuesto);
-      });
-    }
-  }
-
-  double _calcularTotal(List<Map<String, dynamic>> gastos) {
-    return gastos.fold<double>(0, (acumulado, gasto) {
-      final monto = gasto['monto'];
-      if (monto is num) {
-        return acumulado + monto.toDouble();
-      }
-      return acumulado;
-    });
+    super.initState();
+    // Presupuestos serán manejados en el nuevo formulario wizard
   }
 
   String _formatearRangoFechas(DateTime? inicio, DateTime? fin) {
@@ -187,7 +142,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
 
         const SizedBox(height: 16),
 
-        // SECCIÓN PRESUPUESTOS
+        // SECCIÓN DE PRESUPUESTOS (Próximamente disponible)
         const Text(
           "Presupuestos",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -195,58 +150,17 @@ class _ProyectosVistaState extends State<ProyectosVista> {
 
         const SizedBox(height: 16),
 
-        if (_presupuestos.isEmpty)
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(16),
-              child: Text('Este proyecto aún no tiene presupuesto.'),
-            ),
-          )
-        else
-          Column(
-            children:
-                _presupuestos.map((presupuesto) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              presupuesto.nombre,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            if (presupuesto.descripcion != null &&
-                                presupuesto.descripcion!.trim().isNotEmpty) ...[
-                              const SizedBox(height: 8),
-                              Text(presupuesto.descripcion!),
-                            ],
-                            const SizedBox(height: 12),
-                            Text(
-                              'Total: \$${presupuesto.subtotal.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+        Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
           ),
+          child: const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Los presupuestos estarán disponibles pronto con el nuevo formulario wizard.',
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -254,11 +168,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _crearPresupuesto,
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo Presupuesto'),
-      ),
+      // FloatingActionButton removido - Los presupuestos se crearán con el nuevo wizard
       body: CustomScrollView(
         slivers: [
           _buildHeader(),

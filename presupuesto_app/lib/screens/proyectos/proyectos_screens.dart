@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/screens/settings/settings_screen.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
 import '../../models/proyectos/proyecto.dart';
@@ -187,7 +186,9 @@ class _ProyectoCard extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(color: Colors.grey[300]),
                   child:
-                      imagenAsset != null && imagenAsset!.isNotEmpty//esto es para mostrar la imagen del proyecto si existe, sino muestra un icono por defecto
+                      imagenAsset != null &&
+                              imagenAsset!
+                                  .isNotEmpty //esto es para mostrar la imagen del proyecto si existe, sino muestra un icono por defecto
                           ? Image.file(
                             File(imagenAsset!),
                             fit: BoxFit.cover,
