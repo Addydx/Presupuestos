@@ -3,7 +3,7 @@ import 'equipo.dart';
 import 'mano_obra.dart';
 import 'material.dart';
 
-part 'presupuesto.g.dart';
+
 
 enum EstadoPresupuesto { borrador, enviado, aprobado, rechazado, cancelado }
 

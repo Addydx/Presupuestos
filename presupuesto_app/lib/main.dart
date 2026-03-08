@@ -13,7 +13,7 @@ void main() async {
   await Hive.initFlutter();
 
   Hive.registerAdapter(ProyectoAdapter());
-  Hive.registerAdapter(PresupuestoAdapter());
+  //Hive.registerAdapter(PresupuestoAdapter());
 
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');
