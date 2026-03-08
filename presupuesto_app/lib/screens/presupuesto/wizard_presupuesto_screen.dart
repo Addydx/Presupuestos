@@ -1,0 +1,173 @@
+import 'package:flutter/material.dart';
+import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
+
+class WizardPresupuestoScreen extends StatefulWidget {
+  final String proyectoId;
+
+  const WizardPresupuestoScreen({super.key, required this.proyectoId});
+
+  @override
+  State<WizardPresupuestoScreen> createState() => _WizardPresupuestoScreenState();
+}
+
+class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
+  late Proyecto proyecto;
+  int _currentStep = 0;
+
+  // Datos del presupuesto
+  String _titulo = '';
+  double _superficie = 0.0;
+  DateTime _fechaCreacion = DateTime.now();
+  EstadoPresupuesto _estado = EstadoPresupuesto.borrador;
+
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Aquí podrías cargar el proyecto desde Hive si es necesario
+    // Por ahora, asumimos que se pasa o se obtiene de otra forma
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Crear Presupuesto'),
+      ),
+      body: Stepper(
+        currentStep: _currentStep,
+        onStepContinue: () {
+          if (_currentStep < 5) {
+            setState(() {
+              _currentStep++;
+            });
+          } else {
+            // Guardar presupuesto
+            _guardarPresupuesto();
+          }
+        },
+        onStepCancel: () {
+          if (_currentStep > 0) {
+            setState(() {
+              _currentStep--;
+            });
+          }
+        },
+        steps: [
+          Step(
+            title: const Text('Información Básica'),
+            content: _buildStepInfo(),
+            isActive: _currentStep >= 0,
+          ),
+          Step(
+            title: const Text('Mano de Obra'),
+            content: const Text('Paso 2: Mano de Obra'),
+            isActive: _currentStep >= 1,
+          ),
+          Step(
+            title: const Text('Materiales'),
+            content: const Text('Paso 3: Materiales'),
+            isActive: _currentStep >= 2,
+          ),
+          Step(
+            title: const Text('Equipos'),
+            content: const Text('Paso 4: Equipos'),
+            isActive: _currentStep >= 3,
+          ),
+          Step(
+            title: const Text('Finanzas'),
+            content: const Text('Paso 5: Finanzas'),
+            isActive: _currentStep >= 4,
+          ),
+          Step(
+            title: const Text('Resumen'),
+            content: const Text('Paso 6: Resumen'),
+            isActive: _currentStep >= 5,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepInfo() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Título del Presupuesto'),
+            validator: (value) => value!.isEmpty ? 'Ingrese un título' : null,
+            onSaved: (value) => _titulo = value!,
+          ),
+          TextFormField(
+            decoration: const InputDecoration(labelText: 'Superficie (M²)'),
+            keyboardType: TextInputType.number,
+            validator: (value) => double.tryParse(value!) == null ? 'Ingrese un número válido' : null,
+            onSaved: (value) => _superficie = double.parse(value!),
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Text('Fecha de Creación: ${_fechaCreacion.toLocal().toString().split(' ')[0]}'),
+              ),
+              TextButton(
+                onPressed: _seleccionarFecha,
+                child: const Text('Seleccionar Fecha'),
+              ),
+            ],
+          ),
+          DropdownButtonFormField<EstadoPresupuesto>(
+            value: _estado,
+            decoration: const InputDecoration(labelText: 'Estado'),
+            items: EstadoPresupuesto.values.map((estado) {
+              return DropdownMenuItem(
+                value: estado,
+                child: Text(estado.toString().split('.').last),
+              );
+            }).toList(),
+            onChanged: (value) => setState(() => _estado = value!),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _seleccionarFecha() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _fechaCreacion,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _fechaCreacion) {
+      setState(() {
+        _fechaCreacion = picked;
+      });
+    }
+  }
+
+  void _guardarPresupuesto() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      // Crear el presupuesto con los datos
+      Presupuesto presupuesto = Presupuesto(
+        id: DateTime.now().toString(), // Generar ID único
+        proyectoId: widget.proyectoId,
+        titulo: _titulo,
+        superficieM2: _superficie,
+        fechaCreacion: _fechaCreacion,
+        estado: _estado,
+        version: 1,
+        manoObra: [], // Inicializar vacío, se llenará en steps posteriores
+        equipos: [],
+        materiales: [],
+      );
+      // Aquí guardar en Hive o navegar a siguiente pantalla
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Presupuesto guardado')),
+      );
+    }
+  }
+}

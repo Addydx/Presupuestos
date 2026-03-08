@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
+import 'package:presupuesto_app/screens/presupuesto/wizard_presupuesto_screen.dart';
 import 'dart:io';
 
 class ProyectosVista extends StatefulWidget {
@@ -154,10 +155,27 @@ class _ProyectosVistaState extends State<ProyectosVista> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          child: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text(
-              'Los presupuestos estarán disponibles pronto con el nuevo formulario wizard.',
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                const Text(
+                  'Crea un presupuesto para este proyecto usando el formulario wizard.',
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WizardPresupuestoScreen(proyectoId: widget.proyecto.id),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.add),
+                  label: const Text('Crear Presupuesto'),
+                ),
+              ],
             ),
           ),
         ),
@@ -168,7 +186,18 @@ class _ProyectosVistaState extends State<ProyectosVista> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // FloatingActionButton removido - Los presupuestos se crearán con el nuevo wizard
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WizardPresupuestoScreen(proyectoId: widget.proyecto.id),
+            ),
+          );
+        },
+        child: const Icon(Icons.add),
+        tooltip: 'Crear Presupuesto',
+      ),
       body: CustomScrollView(
         slivers: [
           _buildHeader(),
