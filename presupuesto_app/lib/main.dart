@@ -7,13 +7,23 @@ import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
+import 'core/utils/calculadora_financiera.dart';
+import 'models/presupuesto/equipo.dart';
+import 'models/presupuesto/finanzas.dart';
+import 'models/presupuesto/mano_obra.dart';
+import 'models/presupuesto/material.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
 
   Hive.registerAdapter(ProyectoAdapter());
-  //Hive.registerAdapter(PresupuestoAdapter());
+  Hive.registerAdapter(PresupuestoAdapter());
+  Hive.registerAdapter(ManoObraAdapter());
+  Hive.registerAdapter(EquipoAdapter());
+  Hive.registerAdapter(MaterialAdapter());
+  Hive.registerAdapter(FinanzasAdapter());
 
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');

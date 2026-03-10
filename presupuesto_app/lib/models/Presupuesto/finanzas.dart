@@ -1,10 +1,16 @@
-import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
+part 'finanzas.g.dart';
 
-
+@HiveType(typeId: 5)
 class Finanzas {
+  @HiveField(0)
   double porcentajeimprevistos;
+
+  @HiveField(1)
   double porcentajeUtilidad;
+
+  @HiveField(2)
   bool aplicarIVA;
 
   Finanzas({
