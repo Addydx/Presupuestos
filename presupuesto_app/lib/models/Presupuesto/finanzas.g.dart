@@ -8,7 +8,7 @@ part of 'finanzas.dart';
 
 class FinanzasAdapter extends TypeAdapter<Finanzas> {
   @override
-  final int typeId = 5;
+  final int typeId = 6;
 
   @override
   Finanzas read(BinaryReader reader) {

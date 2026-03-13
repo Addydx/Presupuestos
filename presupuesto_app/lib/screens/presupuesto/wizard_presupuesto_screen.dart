@@ -3,6 +3,8 @@ import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/screens/presupuesto/steps/step_mano_obra.dart';
+import 'package:presupuesto_app/screens/presupuesto/steps/step_materiales.dart';
+import 'package:presupuesto_app/services/materiales_service.dart';
 
 class WizardPresupuestoScreen extends StatefulWidget {
   final String proyectoId;
@@ -87,7 +89,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
           ),
           Step(
             title: const Text('Materiales'),
-            content: const Text('Paso 3: Materiales'),
+            content: StepMateriales(materialesService: MaterialesService()),
             isActive: _currentStep >= 2,
           ),
           Step(

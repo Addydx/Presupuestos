@@ -1,35 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'material.dart';
+part of 'material_catalogo.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MaterialPresupuestoAdapter extends TypeAdapter<MaterialPresupuesto> {
+class MaterialCatalogoAdapter extends TypeAdapter<MaterialCatalogo> {
   @override
-  final int typeId = 4;
+  final int typeId = 5;
 
   @override
-  MaterialPresupuesto read(BinaryReader reader) {
+  MaterialCatalogo read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return MaterialPresupuesto(
+    return MaterialCatalogo(
       id: fields[0] as String?,
       nombre: fields[1] as String,
       categoria: fields[2] as String,
       unidad: fields[3] as String,
-      cantidad: fields[4] as double,
-      precioUnitario: fields[5] as double,
-      esPersonalizado: fields[6] as bool,
-      materialCatalogoId: fields[7] as String?,
+      precioReferencia: fields[4] as double,
+      imagen: fields[5] as String?,
+      tienda: fields[6] as String?,
+      fechaCreacion: fields[7] as DateTime?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, MaterialPresupuesto obj) {
+  void write(BinaryWriter writer, MaterialCatalogo obj) {
     writer
       ..writeByte(8)
       ..writeByte(0)
@@ -41,13 +41,13 @@ class MaterialPresupuestoAdapter extends TypeAdapter<MaterialPresupuesto> {
       ..writeByte(3)
       ..write(obj.unidad)
       ..writeByte(4)
-      ..write(obj.cantidad)
+      ..write(obj.precioReferencia)
       ..writeByte(5)
-      ..write(obj.precioUnitario)
+      ..write(obj.imagen)
       ..writeByte(6)
-      ..write(obj.esPersonalizado)
+      ..write(obj.tienda)
       ..writeByte(7)
-      ..write(obj.materialCatalogoId);
+      ..write(obj.fechaCreacion);
   }
 
   @override
@@ -56,7 +56,7 @@ class MaterialPresupuestoAdapter extends TypeAdapter<MaterialPresupuesto> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MaterialPresupuestoAdapter &&
+      other is MaterialCatalogoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

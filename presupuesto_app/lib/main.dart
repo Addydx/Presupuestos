@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
@@ -7,11 +6,11 @@ import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
-import 'core/utils/calculadora_financiera.dart';
 import 'models/presupuesto/equipo.dart';
 import 'models/presupuesto/finanzas.dart';
 import 'models/presupuesto/mano_obra.dart';
 import 'models/presupuesto/material.dart';
+import 'models/presupuesto/material_catalogo.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +21,8 @@ void main() async {
   Hive.registerAdapter(PresupuestoAdapter());
   Hive.registerAdapter(ManoObraAdapter());
   Hive.registerAdapter(EquipoAdapter());
-  Hive.registerAdapter(MaterialAdapter());
+  Hive.registerAdapter(MaterialPresupuestoAdapter());
+  Hive.registerAdapter(MaterialCatalogoAdapter());
   Hive.registerAdapter(FinanzasAdapter());
 
   await Hive.openBox<Proyecto>('proyectos');

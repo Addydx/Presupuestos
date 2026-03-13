@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'finanzas.g.dart';
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 6)
 class Finanzas {
   @HiveField(0)
   double porcentajeimprevistos;

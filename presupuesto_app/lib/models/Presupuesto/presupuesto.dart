@@ -37,7 +37,7 @@ class Presupuesto {
   List<Equipo> equipos;
 
   @HiveField(9)
-  List<Material> materiales;
+  List<MaterialPresupuesto> materiales;
 
   @HiveField(10)
   double totalFinal;

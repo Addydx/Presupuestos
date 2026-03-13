@@ -26,7 +26,7 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
       version: fields[6] as int,
       manoObra: (fields[7] as List).cast<ManoObra>(),
       equipos: (fields[8] as List).cast<Equipo>(),
-      materiales: (fields[9] as List).cast<Material>(),
+      materiales: (fields[9] as List).cast<MaterialPresupuesto>(),
       totalFinal: fields[10] as double,
     );
   }

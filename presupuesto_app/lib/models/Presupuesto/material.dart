@@ -3,33 +3,46 @@ import 'package:hive/hive.dart';
 part 'material.g.dart';
 
 @HiveType(typeId: 4)
-class Material {
+class MaterialPresupuesto {
   @HiveField(0)
-  String nombre;
+  String id;
 
   @HiveField(1)
-  String categoria;
+  String nombre;
 
   @HiveField(2)
-  String unidad;
+  String categoria;
 
   @HiveField(3)
-  double cantidad;
+  String unidad;
 
   @HiveField(4)
-  double precioUnitario;
+  double cantidad;
 
   @HiveField(5)
+  double precioUnitario;
+
+  @HiveField(6)
   bool esPersonalizado;
 
-  Material({
+  @HiveField(7)
+  String? materialCatalogoId;
+
+  MaterialPresupuesto({
+    String? id,
     required this.nombre,
     required this.categoria,
     required this.unidad,
     required this.cantidad,
     required this.precioUnitario,
     this.esPersonalizado = false,
-  });
+    this.materialCatalogoId,
+  }) : id = id ?? DateTime.now().toString();
 
+  /// Total = cantidad * precioUnitario
   double get total => cantidad * precioUnitario;
+
+  @override
+  String toString() =>
+      'MaterialPresupuesto(nombre: $nombre, cantidad: $cantidad x \$$precioUnitario = \$$total)';
 }
