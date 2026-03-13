@@ -17,7 +17,7 @@ class FinanzasAdapter extends TypeAdapter<Finanzas> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Finanzas(
-      porcentajeimprevistos: fields[0] as double,
+      porcentajeImprevistos: fields[0] as double,
       porcentajeUtilidad: fields[1] as double,
       aplicarIVA: fields[2] as bool,
     );
@@ -28,7 +28,7 @@ class FinanzasAdapter extends TypeAdapter<Finanzas> {
     writer
       ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.porcentajeimprevistos)
+      ..write(obj.porcentajeImprevistos)
       ..writeByte(1)
       ..write(obj.porcentajeUtilidad)
       ..writeByte(2)

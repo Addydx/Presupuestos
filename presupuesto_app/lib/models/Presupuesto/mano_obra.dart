@@ -36,4 +36,18 @@ class ManoObra {
     this.montoContrato,
     this.observaciones,
   });
+
+  /// Calcula el costo total de mano de obra según el tipo de pago
+  double get costo {
+    if (tipoPago == TipoPago.porDia) {
+      // Costo por día: cantidad de personas × días × costo por día
+      final personas = cantidadPersonas ?? 0;
+      final dias = diasEstimados ?? 0;
+      final costoDia = costoPorDia ?? 0;
+      return personas * dias * costoDia;
+    } else {
+      // Costo por contrato: monto fijo
+      return montoContrato ?? 0;
+    }
+  }
 }

@@ -5,7 +5,7 @@ part 'finanzas.g.dart';
 @HiveType(typeId: 6)
 class Finanzas {
   @HiveField(0)
-  double porcentajeimprevistos;
+  double porcentajeImprevistos;
 
   @HiveField(1)
   double porcentajeUtilidad;
@@ -14,8 +14,8 @@ class Finanzas {
   bool aplicarIVA;
 
   Finanzas({
-    required this.porcentajeimprevistos,
-    required this.porcentajeUtilidad,
-    required this.aplicarIVA,
+    this.porcentajeImprevistos = 5.0,
+    this.porcentajeUtilidad = 20.0,
+    this.aplicarIVA = true,
   });
 }

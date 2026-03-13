@@ -5,13 +5,28 @@ part 'equipo.g.dart';
 @HiveType(typeId: 3)
 class Equipo {
   @HiveField(0)
-  String nombre;
+  String id;
 
   @HiveField(1)
-  double costoPorDia;
+  String nombre;
 
   @HiveField(2)
+  double costoPorDia;
+
+  @HiveField(3)
   int dias;
 
-  Equipo({required this.nombre, required this.costoPorDia, required this.dias});
+  Equipo({
+    String? id,
+    required this.nombre,
+    required this.costoPorDia,
+    required this.dias,
+  }) : id = id ?? DateTime.now().toString();
+
+  /// Total = costoPorDia * dias
+  double get total => costoPorDia * dias;
+
+  @override
+  String toString() =>
+      'Equipo(nombre: $nombre, $dias días x \$$costoPorDia = \$$total)';
 }

@@ -17,21 +17,24 @@ class EquipoAdapter extends TypeAdapter<Equipo> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Equipo(
-      nombre: fields[0] as String,
-      costoPorDia: fields[1] as double,
-      dias: fields[2] as int,
+      id: fields[0] as String?,
+      nombre: fields[1] as String,
+      costoPorDia: fields[2] as double,
+      dias: fields[3] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, Equipo obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.nombre)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.costoPorDia)
+      ..write(obj.nombre)
       ..writeByte(2)
+      ..write(obj.costoPorDia)
+      ..writeByte(3)
       ..write(obj.dias);
   }
 

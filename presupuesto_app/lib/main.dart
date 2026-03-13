@@ -5,6 +5,7 @@ import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/services/materiales_seed.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
+import 'package:presupuesto_app/services/equipos_service.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
@@ -36,6 +37,10 @@ void main() async {
 
   // Cargar seed data si el catálogo está vacío
   await MaterialesSeed.inicializarCatalogo(materialesService);
+
+  // Inicializar EquiposService (singleton)
+  final equiposService = EquiposService();
+  await equiposService.initialize();
 
   runApp(const MyApp());
 }
