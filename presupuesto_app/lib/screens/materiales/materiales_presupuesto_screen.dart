@@ -102,7 +102,7 @@ class _MaterialesPresupuestoScreenState
     final totalGeneral = widget.materialesService.calcularTotalMateriales();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -115,39 +115,41 @@ class _MaterialesPresupuestoScreenState
                   icon: const Icon(Icons.add),
                   label: const Text('Agregar Material'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                 ),
               ),
               const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () async {
-                  final resultado = await Navigator.push<MaterialPresupuesto>(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => CatalogoMaterialesScreen(
-                            materialesService: widget.materialesService,
-                          ),
-                    ),
-                  );
-                  if (resultado != null) {
-                    await widget.materialesService.agregarMaterialPresupuesto(
-                      resultado,
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final resultado = await Navigator.push<MaterialPresupuesto>(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => CatalogoMaterialesScreen(
+                              materialesService: widget.materialesService,
+                            ),
+                      ),
                     );
-                    _cargarMateriales();
-                  }
-                },
-                icon: const Icon(Icons.library_books),
-                label: const Text('Catálogo'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  backgroundColor: Colors.blue,
+                    if (resultado != null) {
+                      await widget.materialesService.agregarMaterialPresupuesto(
+                        resultado,
+                      );
+                      _cargarMateriales();
+                    }
+                  },
+                  icon: const Icon(Icons.library_books),
+                  label: const Text('Catálogo'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    backgroundColor: Colors.blue,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
 
           // Lista de materiales
           if (materiales.isEmpty)
@@ -189,7 +191,7 @@ class _MaterialesPresupuestoScreenState
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: materiales.length,
                   separatorBuilder:
-                      (context, index) => const SizedBox(height: 8),
+                      (context, index) => const SizedBox(height: 4),
                   itemBuilder: (context, index) {
                     final material = materiales[index];
                     return Card(
@@ -258,26 +260,29 @@ class _MaterialesPresupuestoScreenState
                     );
                   },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 // Total general
                 Card(
                   color: Colors.blue.shade50,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 10.0,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          'Total General de Materiales:',
+                          'Total:',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '\$${totalGeneral.toStringAsFixed(2)}',
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue,
                           ),

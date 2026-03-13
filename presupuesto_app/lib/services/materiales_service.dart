@@ -6,10 +6,21 @@ class MaterialesService {
   static const String _boxNameCatalogo = 'materiales_catalogo';
   static const String _boxNamePresupuesto = 'materiales_presupuesto';
 
+  // Singleton
+  static final MaterialesService _instance = MaterialesService._internal();
+
   late Box<MaterialCatalogo> _catalogoBox;
   late Box<MaterialPresupuesto> _presupuestoBox;
 
   bool _initialized = false;
+
+  // Constructor privado
+  MaterialesService._internal();
+
+  // Factory constructor para obtener instancia única
+  factory MaterialesService() {
+    return _instance;
+  }
 
   Future<void> initialize() async {
     if (_initialized) return;

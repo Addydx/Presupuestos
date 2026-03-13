@@ -19,6 +19,7 @@ class WizardPresupuestoScreen extends StatefulWidget {
 class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   late Proyecto proyecto;
   int _currentStep = 0;
+  late MaterialesService _materialesService;
 
   // Datos del presupuesto
   String _titulo = '';
@@ -33,6 +34,8 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   @override
   void initState() {
     super.initState();
+    // Obtener la instancia singleton de MaterialesService
+    _materialesService = MaterialesService();
     // Aquí podrías cargar el proyecto desde Hive si es necesario
     // Por ahora, asumimos que se pasa o se obtiene de otra forma
   }
@@ -41,73 +44,75 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Crear Presupuesto')),
-      body: Stepper(
-        currentStep: _currentStep,
-        onStepContinue: () {
-          if (_currentStep == 0) {
-            // Validar paso 1: Información básica
-            if (_formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              if (_currentStep < 5) {
-                setState(() => _currentStep++);
+      body: SingleChildScrollView(
+        child: Stepper(
+          currentStep: _currentStep,
+          onStepContinue: () {
+            if (_currentStep == 0) {
+              // Validar paso 1: Información básica
+              if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
+                if (_currentStep < 5) {
+                  setState(() => _currentStep++);
+                }
               }
-            }
-          } else if (_currentStep == 1) {
-            // Validar paso 2: Mano de obra
-            if (_manoObraFormKey.currentState!.validate()) {
-              _manoObraFormKey.currentState!.save();
-              if (_currentStep < 5) {
-                setState(() => _currentStep++);
+            } else if (_currentStep == 1) {
+              // Validar paso 2: Mano de obra
+              if (_manoObraFormKey.currentState!.validate()) {
+                _manoObraFormKey.currentState!.save();
+                if (_currentStep < 5) {
+                  setState(() => _currentStep++);
+                }
               }
-            }
-          } else {
-            // Otros pasos
-            if (_currentStep < 5) {
-              setState(() => _currentStep++);
             } else {
-              _guardarPresupuesto();
+              // Otros pasos
+              if (_currentStep < 5) {
+                setState(() => _currentStep++);
+              } else {
+                _guardarPresupuesto();
+              }
             }
-          }
-        },
-        onStepCancel: () {
-          if (_currentStep > 0) {
-            setState(() {
-              _currentStep--;
-            });
-          }
-        },
-        steps: [
-          Step(
-            title: const Text('Información Básica'),
-            content: _buildStepInfo(),
-            isActive: _currentStep >= 0,
-          ),
-          Step(
-            title: const Text('Mano de Obra'),
-            content: _buildStepManoObra(),
-            isActive: _currentStep >= 1,
-          ),
-          Step(
-            title: const Text('Materiales'),
-            content: StepMateriales(materialesService: MaterialesService()),
-            isActive: _currentStep >= 2,
-          ),
-          Step(
-            title: const Text('Equipos'),
-            content: const Text('Paso 4: Equipos'),
-            isActive: _currentStep >= 3,
-          ),
-          Step(
-            title: const Text('Finanzas'),
-            content: const Text('Paso 5: Finanzas'),
-            isActive: _currentStep >= 4,
-          ),
-          Step(
-            title: const Text('Resumen'),
-            content: const Text('Paso 6: Resumen'),
-            isActive: _currentStep >= 5,
-          ),
-        ],
+          },
+          onStepCancel: () {
+            if (_currentStep > 0) {
+              setState(() {
+                _currentStep--;
+              });
+            }
+          },
+          steps: [
+            Step(
+              title: const Text('Información Básica'),
+              content: _buildStepInfo(),
+              isActive: _currentStep >= 0,
+            ),
+            Step(
+              title: const Text('Mano de Obra'),
+              content: _buildStepManoObra(),
+              isActive: _currentStep >= 1,
+            ),
+            Step(
+              title: const Text('Materiales'),
+              content: StepMateriales(materialesService: _materialesService),
+              isActive: _currentStep >= 2,
+            ),
+            Step(
+              title: const Text('Equipos'),
+              content: const Text('Paso 4: Equipos'),
+              isActive: _currentStep >= 3,
+            ),
+            Step(
+              title: const Text('Finanzas'),
+              content: const Text('Paso 5: Finanzas'),
+              isActive: _currentStep >= 4,
+            ),
+            Step(
+              title: const Text('Resumen'),
+              content: const Text('Paso 6: Resumen'),
+              isActive: _currentStep >= 5,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -3,6 +3,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/services/materiales_seed.dart';
+import 'package:presupuesto_app/services/materiales_service.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
@@ -27,6 +29,13 @@ void main() async {
 
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');
+
+  // Inicializar MaterialesService (singleton)
+  final materialesService = MaterialesService();
+  await materialesService.initialize();
+
+  // Cargar seed data si el catálogo está vacío
+  await MaterialesSeed.inicializarCatalogo(materialesService);
 
   runApp(const MyApp());
 }
