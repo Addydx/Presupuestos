@@ -3,6 +3,7 @@ import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_equipos.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_finanzas.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_mano_obra.dart';
@@ -10,32 +11,45 @@ import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_materiales.d
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
 class ResumenPresupuestoScreen extends StatelessWidget {
-  final List<MaterialPresupuesto> materiales;
-  final List<Equipo> equipos;
-  final List<ManoObra> manoObra;
-  final Finanzas finanzas;
+  final List<MaterialPresupuesto>? materiales;
+  final List<Equipo>? equipos;
+  final List<ManoObra>? manoObra;
+  final Finanzas? finanzas;
   final String? titulo;
   final DateTime? fecha;
+  final Presupuesto? presupuesto;
 
   const ResumenPresupuestoScreen({
     super.key,
-    required this.materiales,
-    required this.equipos,
-    required this.manoObra,
-    required this.finanzas,
+    this.materiales,
+    this.equipos,
+    this.manoObra,
+    this.finanzas,
     this.titulo,
     this.fecha,
+    this.presupuesto,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Obtener datos del presupuesto o de los parámetros individuales
+    final materialesList = presupuesto?.materiales ?? materiales ?? [];
+    final equiposList = presupuesto?.equipos ?? equipos ?? [];
+    final manoObraList = presupuesto?.manoObra ?? manoObra ?? [];
+    final finanzasData = presupuesto?.finanzas ?? finanzas ?? Finanzas();
+    final tituloText = presupuesto?.titulo ?? titulo;
+    final fechaData = presupuesto?.fechaCreacion ?? fecha;
+
     // Calcular totales
-    final totalMateriales = materiales.fold<double>(
+    final totalMateriales = materialesList.fold<double>(
       0,
       (sum, m) => sum + m.total,
     );
-    final totalManoObra = manoObra.fold<double>(0, (sum, mo) => sum + mo.costo);
-    final totalEquipos = equipos.fold<double>(0, (sum, e) => sum + e.total);
+    final totalManoObra = manoObraList.fold<double>(
+      0,
+      (sum, mo) => sum + mo.costo,
+    );
+    final totalEquipos = equiposList.fold<double>(0, (sum, e) => sum + e.total);
 
     // Calcular finanzas
     final calculadora = CalculadoraFinanzas();
@@ -43,7 +57,7 @@ class ResumenPresupuestoScreen extends StatelessWidget {
       totalMateriales: totalMateriales,
       totalManoObra: totalManoObra,
       totalEquipos: totalEquipos,
-      finanzas: finanzas,
+      finanzas: finanzasData,
     );
 
     final totalFinal = resultados['totalFinal']!;
@@ -59,7 +73,7 @@ class ResumenPresupuestoScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Encabezado con título y fecha
-            if (titulo != null || fecha != null)
+            if (tituloText != null || fechaData != null)
               Card(
                 color: Colors.blue.shade50,
                 child: Padding(
@@ -67,18 +81,18 @@ class ResumenPresupuestoScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (titulo != null)
+                      if (tituloText != null)
                         Text(
-                          titulo!,
+                          tituloText!,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                      if (fecha != null) ...[
+                      if (fechaData != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Fecha: ${fecha!.toLocal().toString().split(' ')[0]}',
+                          'Fecha: ${fechaData!.toLocal().toString().split(' ')[0]}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade700,
@@ -92,15 +106,15 @@ class ResumenPresupuestoScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Sección: Materiales
-            SeccionMateriales(materiales: materiales),
+            SeccionMateriales(materiales: materialesList),
             const SizedBox(height: 12),
 
             // Sección: Mano de Obra
-            SeccionManoObra(manoObra: manoObra),
+            SeccionManoObra(manoObra: manoObraList),
             const SizedBox(height: 12),
 
             // Sección: Equipos
-            SeccionEquipos(equipos: equipos),
+            SeccionEquipos(equipos: equiposList),
             const SizedBox(height: 12),
 
             // Sección: Finanzas
@@ -108,7 +122,7 @@ class ResumenPresupuestoScreen extends StatelessWidget {
               totalMateriales: totalMateriales,
               totalManoObra: totalManoObra,
               totalEquipos: totalEquipos,
-              finanzas: finanzas,
+              finanzas: finanzasData,
             ),
             const SizedBox(height: 16),
 
@@ -143,9 +157,9 @@ class ResumenPresupuestoScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    finanzas.aplicarIVA
-                        ? '(Incluye IVA ${finanzas.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzas.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)'
-                        : '(Sin IVA - ${finanzas.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzas.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)',
+                    finanzasData.aplicarIVA
+                        ? '(Incluye IVA ${finanzasData.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzasData.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)'
+                        : '(Sin IVA - ${finanzasData.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzasData.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)',
                     style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                     textAlign: TextAlign.center,
                   ),
@@ -200,7 +214,7 @@ class ResumenPresupuestoScreen extends StatelessWidget {
                       totalFinal,
                       Colors.teal,
                     ),
-                    if (finanzas.aplicarIVA)
+                    if (finanzasData.aplicarIVA)
                       _buildComponente(
                         'IVA',
                         resultados['iva']!,

@@ -17,33 +17,36 @@ class ManoObraAdapter extends TypeAdapter<ManoObra> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ManoObra(
-      tipoPago: fields[0] as TipoPago,
-      rol: fields[1] as String?,
-      cantidadPersonas: fields[2] as int?,
-      diasEstimados: fields[3] as int?,
-      costoPorDia: fields[4] as double?,
-      montoContrato: fields[5] as double?,
-      observaciones: fields[6] as String?,
+      id: fields[0] as String?,
+      tipoPago: fields[1] as TipoPago,
+      rol: fields[2] as String?,
+      cantidadPersonas: fields[3] as int?,
+      diasEstimados: fields[4] as int?,
+      costoPorDia: fields[5] as double?,
+      montoContrato: fields[6] as double?,
+      observaciones: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ManoObra obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
-      ..write(obj.tipoPago)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.rol)
+      ..write(obj.tipoPago)
       ..writeByte(2)
-      ..write(obj.cantidadPersonas)
+      ..write(obj.rol)
       ..writeByte(3)
-      ..write(obj.diasEstimados)
+      ..write(obj.cantidadPersonas)
       ..writeByte(4)
-      ..write(obj.costoPorDia)
+      ..write(obj.diasEstimados)
       ..writeByte(5)
-      ..write(obj.montoContrato)
+      ..write(obj.costoPorDia)
       ..writeByte(6)
+      ..write(obj.montoContrato)
+      ..writeByte(7)
       ..write(obj.observaciones);
   }
 

@@ -11,6 +11,7 @@ import 'package:presupuesto_app/screens/presupuesto/steps/step_resumen.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
+import 'package:presupuesto_app/services/presupuestos_service.dart';
 
 class WizardPresupuestoScreen extends StatefulWidget {
   final String proyectoId;
@@ -266,45 +267,58 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
     );
   }
 
-  void _guardarPresupuesto() {
+  void _guardarPresupuesto() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Obtener datos de los servicios
-      final materiales = _materialesService.obtenerMaterialesPresupuesto();
-      final equipos = _equiposService.obtenerEquipos();
-      final manoObraList = _manoObra != null ? [_manoObra!] : [];
+      try {
+        // Obtener datos de los servicios
+        final materiales = _materialesService.obtenerMaterialesPresupuesto();
+        final equipos = _equiposService.obtenerEquipos();
+        final manoObraList = <ManoObra>[if (_manoObra != null) _manoObra!];
 
-      // Crear el presupuesto con todos los datos
-      final presupuesto = Presupuesto(
-        id: DateTime.now().toString(),
-        proyectoId: widget.proyectoId,
-        titulo: _titulo,
-        superficieM2: _superficie,
-        fechaCreacion: _fechaCreacion,
-        estado: _estado,
-        version: 1,
-        manoObra: manoObraList,
-        equipos: equipos,
-        materiales: materiales,
-      );
+        // Crear el presupuesto con todos los datos
+        final presupuesto = Presupuesto(
+          id: DateTime.now().toString(),
+          proyectoId: widget.proyectoId,
+          titulo: _titulo,
+          superficieM2: _superficie,
+          fechaCreacion: _fechaCreacion,
+          estado: _estado,
+          version: 1,
+          manoObra: manoObraList,
+          equipos: equipos,
+          materiales: materiales,
+        );
 
-      // Guardar en Hive (simulado, necesitarías un PresupuestoService)
-      print('Presupuesto guardado: ${presupuesto.id}');
-      print('Título: ${presupuesto.titulo}');
-      print('Materiales: ${materiales.length}');
-      print('Equipos: ${equipos.length}');
-      print('Mano de obra: ${manoObraList.length}');
+        // Guardar en Hive usando PresupuestosService
+        final presupuestosService = PresupuestosService();
+        await presupuestosService.agregarPresupuesto(presupuesto);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Presupuesto guardado exitosamente'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+        print('Presupuesto guardado: ${presupuesto.id}');
+        print('Título: ${presupuesto.titulo}');
+        print('Materiales: ${materiales.length}');
+        print('Equipos: ${equipos.length}');
+        print('Mano de obra: ${manoObraList.length}');
 
-      // Volver a la vista anterior (proyectos)
-      Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Presupuesto guardado exitosamente'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+
+        // Volver a la vista anterior (proyectos)
+        Navigator.of(context).pop();
+      } catch (e) {
+        print('Error al guardar presupuesto: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     }
   }
 }

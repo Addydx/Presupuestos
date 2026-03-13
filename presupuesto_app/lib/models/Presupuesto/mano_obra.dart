@@ -7,27 +7,31 @@ enum TipoPago { porDia, porContrato }
 @HiveType(typeId: 2)
 class ManoObra {
   @HiveField(0)
-  TipoPago tipoPago;
+  String? id;
 
   @HiveField(1)
-  String? rol;
+  TipoPago tipoPago;
 
   @HiveField(2)
-  int? cantidadPersonas;
+  String? rol;
 
   @HiveField(3)
-  int? diasEstimados;
+  int? cantidadPersonas;
 
   @HiveField(4)
-  double? costoPorDia;
+  int? diasEstimados;
 
   @HiveField(5)
-  double? montoContrato;
+  double? costoPorDia;
 
   @HiveField(6)
+  double? montoContrato;
+
+  @HiveField(7)
   String? observaciones;
 
   ManoObra({
+    String? id,
     required this.tipoPago,
     this.rol,
     this.cantidadPersonas,
@@ -35,7 +39,7 @@ class ManoObra {
     this.costoPorDia,
     this.montoContrato,
     this.observaciones,
-  });
+  }) : id = id ?? DateTime.now().toString();
 
   /// Calcula el costo total de mano de obra según el tipo de pago
   double get costo {

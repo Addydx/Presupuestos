@@ -28,13 +28,14 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
       equipos: (fields[8] as List).cast<Equipo>(),
       materiales: (fields[9] as List).cast<MaterialPresupuesto>(),
       totalFinal: fields[10] as double,
+      finanzas: fields[11] as Finanzas?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Presupuesto obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +57,9 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
       ..writeByte(9)
       ..write(obj.materiales)
       ..writeByte(10)
-      ..write(obj.totalFinal);
+      ..write(obj.totalFinal)
+      ..writeByte(11)
+      ..write(obj.finanzas);
   }
 
   @override

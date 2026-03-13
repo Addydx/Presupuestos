@@ -8,6 +8,7 @@ import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/screens/presupuesto/resumen_presupuesto_screen.dart';
 
 // ============================================================================
@@ -23,12 +24,16 @@ void ejemplo1_AbrirResumenDesdePresupuesto(
     MaterialPresupuesto(
       id: '1',
       nombre: 'Cemento Portland',
+      categoria: 'Cementantes',
+      unidad: 'Bolsa 50kg',
       cantidad: 20,
       precioUnitario: 50,
     ),
     MaterialPresupuesto(
       id: '2',
       nombre: 'Arena fina',
+      categoria: 'Aridos',
+      unidad: 'm3',
       cantidad: 15,
       precioUnitario: 35,
     ),
@@ -54,19 +59,26 @@ void ejemplo1_AbrirResumenDesdePresupuesto(
     aplicarIVA: true,
   );
 
+  // Crear presupuesto completo
+  final presupuesto = Presupuesto(
+    id: presupuestoId,
+    proyectoId: 'proyecto_1',
+    titulo: 'Presupuesto Casa 100m²',
+    superficieM2: 100,
+    fechaCreacion: DateTime.now(),
+    estado: EstadoPresupuesto.borrador,
+    version: 1,
+    manoObra: manoObra,
+    equipos: equipos,
+    materiales: materiales,
+    finanzas: finanzas,
+  );
+
   // Navegar a la pantalla de resumen
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder:
-          (context) => ResumenPresupuestoScreen(
-            materiales: materiales,
-            equipos: equipos,
-            manoObra: manoObra,
-            finanzas: finanzas,
-            titulo: 'Presupuesto Casa 100m²',
-            fecha: DateTime.now(),
-          ),
+      builder: (context) => ResumenPresupuestoScreen(presupuesto: presupuesto),
     ),
   );
 }
@@ -80,30 +92,40 @@ class DatosPresupuestoPrueba {
     MaterialPresupuesto(
       id: '1',
       nombre: 'Cemento Portland 50kg',
+      categoria: 'Cementantes',
+      unidad: 'Bolsa',
       cantidad: 20,
       precioUnitario: 50,
     ),
     MaterialPresupuesto(
       id: '2',
       nombre: 'Arena fina tamizada',
+      categoria: 'Aridos',
+      unidad: 'm3',
       cantidad: 15,
       precioUnitario: 35,
     ),
     MaterialPresupuesto(
       id: '3',
       nombre: 'Varilla de acero #3',
+      categoria: 'Acero',
+      unidad: 'Varilla',
       cantidad: 100,
       precioUnitario: 25,
     ),
     MaterialPresupuesto(
       id: '4',
       nombre: 'Ladrillos cerámicos 6h',
+      categoria: 'Mamposteria',
+      unidad: 'Unidad',
       cantidad: 500,
       precioUnitario: 2.5,
     ),
     MaterialPresupuesto(
       id: '5',
       nombre: 'Tuberías PVC 4"',
+      categoria: 'Instalaciones',
+      unidad: 'Pie',
       cantidad: 50,
       precioUnitario: 45,
     ),
@@ -111,6 +133,7 @@ class DatosPresupuestoPrueba {
 
   static final manoObra = <ManoObra>[
     ManoObra(
+      id: 'mo1',
       tipoPago: TipoPago.porDia,
       rol: 'Maestro de obra',
       cantidadPersonas: 1,
@@ -118,6 +141,7 @@ class DatosPresupuestoPrueba {
       costoPorDia: 150,
     ),
     ManoObra(
+      id: 'mo2',
       tipoPago: TipoPago.porDia,
       rol: 'Peón',
       cantidadPersonas: 3,
@@ -125,11 +149,13 @@ class DatosPresupuestoPrueba {
       costoPorDia: 60,
     ),
     ManoObra(
+      id: 'mo3',
       tipoPago: TipoPago.porContrato,
       rol: 'Electricista',
       montoContrato: 2500,
     ),
     ManoObra(
+      id: 'mo4',
       tipoPago: TipoPago.porContrato,
       rol: 'Plomero',
       montoContrato: 2000,
@@ -154,19 +180,25 @@ class DatosPresupuestoPrueba {
 // ============================================================================
 
 void ejemplo3_MostrarResumenEnDialogo(BuildContext context) {
+  final presupuesto = Presupuesto(
+    id: 'pre_dialog_1',
+    proyectoId: 'proyecto_1',
+    titulo: 'Presupuesto Casa 100m²',
+    superficieM2: 100,
+    fechaCreacion: DateTime.now(),
+    estado: EstadoPresupuesto.borrador,
+    version: 1,
+    manoObra: DatosPresupuestoPrueba.manoObra,
+    equipos: DatosPresupuestoPrueba.equipos,
+    materiales: DatosPresupuestoPrueba.materiales,
+    finanzas: DatosPresupuestoPrueba.finanzas,
+  );
+
   showDialog(
     context: context,
     builder:
-        (context) => Dialog(
-          child: ResumenPresupuestoScreen(
-            materiales: DatosPresupuestoPrueba.materiales,
-            equipos: DatosPresupuestoPrueba.equipos,
-            manoObra: DatosPresupuestoPrueba.manoObra,
-            finanzas: DatosPresupuestoPrueba.finanzas,
-            titulo: 'Presupuesto Casa 100m²',
-            fecha: DateTime.now(),
-          ),
-        ),
+        (context) =>
+            Dialog(child: ResumenPresupuestoScreen(presupuesto: presupuesto)),
   );
 }
 
@@ -228,19 +260,27 @@ class ListaPresupuestosConResumen extends StatelessWidget {
             const SizedBox(height: 4),
             ElevatedButton(
               onPressed: () {
-                // Aquí se abre el resumen
+                // Crear presupuesto y abrir resumen
+                final presupuesto = Presupuesto(
+                  id: 'pre_${titulo.replaceAll(' ', '_')}',
+                  proyectoId: 'proyecto_1',
+                  titulo: titulo,
+                  superficieM2: 100,
+                  fechaCreacion: DateTime.now(),
+                  estado: EstadoPresupuesto.borrador,
+                  version: 1,
+                  manoObra: DatosPresupuestoPrueba.manoObra,
+                  equipos: DatosPresupuestoPrueba.equipos,
+                  materiales: DatosPresupuestoPrueba.materiales,
+                  finanzas: DatosPresupuestoPrueba.finanzas,
+                );
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => ResumenPresupuestoScreen(
-                          materiales: DatosPresupuestoPrueba.materiales,
-                          equipos: DatosPresupuestoPrueba.equipos,
-                          manoObra: DatosPresupuestoPrueba.manoObra,
-                          finanzas: DatosPresupuestoPrueba.finanzas,
-                          titulo: titulo,
-                          fecha: DateTime.now(),
-                        ),
+                        (context) =>
+                            ResumenPresupuestoScreen(presupuesto: presupuesto),
                   ),
                 );
               },
@@ -258,14 +298,21 @@ class ListaPresupuestosConResumen extends StatelessWidget {
 // ============================================================================
 
 ResumenPresupuestoScreen generarResumenVacio({required String titulo}) {
-  return ResumenPresupuestoScreen(
-    materiales: [],
-    equipos: [],
-    manoObra: [],
-    finanzas: Finanzas(),
+  final presupuestoVacio = Presupuesto(
+    id: 'pre_vacio_${DateTime.now().millisecond}',
+    proyectoId: 'proyecto_1',
     titulo: titulo,
-    fecha: DateTime.now(),
+    superficieM2: 0,
+    fechaCreacion: DateTime.now(),
+    estado: EstadoPresupuesto.borrador,
+    version: 1,
+    manoObra: [],
+    equipos: [],
+    materiales: [],
+    finanzas: Finanzas(),
   );
+
+  return ResumenPresupuestoScreen(presupuesto: presupuestoVacio);
 }
 
 // ============================================================================
@@ -273,31 +320,45 @@ ResumenPresupuestoScreen generarResumenVacio({required String titulo}) {
 // ============================================================================
 
 void ejemplo6_CompararDosPresupuestos(BuildContext context) {
-  final presupuesto1 = ResumenPresupuestoScreen(
-    materiales: DatosPresupuestoPrueba.materiales,
-    equipos: DatosPresupuestoPrueba.equipos,
+  final presupuesto1Datos = Presupuesto(
+    id: 'pre_opcion1',
+    proyectoId: 'proyecto_1',
+    titulo: 'Presupuesto Opción 1',
+    superficieM2: 100,
+    fechaCreacion: DateTime.now(),
+    estado: EstadoPresupuesto.borrador,
+    version: 1,
     manoObra: DatosPresupuestoPrueba.manoObra,
+    equipos: DatosPresupuestoPrueba.equipos,
+    materiales: DatosPresupuestoPrueba.materiales,
     finanzas: Finanzas(
       porcentajeImprevistos: 5,
       porcentajeUtilidad: 20,
       aplicarIVA: true,
     ),
-    titulo: 'Presupuesto Opción 1',
-    fecha: DateTime.now(),
   );
 
-  final presupuesto2 = ResumenPresupuestoScreen(
-    materiales: DatosPresupuestoPrueba.materiales,
-    equipos: DatosPresupuestoPrueba.equipos,
+  final presupuesto2Datos = Presupuesto(
+    id: 'pre_opcion2',
+    proyectoId: 'proyecto_1',
+    titulo: 'Presupuesto Opción 2',
+    superficieM2: 100,
+    fechaCreacion: DateTime.now(),
+    estado: EstadoPresupuesto.borrador,
+    version: 1,
     manoObra: DatosPresupuestoPrueba.manoObra,
+    equipos: DatosPresupuestoPrueba.equipos,
+    materiales: DatosPresupuestoPrueba.materiales,
     finanzas: Finanzas(
       porcentajeImprevistos: 10,
       porcentajeUtilidad: 25,
       aplicarIVA: true,
     ),
-    titulo: 'Presupuesto Opción 2',
-    fecha: DateTime.now(),
   );
+
+  final presupuesto1 = ResumenPresupuestoScreen(presupuesto: presupuesto1Datos);
+
+  final presupuesto2 = ResumenPresupuestoScreen(presupuesto: presupuesto2Datos);
 
   // Mostrar en zwei tabs
   showDialog(
@@ -344,18 +405,24 @@ class PresupuestoRealista {
     MaterialPresupuesto(
       id: 'm1',
       nombre: 'Cemento Portland 50kg',
+      categoria: 'Cementantes',
+      unidad: 'Bolsa',
       cantidad: 100,
       precioUnitario: 50,
     ),
     MaterialPresupuesto(
       id: 'm2',
       nombre: 'Arena para concreto',
+      categoria: 'Aridos',
+      unidad: 'm3',
       cantidad: 60,
       precioUnitario: 40,
     ),
     MaterialPresupuesto(
       id: 'm3',
       nombre: 'Grava #6',
+      categoria: 'Aridos',
+      unidad: 'm3',
       cantidad: 80,
       precioUnitario: 35,
     ),
@@ -363,6 +430,8 @@ class PresupuestoRealista {
     MaterialPresupuesto(
       id: 'm4',
       nombre: 'Varilla de acero #4',
+      categoria: 'Acero',
+      unidad: 'Varilla',
       cantidad: 200,
       precioUnitario: 30,
     ),
@@ -370,6 +439,8 @@ class PresupuestoRealista {
     MaterialPresupuesto(
       id: 'm5',
       nombre: 'Ladrillos 6h cerámicos',
+      categoria: 'Mamposteria',
+      unidad: 'Unidad',
       cantidad: 2000,
       precioUnitario: 2.5,
     ),
@@ -377,12 +448,16 @@ class PresupuestoRealista {
     MaterialPresupuesto(
       id: 'm6',
       nombre: 'Cemento blanco 50kg',
+      categoria: 'Cementantes',
+      unidad: 'Bolsa',
       cantidad: 50,
       precioUnitario: 70,
     ),
     MaterialPresupuesto(
       id: 'm7',
       nombre: 'Pintura acrílica galón',
+      categoria: 'Acabados',
+      unidad: 'Galon',
       cantidad: 20,
       precioUnitario: 180,
     ),
@@ -390,12 +465,16 @@ class PresupuestoRealista {
     MaterialPresupuesto(
       id: 'm8',
       nombre: 'Tuberías PVC 4"',
+      categoria: 'Instalaciones',
+      unidad: 'Pie',
       cantidad: 100,
       precioUnitario: 45,
     ),
     MaterialPresupuesto(
       id: 'm9',
       nombre: 'Cable eléctrico #10',
+      categoria: 'Instalaciones',
+      unidad: 'Pie',
       cantidad: 500,
       precioUnitario: 2,
     ),
@@ -404,6 +483,7 @@ class PresupuestoRealista {
   static final casa100m2ManoObra = <ManoObra>[
     // Mano de obra por días
     ManoObra(
+      id: 'mo1',
       tipoPago: TipoPago.porDia,
       rol: 'Maestro de obra',
       cantidadPersonas: 1,
@@ -411,6 +491,7 @@ class PresupuestoRealista {
       costoPorDia: 200,
     ),
     ManoObra(
+      id: 'mo2',
       tipoPago: TipoPago.porDia,
       rol: 'Peón',
       cantidadPersonas: 4,
@@ -419,11 +500,13 @@ class PresupuestoRealista {
     ),
     // Mano de obra por contrato
     ManoObra(
+      id: 'mo3',
       tipoPago: TipoPago.porContrato,
       rol: 'Electricista',
       montoContrato: 5000,
     ),
     ManoObra(
+      id: 'mo4',
       tipoPago: TipoPago.porContrato,
       rol: 'Plomero',
       montoContrato: 4000,
@@ -442,4 +525,21 @@ class PresupuestoRealista {
     porcentajeUtilidad: 20,
     aplicarIVA: true,
   );
+
+  // Método para crear el presupuesto completo de la casa de 100m²
+  static Presupuesto crearPresupuestoCasa100m2() {
+    return Presupuesto(
+      id: 'pre_casa_100m2',
+      proyectoId: 'proyecto_casa_real',
+      titulo: 'Casa 100m² - Construcción completa',
+      superficieM2: 100,
+      fechaCreacion: DateTime.now(),
+      estado: EstadoPresupuesto.borrador,
+      version: 1,
+      manoObra: casa100m2ManoObra,
+      equipos: casa100m2Equipos,
+      materiales: casa100m2Materiales,
+      finanzas: casa100m2Finanzas,
+    );
+  }
 }

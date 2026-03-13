@@ -6,6 +6,7 @@ import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/services/materiales_seed.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
+import 'package:presupuesto_app/services/presupuestos_service.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
@@ -41,6 +42,10 @@ void main() async {
   // Inicializar EquiposService (singleton)
   final equiposService = EquiposService();
   await equiposService.initialize();
+
+  // Inicializar PresupuestosService (singleton)
+  final presupuestosService = PresupuestosService();
+  await presupuestosService.initialize();
 
   runApp(const MyApp());
 }

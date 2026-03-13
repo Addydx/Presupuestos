@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'equipo.dart';
 import 'mano_obra.dart';
 import 'material.dart';
+import 'finanzas.dart';
 
 part 'presupuesto.g.dart';
 
@@ -42,6 +43,9 @@ class Presupuesto {
   @HiveField(10)
   double totalFinal;
 
+  @HiveField(11)
+  Finanzas finanzas;
+
   Presupuesto({
     required this.id,
     required this.proyectoId,
@@ -54,5 +58,6 @@ class Presupuesto {
     required this.equipos,
     required this.materiales,
     this.totalFinal = 0.0,
-  });
+    Finanzas? finanzas,
+  }) : finanzas = finanzas ?? Finanzas();
 }
