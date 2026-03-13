@@ -8,7 +8,7 @@ part of 'mano_obra.dart';
 
 class ManoObraAdapter extends TypeAdapter<ManoObra> {
   @override
-  final int typeId = 2;
+  final int typeId = 1;
 
   @override
   ManoObra read(BinaryReader reader) {
@@ -57,6 +57,45 @@ class ManoObraAdapter extends TypeAdapter<ManoObra> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ManoObraAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class TipoPagoAdapter extends TypeAdapter<TipoPago> {
+  @override
+  final int typeId = 6;
+
+  @override
+  TipoPago read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return TipoPago.porDia;
+      case 1:
+        return TipoPago.porContrato;
+      default:
+        return TipoPago.porDia;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, TipoPago obj) {
+    switch (obj) {
+      case TipoPago.porDia:
+        writer.writeByte(0);
+        break;
+      case TipoPago.porContrato:
+        writer.writeByte(1);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TipoPagoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'material_catalogo.g.dart';
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 7)
 class MaterialCatalogo {
   @HiveField(0)
   String id;

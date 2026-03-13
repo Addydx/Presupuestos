@@ -2,9 +2,15 @@ import 'package:hive/hive.dart';
 
 part 'mano_obra.g.dart';
 
-enum TipoPago { porDia, porContrato }
+@HiveType(typeId: 6)
+enum TipoPago {
+  @HiveField(0)
+  porDia,
+  @HiveField(1)
+  porContrato
+}
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 1)
 class ManoObra {
   @HiveField(0)
   String? id;

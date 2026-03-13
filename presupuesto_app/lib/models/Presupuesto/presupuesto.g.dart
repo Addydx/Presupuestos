@@ -8,7 +8,7 @@ part of 'presupuesto.dart';
 
 class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
   @override
-  final int typeId = 1;
+  final int typeId = 4;
 
   @override
   Presupuesto read(BinaryReader reader) {
@@ -69,6 +69,60 @@ class PresupuestoAdapter extends TypeAdapter<Presupuesto> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is PresupuestoAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class EstadoPresupuestoAdapter extends TypeAdapter<EstadoPresupuesto> {
+  @override
+  final int typeId = 5;
+
+  @override
+  EstadoPresupuesto read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return EstadoPresupuesto.borrador;
+      case 1:
+        return EstadoPresupuesto.enviado;
+      case 2:
+        return EstadoPresupuesto.aprobado;
+      case 3:
+        return EstadoPresupuesto.rechazado;
+      case 4:
+        return EstadoPresupuesto.cancelado;
+      default:
+        return EstadoPresupuesto.borrador;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, EstadoPresupuesto obj) {
+    switch (obj) {
+      case EstadoPresupuesto.borrador:
+        writer.writeByte(0);
+        break;
+      case EstadoPresupuesto.enviado:
+        writer.writeByte(1);
+        break;
+      case EstadoPresupuesto.aprobado:
+        writer.writeByte(2);
+        break;
+      case EstadoPresupuesto.rechazado:
+        writer.writeByte(3);
+        break;
+      case EstadoPresupuesto.cancelado:
+        writer.writeByte(4);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EstadoPresupuestoAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

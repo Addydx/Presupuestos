@@ -15,6 +15,7 @@ import 'models/presupuesto/finanzas.dart';
 import 'models/presupuesto/mano_obra.dart';
 import 'models/presupuesto/material.dart';
 import 'models/presupuesto/material_catalogo.dart';
+import 'models/proyectos/estado_proyecto.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,9 @@ void main() async {
   Hive.registerAdapter(MaterialPresupuestoAdapter());
   Hive.registerAdapter(MaterialCatalogoAdapter());
   Hive.registerAdapter(FinanzasAdapter());
+  Hive.registerAdapter(EstadoPresupuestoAdapter());
+  Hive.registerAdapter(TipoPagoAdapter());
+  Hive.registerAdapter(EstadoProyectoAdapter());
 
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');

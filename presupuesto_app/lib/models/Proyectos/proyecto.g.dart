@@ -8,7 +8,7 @@ part of 'proyecto.dart';
 
 class ProyectoAdapter extends TypeAdapter<Proyecto> {
   @override
-  final int typeId = 0;
+  final int typeId = 8;
 
   @override
   Proyecto read(BinaryReader reader) {

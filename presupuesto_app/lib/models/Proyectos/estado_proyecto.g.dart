@@ -8,7 +8,7 @@ part of 'estado_proyecto.dart';
 
 class EstadoProyectoAdapter extends TypeAdapter<EstadoProyecto> {
   @override
-  final int typeId = 2;
+  final int typeId = 9;
 
   @override
   EstadoProyecto read(BinaryReader reader) {

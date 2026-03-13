@@ -9,10 +9,10 @@ class StepManoObra extends StatefulWidget {
   const StepManoObra({super.key, this.formKey, this.onSaved, this.initialData});
 
   @override
-  State<StepManoObra> createState() => _StepManoObraState();
+  State<StepManoObra> createState() => StepManoObraState();
 }
 
-class _StepManoObraState extends State<StepManoObra> {
+class StepManoObraState extends State<StepManoObra> {
   late GlobalKey<FormState> _formKey;
 
   late TipoPago _tipoPago;
@@ -48,6 +48,26 @@ class _StepManoObraState extends State<StepManoObra> {
       _montoContrato = null;
       _observaciones = null;
     }
+  }
+
+  void saveForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      _onFormSaved();
+    }
+  }
+
+  void _onFormSaved() {
+    final manoObra = ManoObra(
+      tipoPago: _tipoPago,
+      rol: _rol,
+      cantidadPersonas: _cantidadPersonas,
+      diasEstimados: _diasEstimados,
+      costoPorDia: _costoPorDia,
+      montoContrato: _montoContrato,
+      observaciones: _observaciones,
+    );
+    widget.onSaved?.call(manoObra);
   }
 
   String? _validarCampoRequerido(String? value, String nombreCampo) {
@@ -207,9 +227,8 @@ class _StepManoObraState extends State<StepManoObra> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                validator:
-                    (value) =>
-                        _validarNumeroPositivo(value, 'Monto del contrato'),
+                validator: (value) =>
+                    _validarNumeroPositivo(value, 'Monto del contrato'),
                 onSaved: (value) => _montoContrato = double.parse(value!),
               ),
               const SizedBox(height: 16),
@@ -226,9 +245,8 @@ class _StepManoObraState extends State<StepManoObra> {
                   prefixIcon: const Icon(Icons.notes),
                 ),
                 maxLines: 3,
-                onSaved:
-                    (value) =>
-                        _observaciones = value?.isEmpty ?? true ? null : value,
+                onSaved: (value) =>
+                    _observaciones = value?.isEmpty ?? true ? null : value,
               ),
               const SizedBox(height: 20),
 

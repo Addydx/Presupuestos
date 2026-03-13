@@ -8,7 +8,7 @@ part of 'equipo.dart';
 
 class EquipoAdapter extends TypeAdapter<Equipo> {
   @override
-  final int typeId = 3;
+  final int typeId = 2;
 
   @override
   Equipo read(BinaryReader reader) {

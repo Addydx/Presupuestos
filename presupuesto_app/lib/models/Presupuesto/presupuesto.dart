@@ -6,9 +6,21 @@ import 'finanzas.dart';
 
 part 'presupuesto.g.dart';
 
-enum EstadoPresupuesto { borrador, enviado, aprobado, rechazado, cancelado }
+@HiveType(typeId: 5)
+enum EstadoPresupuesto {
+  @HiveField(0)
+  borrador,
+  @HiveField(1)
+  enviado,
+  @HiveField(2)
+  aprobado,
+  @HiveField(3)
+  rechazado,
+  @HiveField(4)
+  cancelado
+}
 
-@HiveType(typeId: 1)
+@HiveType(typeId: 4)
 class Presupuesto {
   @HiveField(0)
   String id;

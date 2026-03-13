@@ -8,7 +8,7 @@ part of 'material_catalogo.dart';
 
 class MaterialCatalogoAdapter extends TypeAdapter<MaterialCatalogo> {
   @override
-  final int typeId = 5;
+  final int typeId = 7;
 
   @override
   MaterialCatalogo read(BinaryReader reader) {

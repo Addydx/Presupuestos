@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'estado_proyecto.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 9)
 enum EstadoProyecto {
   @HiveField(0)
   pendiente,

@@ -8,7 +8,7 @@ part of 'material.dart';
 
 class MaterialPresupuestoAdapter extends TypeAdapter<MaterialPresupuesto> {
   @override
-  final int typeId = 4;
+  final int typeId = 0;
 
   @override
   MaterialPresupuesto read(BinaryReader reader) {

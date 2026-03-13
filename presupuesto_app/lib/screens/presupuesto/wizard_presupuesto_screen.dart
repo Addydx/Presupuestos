@@ -29,6 +29,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   late MaterialesService _materialesService;
   late EquiposService _equiposService;
   late CalculadoraFinanzas _calculadora;
+  final GlobalKey<StepManoObraState> _manoObraKey = GlobalKey<StepManoObraState>();
 
   // Datos del presupuesto
   String _titulo = '';
@@ -75,11 +76,9 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               }
             } else if (_currentStep == 1) {
               // Validar paso 2: Mano de obra
-              if (_manoObraFormKey.currentState!.validate()) {
-                _manoObraFormKey.currentState!.save();
-                if (_currentStep < 5) {
-                  setState(() => _currentStep++);
-                }
+              _manoObraKey.currentState?.saveForm();
+              if (_currentStep < 5) {
+                setState(() => _currentStep++);
               }
             } else if (_currentStep < 5) {
               // Pasos 2-4: Materiales, Equipos, Finanzas
@@ -257,6 +256,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
 
   Widget _buildStepManoObra() {
     return StepManoObra(
+      key: _manoObraKey,
       formKey: _manoObraFormKey,
       initialData: _manoObra,
       onSaved: (manoObra) {
