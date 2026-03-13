@@ -44,9 +44,14 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Crear Presupuesto')),
-      body: SingleChildScrollView(
+      body: Theme(
+        data: Theme.of(context).copyWith(
+          // Reducir el spacing por defecto del Stepper
+          useMaterial3: true,
+        ),
         child: Stepper(
           currentStep: _currentStep,
+          physics: const BouncingScrollPhysics(),
           onStepContinue: () {
             if (_currentStep == 0) {
               // Validar paso 1: Información básica
@@ -79,6 +84,25 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                 _currentStep--;
               });
             }
+          },
+          controlsBuilder: (context, details) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: details.onStepContinue,
+                    child: const Text('Siguiente'),
+                  ),
+                  const SizedBox(width: 8),
+                  if (details.stepIndex > 0)
+                    OutlinedButton(
+                      onPressed: details.onStepCancel,
+                      child: const Text('Atrás'),
+                    ),
+                ],
+              ),
+            );
           },
           steps: [
             Step(
@@ -125,12 +149,19 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
           TextFormField(
             decoration: const InputDecoration(
               labelText: 'Título del Presupuesto',
+              isDense: true,
+              contentPadding: EdgeInsets.all(8),
             ),
             validator: (value) => value!.isEmpty ? 'Ingrese un título' : null,
             onSaved: (value) => _titulo = value!,
           ),
+          const SizedBox(height: 8),
           TextFormField(
-            decoration: const InputDecoration(labelText: 'Superficie (M²)'),
+            decoration: const InputDecoration(
+              labelText: 'Superficie (M²)',
+              isDense: true,
+              contentPadding: EdgeInsets.all(8),
+            ),
             keyboardType: TextInputType.number,
             validator:
                 (value) =>
@@ -139,22 +170,35 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                         : null,
             onSaved: (value) => _superficie = double.parse(value!),
           ),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: Text(
-                  'Fecha de Creación: ${_fechaCreacion.toLocal().toString().split(' ')[0]}',
+                  'Fecha: ${_fechaCreacion.toLocal().toString().split(' ')[0]}',
+                  style: const TextStyle(fontSize: 13),
                 ),
               ),
               TextButton(
                 onPressed: _seleccionarFecha,
-                child: const Text('Seleccionar Fecha'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                ),
+                child: const Text('Cambiar', style: TextStyle(fontSize: 12)),
               ),
             ],
           ),
+          const SizedBox(height: 8),
           DropdownButtonFormField<EstadoPresupuesto>(
             value: _estado,
-            decoration: const InputDecoration(labelText: 'Estado'),
+            decoration: const InputDecoration(
+              labelText: 'Estado',
+              isDense: true,
+              contentPadding: EdgeInsets.all(8),
+            ),
             items:
                 EstadoPresupuesto.values.map((estado) {
                   return DropdownMenuItem(

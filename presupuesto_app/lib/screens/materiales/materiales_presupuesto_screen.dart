@@ -102,7 +102,7 @@ class _MaterialesPresupuestoScreenState
     final totalGeneral = widget.materialesService.calcularTotalMateriales();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -115,11 +115,11 @@ class _MaterialesPresupuestoScreenState
                   icon: const Icon(Icons.add),
                   label: const Text('Agregar Material'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
@@ -142,14 +142,14 @@ class _MaterialesPresupuestoScreenState
                   icon: const Icon(Icons.library_books),
                   label: const Text('Catálogo'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     backgroundColor: Colors.blue,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
 
           // Lista de materiales
           if (materiales.isEmpty)
@@ -191,7 +191,7 @@ class _MaterialesPresupuestoScreenState
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: materiales.length,
                   separatorBuilder:
-                      (context, index) => const SizedBox(height: 4),
+                      (context, index) => const SizedBox(height: 2),
                   itemBuilder: (context, index) {
                     final material = materiales[index];
                     return Card(
@@ -260,14 +260,14 @@ class _MaterialesPresupuestoScreenState
                     );
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 // Total general
                 Card(
                   color: Colors.blue.shade50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 10.0,
+                      horizontal: 10.0,
+                      vertical: 8.0,
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -275,14 +275,14 @@ class _MaterialesPresupuestoScreenState
                         const Text(
                           'Total:',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 13,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           '\$${totalGeneral.toStringAsFixed(2)}',
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.blue,
                           ),
