@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:presupuesto_app/models/Presupuesto/presupuesto.dart';
-import 'package:presupuesto_app/models/Proyectos/proyecto.dart';
+import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
+import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
+import 'package:presupuesto_app/models/proyectos/proyecto.dart';
+import 'package:presupuesto_app/screens/presupuesto/steps/step_mano_obra.dart';
 
 class WizardPresupuestoScreen extends StatefulWidget {
   final String proyectoId;
@@ -8,7 +10,8 @@ class WizardPresupuestoScreen extends StatefulWidget {
   const WizardPresupuestoScreen({super.key, required this.proyectoId});
 
   @override
-  State<WizardPresupuestoScreen> createState() => _WizardPresupuestoScreenState();
+  State<WizardPresupuestoScreen> createState() =>
+      _WizardPresupuestoScreenState();
 }
 
 class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
@@ -20,8 +23,10 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   double _superficie = 0.0;
   DateTime _fechaCreacion = DateTime.now();
   EstadoPresupuesto _estado = EstadoPresupuesto.borrador;
+  ManoObra? _manoObra;
 
   final _formKey = GlobalKey<FormState>();
+  final _manoObraFormKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -33,19 +38,33 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Presupuesto'),
-      ),
+      appBar: AppBar(title: const Text('Crear Presupuesto')),
       body: Stepper(
         currentStep: _currentStep,
         onStepContinue: () {
-          if (_currentStep < 5) {
-            setState(() {
-              _currentStep++;
-            });
+          if (_currentStep == 0) {
+            // Validar paso 1: Información básica
+            if (_formKey.currentState!.validate()) {
+              _formKey.currentState!.save();
+              if (_currentStep < 5) {
+                setState(() => _currentStep++);
+              }
+            }
+          } else if (_currentStep == 1) {
+            // Validar paso 2: Mano de obra
+            if (_manoObraFormKey.currentState!.validate()) {
+              _manoObraFormKey.currentState!.save();
+              if (_currentStep < 5) {
+                setState(() => _currentStep++);
+              }
+            }
           } else {
-            // Guardar presupuesto
-            _guardarPresupuesto();
+            // Otros pasos
+            if (_currentStep < 5) {
+              setState(() => _currentStep++);
+            } else {
+              _guardarPresupuesto();
+            }
           }
         },
         onStepCancel: () {
@@ -63,7 +82,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
           ),
           Step(
             title: const Text('Mano de Obra'),
-            content: const Text('Paso 2: Mano de Obra'),
+            content: _buildStepManoObra(),
             isActive: _currentStep >= 1,
           ),
           Step(
@@ -97,20 +116,28 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
       child: Column(
         children: [
           TextFormField(
-            decoration: const InputDecoration(labelText: 'Título del Presupuesto'),
+            decoration: const InputDecoration(
+              labelText: 'Título del Presupuesto',
+            ),
             validator: (value) => value!.isEmpty ? 'Ingrese un título' : null,
             onSaved: (value) => _titulo = value!,
           ),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Superficie (M²)'),
             keyboardType: TextInputType.number,
-            validator: (value) => double.tryParse(value!) == null ? 'Ingrese un número válido' : null,
+            validator:
+                (value) =>
+                    double.tryParse(value!) == null
+                        ? 'Ingrese un número válido'
+                        : null,
             onSaved: (value) => _superficie = double.parse(value!),
           ),
           Row(
             children: [
               Expanded(
-                child: Text('Fecha de Creación: ${_fechaCreacion.toLocal().toString().split(' ')[0]}'),
+                child: Text(
+                  'Fecha de Creación: ${_fechaCreacion.toLocal().toString().split(' ')[0]}',
+                ),
               ),
               TextButton(
                 onPressed: _seleccionarFecha,
@@ -121,12 +148,13 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
           DropdownButtonFormField<EstadoPresupuesto>(
             value: _estado,
             decoration: const InputDecoration(labelText: 'Estado'),
-            items: EstadoPresupuesto.values.map((estado) {
-              return DropdownMenuItem(
-                value: estado,
-                child: Text(estado.toString().split('.').last),
-              );
-            }).toList(),
+            items:
+                EstadoPresupuesto.values.map((estado) {
+                  return DropdownMenuItem(
+                    value: estado,
+                    child: Text(estado.toString().split('.').last),
+                  );
+                }).toList(),
             onChanged: (value) => setState(() => _estado = value!),
           ),
         ],
@@ -148,11 +176,23 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
     }
   }
 
+  Widget _buildStepManoObra() {
+    return StepManoObra(
+      formKey: _manoObraFormKey,
+      initialData: _manoObra,
+      onSaved: (manoObra) {
+        setState(() {
+          _manoObra = manoObra;
+        });
+      },
+    );
+  }
+
   void _guardarPresupuesto() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       // Crear el presupuesto con los datos
-      Presupuesto presupuesto = Presupuesto(
+      final presupuesto = Presupuesto(
         id: DateTime.now().toString(), // Generar ID único
         proyectoId: widget.proyectoId,
         titulo: _titulo,
@@ -160,14 +200,15 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
         fechaCreacion: _fechaCreacion,
         estado: _estado,
         version: 1,
-        manoObra: [], // Inicializar vacío, se llenará en steps posteriores
+        manoObra: _manoObra != null ? [_manoObra!] : [],
         equipos: [],
         materiales: [],
       );
       // Aquí guardar en Hive o navegar a siguiente pantalla
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Presupuesto guardado')),
-      );
+      print('Presupuesto creado: ${presupuesto.id}');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Presupuesto guardado')));
     }
   }
 }
