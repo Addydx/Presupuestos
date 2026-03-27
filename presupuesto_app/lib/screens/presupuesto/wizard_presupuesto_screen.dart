@@ -29,7 +29,8 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   late MaterialesService _materialesService;
   late EquiposService _equiposService;
   late CalculadoraFinanzas _calculadora;
-  final GlobalKey<StepManoObraState> _manoObraKey = GlobalKey<StepManoObraState>();
+  final GlobalKey<StepManoObraState> _manoObraKey =
+      GlobalKey<StepManoObraState>();
 
   // Datos del presupuesto
   String _titulo = '';
@@ -56,113 +57,159 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear Presupuesto')),
+      appBar: AppBar(title: const Text('Crear Presupuesto'), elevation: 0),
       body: Theme(
-        data: Theme.of(context).copyWith(
-          // Reducir el spacing por defecto del Stepper
-          useMaterial3: true,
-        ),
-        child: Stepper(
-          currentStep: _currentStep,
-          physics: const BouncingScrollPhysics(),
-          onStepContinue: () {
-            if (_currentStep == 0) {
-              // Validar paso 1: Información básica
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                if (_currentStep < 5) {
-                  setState(() => _currentStep++);
+        data: Theme.of(context).copyWith(useMaterial3: true),
+        child: Container(
+          color: const Color(0xFFF5F7FA),
+          child: Stepper(
+            currentStep: _currentStep,
+            physics: const BouncingScrollPhysics(),
+            onStepContinue: () {
+              if (_currentStep == 0) {
+                // Validar paso 1: Información básica
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  if (_currentStep < 5) {
+                    setState(() => _currentStep++);
+                  }
                 }
-              }
-            } else if (_currentStep == 1) {
-              // Validar paso 2: Mano de obra
-              _manoObraKey.currentState?.saveForm();
-              if (_currentStep < 5) {
+              } else if (_currentStep == 1) {
+                // Validar paso 2: Mano de obra
+                if (_manoObraFormKey.currentState!.validate()) {
+                  _manoObraFormKey.currentState!.save();
+                  if (_currentStep < 5) {
+                    setState(() => _currentStep++);
+                  }
+                }
+              } else if (_currentStep < 5) {
+                // Pasos 2-4: Materiales, Equipos, Finanzas
                 setState(() => _currentStep++);
+              } else if (_currentStep == 5) {
+                // Paso 5: Resumen - Guardar directamente
+                _guardarPresupuesto();
               }
-            } else if (_currentStep < 5) {
-              // Pasos 2-4: Materiales, Equipos, Finanzas
-              setState(() => _currentStep++);
-            } else if (_currentStep == 5) {
-              // Paso 5: Resumen - Guardar directamente
-              _guardarPresupuesto();
-            }
-          },
-          onStepCancel: () {
-            if (_currentStep > 0) {
-              setState(() {
-                _currentStep--;
-              });
-            }
-          },
-          controlsBuilder: (context, details) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: details.onStepContinue,
-                    child: Text(_currentStep == 5 ? 'Guardar' : 'Siguiente'),
-                  ),
-                  const SizedBox(width: 8),
-                  if (details.stepIndex > 0)
-                    OutlinedButton(
-                      onPressed: details.onStepCancel,
-                      child: const Text('Atrás'),
+            },
+            onStepCancel: () {
+              if (_currentStep > 0) {
+                setState(() {
+                  _currentStep--;
+                });
+              }
+            },
+            controlsBuilder: (context, details) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Row(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00B4DB).withOpacity(0.3),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: details.onStepContinue,
+                          borderRadius: BorderRadius.circular(12),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            child: Text(
+                              _currentStep == 5 ? 'Guardar' : 'Siguiente',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                ],
+                    const SizedBox(width: 12),
+                    if (details.stepIndex > 0)
+                      OutlinedButton(
+                        onPressed: details.onStepCancel,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: Color(0xFF2E5090),
+                            width: 1.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Atrás'),
+                      ),
+                  ],
+                ),
+              );
+            },
+            steps: [
+              Step(
+                title: const Text('Información Básica'),
+                content: _buildStepInfo(),
+                isActive: _currentStep >= 0,
               ),
-            );
-          },
-          steps: [
-            Step(
-              title: const Text('Información Básica'),
-              content: _buildStepInfo(),
-              isActive: _currentStep >= 0,
-            ),
-            Step(
-              title: const Text('Mano de Obra'),
-              content: _buildStepManoObra(),
-              isActive: _currentStep >= 1,
-            ),
-            Step(
-              title: const Text('Materiales'),
-              content: StepMateriales(materialesService: _materialesService),
-              isActive: _currentStep >= 2,
-            ),
-            Step(
-              title: const Text('Equipos'),
-              content: StepEquipos(equiposService: _equiposService),
-              isActive: _currentStep >= 3,
-            ),
-            Step(
-              title: const Text('Finanzas'),
-              content: StepFinanzas(
-                totalMateriales: _materialesService.calcularTotalMateriales(),
-                totalManoObra: _manoObra?.costo ?? 0,
-                totalEquipos: _equiposService.calcularTotalEquipos(),
-                onFinanzasChanged: (finanzas) {
-                  setState(() {
-                    _finanzas = finanzas;
-                  });
-                },
-                finanzasInicial: _finanzas,
+              Step(
+                title: const Text('Mano de Obra'),
+                content: _buildStepManoObra(),
+                isActive: _currentStep >= 1,
               ),
-              isActive: _currentStep >= 4,
-            ),
-            Step(
-              title: const Text('Resumen'),
-              content: StepResumen(
-                materiales: _materialesService.obtenerMaterialesPresupuesto(),
-                equipos: _equiposService.obtenerEquipos(),
-                manoObra: _manoObra != null ? [_manoObra!] : [],
-                finanzas: _finanzas,
-                titulo: _titulo.isNotEmpty ? _titulo : null,
-                fecha: _fechaCreacion,
+              Step(
+                title: const Text('Materiales'),
+                content: StepMateriales(materialesService: _materialesService),
+                isActive: _currentStep >= 2,
               ),
-              isActive: _currentStep >= 5,
-            ),
-          ],
+              Step(
+                title: const Text('Equipos'),
+                content: StepEquipos(equiposService: _equiposService),
+                isActive: _currentStep >= 3,
+              ),
+              Step(
+                title: const Text('Finanzas'),
+                content: StepFinanzas(
+                  totalMateriales: _materialesService.calcularTotalMateriales(),
+                  totalManoObra: _manoObra?.costo ?? 0,
+                  totalEquipos: _equiposService.calcularTotalEquipos(),
+                  onFinanzasChanged: (finanzas) {
+                    setState(() {
+                      _finanzas = finanzas;
+                    });
+                  },
+                  finanzasInicial: _finanzas,
+                ),
+                isActive: _currentStep >= 4,
+              ),
+              Step(
+                title: const Text('Resumen'),
+                content: StepResumen(
+                  materiales: _materialesService.obtenerMaterialesPresupuesto(),
+                  equipos: _equiposService.obtenerEquipos(),
+                  manoObra: _manoObra != null ? [_manoObra!] : [],
+                  finanzas: _finanzas,
+                  titulo: _titulo.isNotEmpty ? _titulo : null,
+                  fecha: _fechaCreacion,
+                ),
+                isActive: _currentStep >= 5,
+              ),
+            ],
+          ),
         ),
       ),
     );

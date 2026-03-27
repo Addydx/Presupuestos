@@ -84,257 +84,431 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nuevo Proyecto')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Espacio para imagen del proyecto
-              GestureDetector(
-                onDoubleTap: _seleccionarImagen,
-                child: Container(
-                  width:
-                      double
-                          .infinity, //esto es para que el contenedor ocupe todo el ancho disponible
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color:
-                          Colors
-                              .grey[300]!, //esto es para darle un borde al contenedor de la imagen
-                      width: 2,
+      appBar: AppBar(title: const Text('Nuevo Proyecto'), elevation: 0),
+      body: Container(
+        color: const Color(0xFFF5F7FA),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Espacio para imagen del proyecto - mejorado
+                GestureDetector(
+                  onDoubleTap: _seleccionarImagen,
+                  child: Container(
+                    width: double.infinity,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient:
+                          _imagenProyecto == null
+                              ? LinearGradient(
+                                colors: [
+                                  const Color(0xFF2E5090).withOpacity(0.1),
+                                  const Color(0xFF00B4DB).withOpacity(0.1),
+                                ],
+                              )
+                              : null,
+                      border: Border.all(
+                        color: const Color(0xFFE8EEF5),
+                        width: 2,
+                      ),
+                      boxShadow:
+                          _imagenProyecto == null
+                              ? []
+                              : [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 12,
+                                ),
+                              ],
                     ),
-                  ),
-                  child:
-                      _imagenProyecto != null
-                          ? ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.file(
-                              _imagenProyecto!, //aqui se muestra la imagen seleccionada del proyecto y ! sirve para decirle a dart que no es nula
-                              width: double.infinity,
-                              fit:
-                                  BoxFit
-                                      .cover, //esto es para que la imagen ocupe todo el espacio del contenedor y se recorte si es necesario
-                            ),
-                          )
-                          : Column(
-                            mainAxisAlignment:
-                                MainAxisAlignment
-                                    .center, //esto es para centrar el contenido del contenedor de la imagen
-                            children: [
-                              Icon(
-                                Icons.add_a_photo,
-                                size: 50,
-                                color:
-                                    Colors
-                                        .grey[500], //esto es para mostrar un icono de agregar imagen cuando no se ha seleccionado una imagen para el proyecto
+                    child:
+                        _imagenProyecto != null
+                            ? ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.file(
+                                _imagenProyecto!,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
                               ),
-                              const SizedBox(
-                                height: 8,
-                              ), //esto es para darle un espacio entre el icono y el texto
-                              Text(
-                                'Agregar imagen del proyecto',
-                                style: TextStyle(
-                                  color:
-                                      Colors
-                                          .grey[500], //esto es para mostrar un texto de agregar imagen cuando no se ha seleccionado una imagen para el proyecto
-                                  fontSize: 14,
+                            )
+                            : Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: _seleccionarImagen,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF00B4DB,
+                                        ).withOpacity(0.15),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.add_a_photo,
+                                        size: 40,
+                                        color: Color(0xFF00B4DB),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Agregar imagen del proyecto',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyMedium?.copyWith(
+                                        color: const Color(0xFF6C757D),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Toca para seleccionar o haz doble clic',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall?.copyWith(
+                                        color: const Color(0xFFB0BCC4),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Sección de información principal
+                _buildFormSection(
+                  context,
+                  title: 'Información Principal',
+                  children: [
+                    _buildFormField(
+                      context,
+                      controller: _nombreProyectoController,
+                      label: 'Nombre del proyecto',
+                      hint: 'Ej: Casa Residencial García',
+                      icon: Icons.home_work,
+                      validator:
+                          (value) =>
+                              value!.isEmpty
+                                  ? 'Ingrese el nombre del proyecto'
+                                  : null,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFormField(
+                      context,
+                      controller: _nombreClienteController,
+                      label: 'Nombre del cliente',
+                      hint: 'Ej: Juan García López',
+                      icon: Icons.person,
+                      validator:
+                          (value) =>
+                              value!.isEmpty
+                                  ? 'Ingrese el nombre del cliente'
+                                  : null,
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFormField(
+                      context,
+                      controller: _ubicacionController,
+                      label: 'Ubicación del proyecto',
+                      hint: 'Ej: Calle Principal 123, Apartamento 4B',
+                      icon: Icons.location_on,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Sección de descripción
+                _buildFormSection(
+                  context,
+                  title: 'Descripción',
+                  children: [
+                    TextFormField(
+                      controller: _descripcionController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'Detalles adicionales del proyecto...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFE8EEF5),
+                            width: 1,
                           ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Campo nombre del proyecto
-              const Text(
-                'Nombre del proyecto',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _nombreProyectoController,
-                decoration: InputDecoration(
-                  hintText: 'Ej: Casa Residencial García',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.home_work),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa el nombre del proyecto';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Campo nombre del cliente
-              const Text(
-                'Nombre del cliente',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _nombreClienteController,
-                decoration: InputDecoration(
-                  hintText: 'Ej: Juan García López',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.person),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa el nombre del cliente';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-
-              // Campo descripción
-              const Text(
-                'Descripción (opcional)',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _descripcionController,
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText: 'Detalles adicionales del proyecto...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo ubicación
-              const Text(
-                'Ubicación del proyecto',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _ubicacionController,
-                decoration: InputDecoration(
-                  hintText: 'Ej: Calle Principal 123, Apartamento 4B',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.location_on),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo fecha de inicio
-              const Text(
-                'Fecha de inicio',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _fechaInicioController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  hintText: 'Selecciona una fecha',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                ),
-                onTap: _seleccionarFechaInicio,
-              ),
-              const SizedBox(height: 20),
-
-              // Campo fecha de fin
-              const Text(
-                'Fecha de fin',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _fechaFinController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  hintText: 'Selecciona una fecha',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                ),
-                onTap: _seleccionarFechaFin,
-              ),
-              const SizedBox(height: 32),
-
-              // Botón de guardar
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Crear el nuevo proyecto con un ID único
-                      final nuevoProyecto = Proyecto(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        nombreProyecto: _nombreProyectoController.text.trim(),
-                        nombreCliente: _nombreClienteController.text.trim(),
-                        descripcion:
-                            _descripcionController.text.trim().isEmpty
-                                ? null
-                                : _descripcionController.text.trim(),
-                        imagenPath:
-                            _imagenProyecto
-                                ?.path, // Guardar la ruta de la imagen
-                        ubicacion:
-                            _ubicacionController.text.trim().isEmpty
-                                ? null
-                                : _ubicacionController.text.trim(),
-                        fechaInicio: _fechaInicio,
-                        fechaFin: _fechaFin,
-                      );
-
-                      print(
-                        'Ruta de la imagen guardada: \\${_imagenProyecto?.path}',
-                      );
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Proyecto guardado correctamente'),
-                          backgroundColor: Colors.green,
                         ),
-                      );
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFE8EEF5),
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF00B4DB),
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.all(14),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
 
-                      // Retornar el proyecto creado a la pantalla anterior
-                      Navigator.pop(context, nuevoProyecto);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                // Sección de fechas
+                _buildFormSection(
+                  context,
+                  title: 'Fechas',
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDateField(
+                            context,
+                            controller: _fechaInicioController,
+                            label: 'Fecha de inicio',
+                            onTap: _seleccionarFechaInicio,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildDateField(
+                            context,
+                            controller: _fechaFinController,
+                            label: 'Fecha de fin',
+                            onTap: _seleccionarFechaFin,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+
+                // Botón de guardar - mejorado
+                Container(
+                  width: double.infinity,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00B4DB).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          final nuevoProyecto = Proyecto(
+                            id:
+                                DateTime.now().millisecondsSinceEpoch
+                                    .toString(),
+                            nombreProyecto:
+                                _nombreProyectoController.text.trim(),
+                            nombreCliente: _nombreClienteController.text.trim(),
+                            descripcion:
+                                _descripcionController.text.trim().isEmpty
+                                    ? null
+                                    : _descripcionController.text.trim(),
+                            imagenPath: _imagenProyecto?.path,
+                            ubicacion:
+                                _ubicacionController.text.trim().isEmpty
+                                    ? null
+                                    : _ubicacionController.text.trim(),
+                            fechaInicio: _fechaInicio,
+                            fechaFin: _fechaFin,
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Proyecto guardado correctamente',
+                              ),
+                              backgroundColor: const Color(0xFF4CAF50),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+
+                          Navigator.pop(context, nuevoProyecto);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(14),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Guardar Proyecto',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  child: const Text(
-                    'Guardar Proyecto',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFormSection(
+    BuildContext context, {
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE8EEF5), width: 1),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormField(
+    BuildContext context, {
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: const Color(0xFF1A1A1A),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, color: const Color(0xFF00B4DB)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF00B4DB), width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+          ),
+          validator: validator,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDateField(
+    BuildContext context, {
+    required TextEditingController controller,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: const Color(0xFF1A1A1A),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          decoration: InputDecoration(
+            hintText: 'Selecciona una fecha',
+            prefixIcon: const Icon(
+              Icons.calendar_today,
+              color: Color(0xFF00B4DB),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: const BorderSide(color: Color(0xFF00B4DB), width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+          ),
+          onTap: onTap,
+        ),
+      ],
     );
   }
 }

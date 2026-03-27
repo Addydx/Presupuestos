@@ -16,23 +16,24 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //scafold es un widget que nos permite crear una estructura basica de una pantalla
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex, //esto es para saber el index actual
+        currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; //esto es para cambiar el index actual
+            _currentIndex = index;
           });
         },
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.work_outline),
-            label: 'proyectos',
+            icon: Icon(_currentIndex == 0 ? Icons.work : Icons.work_outline),
+            label: 'Proyectos',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'configuración',
+            icon: Icon(
+              _currentIndex == 1 ? Icons.settings : Icons.settings_outlined,
+            ),
+            label: 'Configuración',
           ),
         ],
       ),

@@ -55,39 +55,60 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Proyectos'), actions: [
-          
-        ],
-      ),
+      appBar: AppBar(title: const Text('Mis Proyectos'), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Botón de crear nuevo proyecto
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton.icon(
-                onPressed: _crearNuevoProyecto,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Crear Nuevo Proyecto',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+            // Botón crear nuevo proyecto - estilo mejorado
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF00B4DB),
+                    const Color(0xFF2E5090).withOpacity(0.8),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00B4DB).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _crearNuevoProyecto,
+                  borderRadius: BorderRadius.circular(14),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add, color: Colors.white, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Nuevo Proyecto',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             // Lista de proyectos
             Expanded(
               child:
@@ -96,26 +117,31 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.folder_open,
-                              size: 64,
-                              color: Colors.grey[400],
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: const Color(
+                                  0xFF2E5090,
+                                ).withOpacity(0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.folder_open,
+                                size: 64,
+                                color: Color(0xFF2E5090),
+                              ),
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No hay proyectos',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey[600],
-                              ),
+                              'Sin proyectos aún',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Crea tu primer proyecto',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
+                              'Crea tu primer proyecto para comenzar',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: const Color(0xFF6C757D)),
                             ),
                           ],
                         ),
@@ -125,7 +151,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                         itemBuilder: (context, index) {
                           final proyecto = _proyectos[index];
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
+                            padding: const EdgeInsets.only(bottom: 12.0),
                             child: _ProyectoCard(
                               nombreProyecto: proyecto.nombreProyecto,
                               nombreCliente: proyecto.nombreCliente,
@@ -169,86 +195,133 @@ class _ProyectoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        clipBehavior: Clip.antiAlias,
-        child: SizedBox(
-          width: double.infinity,
-          height: 280,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Espacio para imagen (más grande)
-              Expanded(
-                flex: 3,
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.grey[300]),
-                  child:
-                      imagenAsset != null &&
-                              imagenAsset!
-                                  .isNotEmpty //esto es para mostrar la imagen del proyecto si existe, sino muestra un icono por defecto
-                          ? Image.file(
-                            File(imagenAsset!),
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          )
-                          : Center(
-                            child: Icon(
-                              Icons.home_work,
-                              size: 80,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                ),
-              ),
-              // Información del proyecto (abajo)
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        nombreProyecto,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.person, size: 18, color: Colors.grey[600]),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              nombreCliente,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Card(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: SizedBox(
+            width: double.infinity,
+            height: 240,
+            child: Stack(
+              children: [
+                // Imagen de fondo
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.grey[200]),
+                    child:
+                        imagenAsset != null && imagenAsset!.isNotEmpty
+                            ? Image.file(
+                              File(imagenAsset!),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            )
+                            : Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    const Color(0xFF2E5090).withOpacity(0.9),
+                                    const Color(0xFF00B4DB).withOpacity(0.7),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.home_work,
+                                  size: 80,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 18,
-                            color: Colors.grey[400],
-                          ),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ],
+                // Gradiente oscuro en la parte inferior
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.5),
+                          Colors.black.withOpacity(0.7),
+                        ],
+                        stops: const [0.3, 0.6, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+                // Contenido (abajo)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          nombreProyecto,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.person_outline,
+                              size: 16,
+                              color: Colors.white70,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                nombreCliente,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Colors.white.withOpacity(0.6),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
