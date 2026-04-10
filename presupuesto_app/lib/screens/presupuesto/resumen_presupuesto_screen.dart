@@ -9,8 +9,9 @@ import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_finanzas.dar
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_mano_obra.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_materiales.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
+import 'package:presupuesto_app/services/pdf_service.dart';
 
-class ResumenPresupuestoScreen extends StatelessWidget {
+class ResumenPresupuestoScreen extends StatefulWidget {
   final List<MaterialPresupuesto>? materiales;
   final List<Equipo>? equipos;
   final List<ManoObra>? manoObra;
@@ -31,14 +32,65 @@ class ResumenPresupuestoScreen extends StatelessWidget {
   });
 
   @override
+  State<ResumenPresupuestoScreen> createState() =>
+      _ResumenPresupuestoScreenState();
+}
+
+class _ResumenPresupuestoScreenState
+    extends State<ResumenPresupuestoScreen> {
+  bool _exportando = false;
+
+  // Accesos cortos a los datos del widget padre
+  List<MaterialPresupuesto> get _materiales =>
+      widget.presupuesto?.materiales ?? widget.materiales ?? [];
+  List<Equipo> get _equipos =>
+      widget.presupuesto?.equipos ?? widget.equipos ?? [];
+  List<ManoObra> get _manoObra =>
+      widget.presupuesto?.manoObra ?? widget.manoObra ?? [];
+  Finanzas get _finanzas =>
+      widget.presupuesto?.finanzas ?? widget.finanzas ?? Finanzas();
+  String? get _titulo => widget.presupuesto?.titulo ?? widget.titulo;
+  DateTime? get _fecha =>
+      widget.presupuesto?.fechaCreacion ?? widget.fecha;
+  double? get _superficieM2 => widget.presupuesto?.superficieM2;
+  EstadoPresupuesto? get _estado => widget.presupuesto?.estado;
+
+  Future<void> _exportarPdf() async {
+    setState(() => _exportando = true);
+    try {
+      await PdfService().exportarPresupuesto(
+        materiales: _materiales,
+        equipos: _equipos,
+        manoObra: _manoObra,
+        finanzas: _finanzas,
+        titulo: _titulo,
+        fecha: _fecha,
+        superficieM2: _superficieM2,
+        estado: _estado,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al generar PDF: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exportando = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Obtener datos del presupuesto o de los parámetros individuales
-    final materialesList = presupuesto?.materiales ?? materiales ?? [];
-    final equiposList = presupuesto?.equipos ?? equipos ?? [];
-    final manoObraList = presupuesto?.manoObra ?? manoObra ?? [];
-    final finanzasData = presupuesto?.finanzas ?? finanzas ?? Finanzas();
-    final tituloText = presupuesto?.titulo ?? titulo;
-    final fechaData = presupuesto?.fechaCreacion ?? fecha;
+    // Usar los getters del State para acceder a los datos
+    final materialesList = _materiales;
+    final equiposList = _equipos;
+    final manoObraList = _manoObra;
+    final finanzasData = _finanzas;
+    final tituloText = _titulo;
+    final fechaData = _fecha;
 
     // Calcular totales
     final totalMateriales = materialesList.fold<double>(
@@ -248,16 +300,15 @@ class ResumenPresupuestoScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Presupuesto exportado'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.share),
-                    label: const Text('Exportar'),
+                    onPressed: _exportando ? null : _exportarPdf,
+                    icon: _exportando
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.picture_as_pdf),
+                    label: Text(_exportando ? 'Generando...' : 'Exportar PDF'),
                   ),
                 ),
               ],
