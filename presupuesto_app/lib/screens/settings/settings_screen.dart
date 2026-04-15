@@ -8,7 +8,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notificationsEnabled = true;
   bool _darkModeEnabled = false;
   String _selectedCurrency = 'USD';
 
@@ -114,23 +113,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Notificaciones
-          _buildSettingTile(
-            context,
-            icon: Icons.notifications_outlined,
-            title: 'Notificaciones',
-            subtitle: 'Recibir alertas de cambios en presupuestos',
-            trailing: Switch(
-              value: _notificationsEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _notificationsEnabled = value;
-                });
-              },
-              activeColor: const Color(0xFF00B4DB),
-            ),
-          ),
-          const Divider(height: 1, indent: 56),
           // Moneda
           _buildSettingTile(
             context,

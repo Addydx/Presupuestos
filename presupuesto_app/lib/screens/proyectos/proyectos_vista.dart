@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/screens/presupuesto/wizard_presupuesto_screen.dart';
 import 'package:presupuesto_app/services/presupuestos_service.dart';
 import 'package:presupuesto_app/screens/presupuesto/resumen_presupuesto_screen.dart';
+import 'package:presupuesto_app/screens/proyectos/editar_proyecto_screen.dart';
 import 'dart:io';
 
 class ProyectosVista extends StatefulWidget {
@@ -18,18 +20,42 @@ class ProyectosVista extends StatefulWidget {
 class _ProyectosVistaState extends State<ProyectosVista> {
   late PresupuestosService _presupuestosService;
   List<Presupuesto> _presupuestos = [];
+  late Proyecto _proyecto;
 
   @override
   void initState() {
     super.initState();
+    _proyecto = widget.proyecto;
     _presupuestosService = PresupuestosService();
     _cargarPresupuestos();
+  }
+
+  Future<void> _editarProyecto() async {
+    final proyectoActualizado = await Navigator.push<Proyecto>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditarProyectoScreen(proyecto: _proyecto),
+      ),
+    );
+
+    if (proyectoActualizado != null && mounted) {
+      final box = Hive.box<Proyecto>('proyectos');
+      for (final key in box.keys) {
+        if (box.get(key)?.id == _proyecto.id) {
+          await box.put(key, proyectoActualizado);
+          break;
+        }
+      }
+      setState(() {
+        _proyecto = proyectoActualizado;
+      });
+    }
   }
 
   void _cargarPresupuestos() {
     setState(() {
       _presupuestos = _presupuestosService.obtenerPresupuestosPorProyecto(
-        widget.proyecto.id,
+        _proyecto.id,
       );
     });
   }
@@ -84,20 +110,26 @@ class _ProyectosVistaState extends State<ProyectosVista> {
       pinned: true,
       backgroundColor:
           Colors.white, //esto es para que el header tenga un fondo blanco
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.edit_outlined),
+          onPressed: _editarProyecto,
+          tooltip: 'Editar proyecto',
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
           children: [
-            widget.proyecto.imagenPath !=
+                _proyecto.imagenPath !=
                         null && //esto es para mostrar la imagen del proyecto si es que tiene una, y si no tiene una imagen se muestra un contenedor gris
-                    widget
-                        .proyecto
+                    _proyecto
                         .imagenPath!
                         .isNotEmpty //esto es para verificar que la ruta de la imagen no este vacia
                 ? Image.file(
                   //aqui se muestra la imagen del proyecto, y se usa Image.file para mostrar la imagen desde el sistema de archivos, y se le pasa la ruta de la imagen que se guardo en el proyecto
                   File(
-                    widget.proyecto.imagenPath!,
+                    _proyecto.imagenPath!,
                   ), //esto es para convertir la ruta de la imagen en un archivo, y ! sirve para decirle a dart que no es nula
                   fit:
                       BoxFit
@@ -125,26 +157,26 @@ class _ProyectosVistaState extends State<ProyectosVista> {
       children: [
         // TÍTULO PRINCIPAL (DESTACA)
         Text(
-          widget.proyecto.nombreProyecto,
+          _proyecto.nombreProyecto,
           style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
         ),
 
         const SizedBox(height: 6),
 
         Text(
-          widget.proyecto.nombreCliente,
+          _proyecto.nombreCliente,
           style: TextStyle(fontSize: 16, color: Colors.grey[600]),
         ),
 
-        if (widget.proyecto.descripcion != null &&
-            widget.proyecto.descripcion!.trim().isNotEmpty) ...[
+        if (_proyecto.descripcion != null &&
+            _proyecto.descripcion!.trim().isNotEmpty) ...[
           const SizedBox(height: 14),
-          Text(widget.proyecto.descripcion!),
+          Text(_proyecto.descripcion!),
         ],
 
         // Ubicación
-        if (widget.proyecto.ubicacion != null &&
-            widget.proyecto.ubicacion!.trim().isNotEmpty) ...[
+        if (_proyecto.ubicacion != null &&
+            _proyecto.ubicacion!.trim().isNotEmpty) ...[
           const SizedBox(height: 14),
           Row(
             children: [
@@ -152,7 +184,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  widget.proyecto.ubicacion!,
+                  _proyecto.ubicacion!,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ),
@@ -161,8 +193,8 @@ class _ProyectosVistaState extends State<ProyectosVista> {
         ],
 
         // Fechas
-        if (widget.proyecto.fechaInicio != null ||
-            widget.proyecto.fechaFin != null) ...[
+        if (_proyecto.fechaInicio != null ||
+            _proyecto.fechaFin != null) ...[
           const SizedBox(height: 14),
           Row(
             children: [
@@ -171,8 +203,8 @@ class _ProyectosVistaState extends State<ProyectosVista> {
               Expanded(
                 child: Text(
                   _formatearRangoFechas(
-                    widget.proyecto.fechaInicio,
-                    widget.proyecto.fechaFin,
+                    _proyecto.fechaInicio,
+                    _proyecto.fechaFin,
                   ),
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
@@ -216,7 +248,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                         MaterialPageRoute(
                           builder:
                               (context) => WizardPresupuestoScreen(
-                                proyectoId: widget.proyecto.id,
+                                proyectoId: _proyecto.id,
                               ),
                         ),
                       ).then(
@@ -349,7 +381,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                       MaterialPageRoute(
                         builder:
                             (context) => WizardPresupuestoScreen(
-                              proyectoId: widget.proyecto.id,
+                              proyectoId: _proyecto.id,
                             ),
                       ),
                     ).then((_) => _cargarPresupuestos()); // Recargar al volver
@@ -374,7 +406,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
             MaterialPageRoute(
               builder:
                   (context) =>
-                      WizardPresupuestoScreen(proyectoId: widget.proyecto.id),
+                      WizardPresupuestoScreen(proyectoId: _proyecto.id),
             ),
           ).then((_) => _cargarPresupuestos()); // Recargar al volver
         },

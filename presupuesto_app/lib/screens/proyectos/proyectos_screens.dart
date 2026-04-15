@@ -156,8 +156,8 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                               nombreProyecto: proyecto.nombreProyecto,
                               nombreCliente: proyecto.nombreCliente,
                               imagenAsset: proyecto.imagenPath,
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder:
@@ -165,6 +165,12 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                                             ProyectosVista(proyecto: proyecto),
                                   ),
                                 );
+                                if (mounted) {
+                                  setState(() {
+                                    _proyectos.clear();
+                                    _proyectos.addAll(_proyectosBox.values);
+                                  });
+                                }
                               },
                             ),
                           );
