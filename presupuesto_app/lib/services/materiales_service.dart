@@ -4,13 +4,12 @@ import 'package:presupuesto_app/models/presupuesto/material_catalogo.dart';
 
 class MaterialesService {
   static const String _boxNameCatalogo = 'materiales_catalogo';
-  static const String _boxNamePresupuesto = 'materiales_presupuesto';
 
   // Singleton
   static final MaterialesService _instance = MaterialesService._internal();
 
   late Box<MaterialCatalogo> _catalogoBox;
-  late Box<MaterialPresupuesto> _presupuestoBox;
+  final List<MaterialPresupuesto> _materialesPresupuesto = [];
 
   bool _initialized = false;
 
@@ -26,9 +25,6 @@ class MaterialesService {
     if (_initialized) return;
 
     _catalogoBox = await Hive.openBox<MaterialCatalogo>(_boxNameCatalogo);
-    _presupuestoBox = await Hive.openBox<MaterialPresupuesto>(
-      _boxNamePresupuesto,
-    );
 
     _initialized = true;
   }
@@ -92,25 +88,40 @@ class MaterialesService {
 
   /// Agg material al presupuesto
   Future<void> agregarMaterialPresupuesto(MaterialPresupuesto material) async {
-    await _presupuestoBox.put(material.id, material);
+    _materialesPresupuesto.add(material);
   }
 
   /// Actualizar material del presupuesto
   Future<void> actualizarMaterialPresupuesto(
     MaterialPresupuesto material,
   ) async {
-    await _presupuestoBox.put(material.id, material);
+    final index = _materialesPresupuesto.indexWhere((m) => m.id == material.id);
+    if (index == -1) {
+      _materialesPresupuesto.add(material);
+      return;
+    }
+
+    _materialesPresupuesto[index] = material;
   }
 
   /// Obtener todos los materiales del presupuesto
   List<MaterialPresupuesto> obtenerMaterialesPresupuesto() {
-    return _presupuestoBox.values.toList();
+    return List<MaterialPresupuesto>.from(_materialesPresupuesto);
+  }
+
+  /// Reemplaza los materiales temporales del presupuesto actual.
+  Future<void> cargarMaterialesPresupuesto(
+    List<MaterialPresupuesto> materiales,
+  ) async {
+    _materialesPresupuesto
+      ..clear()
+      ..addAll(materiales);
   }
 
   /// Obtener material del presupuesto por ID
   MaterialPresupuesto? obtenerMaterialPresupuestoPorId(String id) {
     try {
-      return _presupuestoBox.values.firstWhere((m) => m.id == id);
+      return _materialesPresupuesto.firstWhere((m) => m.id == id);
     } catch (e) {
       return null;
     }
@@ -118,12 +129,12 @@ class MaterialesService {
 
   /// Eliminar material del presupuesto
   Future<void> eliminarMaterialPresupuesto(String id) async {
-    await _presupuestoBox.delete(id);
+    _materialesPresupuesto.removeWhere((material) => material.id == id);
   }
 
   /// Limpiar todos los materiales del presupuesto
   Future<void> limpiarMaterialesPresupuesto() async {
-    await _presupuestoBox.clear();
+    _materialesPresupuesto.clear();
   }
 
   // ==================== CÁLCULOS ====================
@@ -131,7 +142,7 @@ class MaterialesService {
   /// Calcular total general de materiales del presupuesto
   double calcularTotalMateriales() {
     double total = 0;
-    for (var material in _presupuestoBox.values) {
+    for (final material in _materialesPresupuesto) {
       total += material.total;
     }
     return total;
@@ -140,7 +151,7 @@ class MaterialesService {
   /// Calcular subtotal por categoría
   Map<String, double> calcularSubtotalPorCategoria() {
     Map<String, double> subtotales = {};
-    for (var material in _presupuestoBox.values) {
+    for (final material in _materialesPresupuesto) {
       final categoria = material.categoria;
       subtotales[categoria] = (subtotales[categoria] ?? 0) + material.total;
     }
@@ -149,6 +160,6 @@ class MaterialesService {
 
   /// Cantidad total de items
   int obtenerCantidadMateriales() {
-    return _presupuestoBox.length;
+    return _materialesPresupuesto.length;
   }
 }

@@ -40,8 +40,9 @@ class _StepEquiposState extends State<StepEquipos> {
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () {
-                  widget.equiposService.eliminarEquipo(id);
+                onPressed: () async {
+                  await widget.equiposService.eliminarEquipo(id);
+                  if (!context.mounted) return;
                   _cargarEquipos();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -183,16 +184,24 @@ class _StepEquiposState extends State<StepEquipos> {
                                 fontSize: 14,
                               ),
                             ),
-                            PopupMenuButton(
+                            PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'editar') {
+                                  _abrirEditarEquipo(equipo);
+                                }
+                                if (value == 'eliminar') {
+                                  _eliminarEquipo(equipo.id);
+                                }
+                              },
                               itemBuilder:
-                                  (context) => [
+                                  (context) => const [
                                     PopupMenuItem(
-                                      onTap: () => _abrirEditarEquipo(equipo),
-                                      child: const Text('Editar'),
+                                      value: 'editar',
+                                      child: Text('Editar'),
                                     ),
                                     PopupMenuItem(
-                                      onTap: () => _eliminarEquipo(equipo.id),
-                                      child: const Text(
+                                      value: 'eliminar',
+                                      child: Text(
                                         'Eliminar',
                                         style: TextStyle(color: Colors.red),
                                       ),

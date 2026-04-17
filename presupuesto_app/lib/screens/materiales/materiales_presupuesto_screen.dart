@@ -48,8 +48,11 @@ class _MaterialesPresupuestoScreenState
                 child: const Text('Cancelar'),
               ),
               TextButton(
-                onPressed: () {
-                  widget.materialesService.eliminarMaterialPresupuesto(id);
+                onPressed: () async {
+                  await widget.materialesService.eliminarMaterialPresupuesto(
+                    id,
+                  );
+                  if (!context.mounted) return;
                   _cargarMateriales();
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -67,7 +70,7 @@ class _MaterialesPresupuestoScreenState
   }
 
   void _abrirAgregarMaterial() async {
-    final resultado = await Navigator.push<bool>(
+    final resultado = await Navigator.push<MaterialPresupuesto>(
       context,
       MaterialPageRoute(
         builder:
@@ -76,13 +79,14 @@ class _MaterialesPresupuestoScreenState
             ),
       ),
     );
-    if (resultado == true) {
+    if (resultado != null) {
+      await widget.materialesService.agregarMaterialPresupuesto(resultado);
       _cargarMateriales();
     }
   }
 
   void _abrirEditarMaterial(MaterialPresupuesto material) async {
-    final resultado = await Navigator.push<bool>(
+    final resultado = await Navigator.push<MaterialPresupuesto>(
       context,
       MaterialPageRoute(
         builder:
@@ -92,7 +96,8 @@ class _MaterialesPresupuestoScreenState
             ),
       ),
     );
-    if (resultado == true) {
+    if (resultado != null) {
+      await widget.materialesService.actualizarMaterialPresupuesto(resultado);
       _cargarMateriales();
     }
   }
@@ -235,18 +240,24 @@ class _MaterialesPresupuestoScreenState
                                 fontSize: 14,
                               ),
                             ),
-                            PopupMenuButton(
+                            PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'editar') {
+                                  _abrirEditarMaterial(material);
+                                }
+                                if (value == 'eliminar') {
+                                  _eliminarMaterial(material.id);
+                                }
+                              },
                               itemBuilder:
-                                  (context) => [
+                                  (context) => const [
                                     PopupMenuItem(
-                                      onTap:
-                                          () => _abrirEditarMaterial(material),
-                                      child: const Text('Editar'),
+                                      value: 'editar',
+                                      child: Text('Editar'),
                                     ),
                                     PopupMenuItem(
-                                      onTap:
-                                          () => _eliminarMaterial(material.id),
-                                      child: const Text(
+                                      value: 'eliminar',
+                                      child: Text(
                                         'Eliminar',
                                         style: TextStyle(color: Colors.red),
                                       ),

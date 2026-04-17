@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 import 'package:presupuesto_app/models/presupuesto/material_catalogo.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
@@ -81,11 +82,11 @@ class _AgregarEditarMaterialScreenState
 
   void _guardarMaterial() {
     if (_formKey.currentState!.validate()) {
-      _nombre = _nombreController.text;
-      _categoria = _categoriaController.text;
-      _unidad = _unidadController.text;
-      _cantidad = double.parse(_cantidadController.text);
-      _precioUnitario = double.parse(_precioUnitarioController.text);
+      _nombre = _normalizarTexto(_nombreController.text);
+      _categoria = _normalizarTexto(_categoriaController.text);
+      _unidad = _normalizarTexto(_unidadController.text);
+      _cantidad = _parseDecimal(_cantidadController.text)!;
+      _precioUnitario = _parseDecimal(_precioUnitarioController.text)!;
 
       final materialPresupuesto = MaterialPresupuesto(
         id: widget.materialEditando?.id,
@@ -103,8 +104,63 @@ class _AgregarEditarMaterialScreenState
   }
 
   double get _totalCalculado =>
-      (double.tryParse(_cantidadController.text) ?? 0) *
-      (double.tryParse(_precioUnitarioController.text) ?? 0);
+      (_parseDecimal(_cantidadController.text) ?? 0) *
+      (_parseDecimal(_precioUnitarioController.text) ?? 0);
+
+  String _normalizarTexto(String value) {
+    return value.trim().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
+  double? _parseDecimal(String value) {
+    return double.tryParse(value.replaceAll(',', '.').trim());
+  }
+
+  String? _validarTextoGeneral(
+    String? value, {
+    required String nombreCampo,
+    required int maximo,
+  }) {
+    final texto = _normalizarTexto(value ?? '');
+
+    if (texto.isEmpty) {
+      return 'El campo $nombreCampo es requerido';
+    }
+    if (texto.length < 2) {
+      return 'El campo $nombreCampo debe tener al menos 2 caracteres';
+    }
+    if (texto.length > maximo) {
+      return 'El campo $nombreCampo no puede superar $maximo caracteres';
+    }
+
+    return null;
+  }
+
+  String? _validarNumero(
+    String? value, {
+    required String nombreCampo,
+    required bool permitirCero,
+    double? maximo,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return 'El campo $nombreCampo es requerido';
+    }
+
+    final numero = _parseDecimal(value);
+    if (numero == null) {
+      return 'Ingrese un número válido en $nombreCampo';
+    }
+    if (!permitirCero && numero <= 0) {
+      return 'El campo $nombreCampo debe ser mayor a 0';
+    }
+    if (permitirCero && numero < 0) {
+      return 'El campo $nombreCampo no puede ser negativo';
+    }
+    if (maximo != null && numero > maximo) {
+      return 'El campo $nombreCampo supera el máximo permitido';
+    }
+
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +174,7 @@ class _AgregarEditarMaterialScreenState
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -133,12 +190,14 @@ class _AgregarEditarMaterialScreenState
                   prefixIcon: const Icon(Icons.label),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'El nombre es requerido';
-                  }
-                  return null;
+                  return _validarTextoGeneral(
+                    value,
+                    nombreCampo: 'nombre',
+                    maximo: 60,
+                  );
                 },
                 readOnly: widget.materialCatalogo != null,
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
 
@@ -154,12 +213,14 @@ class _AgregarEditarMaterialScreenState
                   prefixIcon: const Icon(Icons.category),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La categoría es requerida';
-                  }
-                  return null;
+                  return _validarTextoGeneral(
+                    value,
+                    nombreCampo: 'categoría',
+                    maximo: 40,
+                  );
                 },
                 readOnly: widget.materialCatalogo != null,
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
 
@@ -175,12 +236,14 @@ class _AgregarEditarMaterialScreenState
                   prefixIcon: const Icon(Icons.straighten),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'La unidad es requerida';
-                  }
-                  return null;
+                  return _validarTextoGeneral(
+                    value,
+                    nombreCampo: 'unidad',
+                    maximo: 15,
+                  );
                 },
                 readOnly: widget.materialCatalogo != null,
+                textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
 
@@ -201,15 +264,17 @@ class _AgregarEditarMaterialScreenState
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                      ],
                       onChanged: (_) => setState(() {}),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Requerido';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Número inválido';
-                        }
-                        return null;
+                        return _validarNumero(
+                          value,
+                          nombreCampo: 'cantidad',
+                          permitirCero: false,
+                          maximo: 1000000,
+                        );
                       },
                     ),
                   ),
@@ -229,15 +294,17 @@ class _AgregarEditarMaterialScreenState
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                      ],
                       onChanged: (_) => setState(() {}),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Requerido';
-                        }
-                        if (double.tryParse(value) == null) {
-                          return 'Número inválido';
-                        }
-                        return null;
+                        return _validarNumero(
+                          value,
+                          nombreCampo: 'precio por unidad',
+                          permitirCero: false,
+                          maximo: 1000000000,
+                        );
                       },
                     ),
                   ),

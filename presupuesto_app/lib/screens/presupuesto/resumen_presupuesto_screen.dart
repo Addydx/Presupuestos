@@ -8,6 +8,7 @@ import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_equipos.dart
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_finanzas.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_mano_obra.dart';
 import 'package:presupuesto_app/screens/presupuesto/widgets/seccion_materiales.dart';
+import 'package:presupuesto_app/screens/presupuesto/wizard_presupuesto_screen.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 import 'package:presupuesto_app/services/pdf_service.dart';
 
@@ -36,24 +37,51 @@ class ResumenPresupuestoScreen extends StatefulWidget {
       _ResumenPresupuestoScreenState();
 }
 
-class _ResumenPresupuestoScreenState
-    extends State<ResumenPresupuestoScreen> {
+class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
   bool _exportando = false;
+  Presupuesto? _presupuestoActual;
+
+  @override
+  void initState() {
+    super.initState();
+    _presupuestoActual = widget.presupuesto;
+  }
 
   // Accesos cortos a los datos del widget padre
   List<MaterialPresupuesto> get _materiales =>
-      widget.presupuesto?.materiales ?? widget.materiales ?? [];
+      _presupuestoActual?.materiales ?? widget.materiales ?? [];
   List<Equipo> get _equipos =>
-      widget.presupuesto?.equipos ?? widget.equipos ?? [];
+      _presupuestoActual?.equipos ?? widget.equipos ?? [];
   List<ManoObra> get _manoObra =>
-      widget.presupuesto?.manoObra ?? widget.manoObra ?? [];
+      _presupuestoActual?.manoObra ?? widget.manoObra ?? [];
   Finanzas get _finanzas =>
-      widget.presupuesto?.finanzas ?? widget.finanzas ?? Finanzas();
-  String? get _titulo => widget.presupuesto?.titulo ?? widget.titulo;
-  DateTime? get _fecha =>
-      widget.presupuesto?.fechaCreacion ?? widget.fecha;
-  double? get _superficieM2 => widget.presupuesto?.superficieM2;
-  EstadoPresupuesto? get _estado => widget.presupuesto?.estado;
+      _presupuestoActual?.finanzas ?? widget.finanzas ?? Finanzas();
+  String? get _titulo => _presupuestoActual?.titulo ?? widget.titulo;
+  DateTime? get _fecha => _presupuestoActual?.fechaCreacion ?? widget.fecha;
+  double? get _superficieM2 => _presupuestoActual?.superficieM2;
+  EstadoPresupuesto? get _estado => _presupuestoActual?.estado;
+
+  Future<void> _editarPresupuesto() async {
+    final presupuesto = _presupuestoActual;
+    if (presupuesto == null) return;
+
+    final presupuestoActualizado = await Navigator.push<Presupuesto>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => WizardPresupuestoScreen(
+              proyectoId: presupuesto.proyectoId,
+              presupuesto: presupuesto,
+            ),
+      ),
+    );
+
+    if (presupuestoActualizado != null && mounted) {
+      setState(() {
+        _presupuestoActual = presupuestoActualizado;
+      });
+    }
+  }
 
   Future<void> _exportarPdf() async {
     setState(() => _exportando = true);
@@ -118,6 +146,14 @@ class _ResumenPresupuestoScreenState
       appBar: AppBar(
         title: const Text('Resumen del Presupuesto'),
         elevation: 0,
+        actions: [
+          if (_presupuestoActual != null)
+            IconButton(
+              onPressed: _editarPresupuesto,
+              icon: const Icon(Icons.edit_outlined),
+              tooltip: 'Editar presupuesto',
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(12.0),
@@ -135,7 +171,7 @@ class _ResumenPresupuestoScreenState
                     children: [
                       if (tituloText != null)
                         Text(
-                          tituloText!,
+                          tituloText,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -144,7 +180,7 @@ class _ResumenPresupuestoScreenState
                       if (fechaData != null) ...[
                         const SizedBox(height: 4),
                         Text(
-                          'Fecha: ${fechaData!.toLocal().toString().split(' ')[0]}',
+                          'Fecha: ${fechaData.toLocal().toString().split(' ')[0]}',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey.shade700,
@@ -301,13 +337,14 @@ class _ResumenPresupuestoScreenState
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _exportando ? null : _exportarPdf,
-                    icon: _exportando
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.picture_as_pdf),
+                    icon:
+                        _exportando
+                            ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Icon(Icons.picture_as_pdf),
                     label: Text(_exportando ? 'Generando...' : 'Exportar PDF'),
                   ),
                 ),

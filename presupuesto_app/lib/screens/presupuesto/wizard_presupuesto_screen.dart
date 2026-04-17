@@ -8,15 +8,20 @@ import 'package:presupuesto_app/screens/presupuesto/steps/step_materiales.dart';
 import 'package:presupuesto_app/screens/presupuesto/steps/step_equipos.dart';
 import 'package:presupuesto_app/screens/presupuesto/steps/step_finanzas.dart';
 import 'package:presupuesto_app/screens/presupuesto/steps/step_resumen.dart';
+import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
-import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 import 'package:presupuesto_app/services/presupuestos_service.dart';
 
 class WizardPresupuestoScreen extends StatefulWidget {
   final String proyectoId;
+  final Presupuesto? presupuesto;
 
-  const WizardPresupuestoScreen({super.key, required this.proyectoId});
+  const WizardPresupuestoScreen({
+    super.key,
+    required this.proyectoId,
+    this.presupuesto,
+  });
 
   @override
   State<WizardPresupuestoScreen> createState() =>
@@ -28,9 +33,11 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
   int _currentStep = 0;
   late MaterialesService _materialesService;
   late EquiposService _equiposService;
-  late CalculadoraFinanzas _calculadora;
+  final CalculadoraFinanzas _calculadoraFinanzas = CalculadoraFinanzas();
   final GlobalKey<StepManoObraState> _manoObraKey =
       GlobalKey<StepManoObraState>();
+  late final TextEditingController _tituloController;
+  late final TextEditingController _superficieController;
 
   // Datos del presupuesto
   String _titulo = '';
@@ -42,6 +49,9 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _manoObraFormKey = GlobalKey<FormState>();
+  bool _cargandoDatos = true;
+
+  bool get _esEdicion => widget.presupuesto != null;
 
   @override
   void initState() {
@@ -49,15 +59,91 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
     // Obtener las instancias singleton
     _materialesService = MaterialesService();
     _equiposService = EquiposService();
-    _calculadora = CalculadoraFinanzas();
-    // Aquí podrías cargar el proyecto desde Hive si es necesario
-    // Por ahora, asumimos que se pasa o se obtiene de otra forma
+    _inicializarDatosBase();
+    _tituloController = TextEditingController(text: _titulo);
+    _superficieController = TextEditingController(
+      text: _superficie > 0 ? _superficie.toString() : '',
+    );
+    _inicializarWizard();
+  }
+
+  void _inicializarDatosBase() {
+    final presupuesto = widget.presupuesto;
+    if (presupuesto == null) {
+      return;
+    }
+
+    _titulo = presupuesto.titulo;
+    _superficie = presupuesto.superficieM2;
+    _fechaCreacion = presupuesto.fechaCreacion;
+    _estado = presupuesto.estado;
+    _manoObra =
+        presupuesto.manoObra.isNotEmpty ? presupuesto.manoObra.first : null;
+    _finanzas = presupuesto.finanzas;
+  }
+
+  Future<void> _inicializarWizard() async {
+    await _reiniciarMaterialesTemporales(refrescar: false);
+    await _reiniciarEquiposTemporales(refrescar: false);
+
+    final presupuesto = widget.presupuesto;
+    if (presupuesto != null) {
+      await _materialesService.cargarMaterialesPresupuesto(
+        presupuesto.materiales,
+      );
+      await _equiposService.cargarEquipos(presupuesto.equipos);
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    _cargandoDatos = false;
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _reiniciarMaterialesTemporales({bool refrescar = true}) async {
+    await _materialesService.limpiarMaterialesPresupuesto();
+    if (refrescar && mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _reiniciarEquiposTemporales({bool refrescar = true}) async {
+    await _equiposService.limpiarEquipos();
+    if (refrescar && mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _materialesService.limpiarMaterialesPresupuesto();
+    _equiposService.limpiarEquipos();
+    _tituloController.dispose();
+    _superficieController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_cargandoDatos) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(_esEdicion ? 'Editar Presupuesto' : 'Crear Presupuesto'),
+          elevation: 0,
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear Presupuesto'), elevation: 0),
+      appBar: AppBar(
+        title: Text(_esEdicion ? 'Editar Presupuesto' : 'Crear Presupuesto'),
+        elevation: 0,
+      ),
       body: Theme(
         data: Theme.of(context).copyWith(useMaterial3: true),
         child: Container(
@@ -77,7 +163,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               } else if (_currentStep == 1) {
                 // Validar paso 2: Mano de obra
                 if (_manoObraFormKey.currentState!.validate()) {
-                  _manoObraFormKey.currentState!.save();
+                  _manoObraKey.currentState?.saveForm();
                   if (_currentStep < 5) {
                     setState(() => _currentStep++);
                   }
@@ -126,7 +212,9 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                               vertical: 12,
                             ),
                             child: Text(
-                              _currentStep == 5 ? 'Guardar' : 'Siguiente',
+                              _currentStep == 5
+                                  ? (_esEdicion ? 'Actualizar' : 'Guardar')
+                                  : 'Siguiente',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
@@ -226,6 +314,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               isDense: true,
               contentPadding: EdgeInsets.all(8),
             ),
+            controller: _tituloController,
             validator: (value) => value!.isEmpty ? 'Ingrese un título' : null,
             onSaved: (value) => _titulo = value!,
           ),
@@ -236,6 +325,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               isDense: true,
               contentPadding: EdgeInsets.all(8),
             ),
+            controller: _superficieController,
             keyboardType: TextInputType.number,
             validator:
                 (value) =>
@@ -323,24 +413,47 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
         final materiales = _materialesService.obtenerMaterialesPresupuesto();
         final equipos = _equiposService.obtenerEquipos();
         final manoObraList = <ManoObra>[if (_manoObra != null) _manoObra!];
+        final resultados = _calculadoraFinanzas.calcularTodo(
+          totalMateriales: materiales.fold<double>(
+            0,
+            (sum, item) => sum + item.total,
+          ),
+          totalManoObra: manoObraList.fold<double>(
+            0,
+            (sum, item) => sum + item.costo,
+          ),
+          totalEquipos: equipos.fold<double>(
+            0,
+            (sum, item) => sum + item.total,
+          ),
+          finanzas: _finanzas,
+        );
 
         // Crear el presupuesto con todos los datos
         final presupuesto = Presupuesto(
-          id: DateTime.now().toString(),
+          id: widget.presupuesto?.id ?? DateTime.now().toString(),
           proyectoId: widget.proyectoId,
           titulo: _titulo,
           superficieM2: _superficie,
           fechaCreacion: _fechaCreacion,
           estado: _estado,
-          version: 1,
+          version: _esEdicion ? (widget.presupuesto!.version + 1) : 1,
           manoObra: manoObraList,
           equipos: equipos,
           materiales: materiales,
+          totalFinal: resultados['totalFinal'] ?? 0,
+          finanzas: _finanzas,
         );
 
         // Guardar en Hive usando PresupuestosService
         final presupuestosService = PresupuestosService();
-        await presupuestosService.agregarPresupuesto(presupuesto);
+        if (_esEdicion) {
+          await presupuestosService.actualizarPresupuesto(presupuesto);
+        } else {
+          await presupuestosService.agregarPresupuesto(presupuesto);
+        }
+        await _materialesService.limpiarMaterialesPresupuesto();
+        await _equiposService.limpiarEquipos();
 
         print('Presupuesto guardado: ${presupuesto.id}');
         print('Título: ${presupuesto.titulo}');
@@ -348,17 +461,23 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
         print('Equipos: ${equipos.length}');
         print('Mano de obra: ${manoObraList.length}');
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Presupuesto guardado exitosamente'),
+          SnackBar(
+            content: Text(
+              _esEdicion
+                  ? 'Presupuesto actualizado exitosamente'
+                  : 'Presupuesto guardado exitosamente',
+            ),
             duration: Duration(seconds: 2),
           ),
         );
 
         // Volver a la vista anterior (proyectos)
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(presupuesto);
       } catch (e) {
         print('Error al guardar presupuesto: $e');
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al guardar: $e'),

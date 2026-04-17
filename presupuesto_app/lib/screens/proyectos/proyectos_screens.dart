@@ -3,6 +3,7 @@ import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
 import '../../models/proyectos/proyecto.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:presupuesto_app/services/presupuestos_service.dart';
 
 import 'dart:io';
 
@@ -45,6 +46,63 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
         debugPrint('Proyecto guardado en Hive: ${nuevoProyecto.toString()}');
       });
     }
+  }
+
+  Future<void> _eliminarProyecto(Proyecto proyecto) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            title: const Text('Eliminar Proyecto'),
+            content: Text(
+              'Se eliminará el proyecto "${proyecto.nombreProyecto}" y todos sus presupuestos asociados. Esta acción no se puede deshacer.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmar != true) {
+      return;
+    }
+
+    final presupuestosService = PresupuestosService();
+    await presupuestosService.eliminarPresupuestosPorProyecto(proyecto.id);
+
+    dynamic keyAEliminar;
+    for (final key in _proyectosBox.keys) {
+      if (_proyectosBox.get(key)?.id == proyecto.id) {
+        keyAEliminar = key;
+        break;
+      }
+    }
+
+    if (keyAEliminar != null) {
+      await _proyectosBox.delete(keyAEliminar);
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _proyectos.removeWhere((item) => item.id == proyecto.id);
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Proyecto "${proyecto.nombreProyecto}" eliminado'),
+      ),
+    );
   }
 
   @override
@@ -156,6 +214,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                               nombreProyecto: proyecto.nombreProyecto,
                               nombreCliente: proyecto.nombreCliente,
                               imagenAsset: proyecto.imagenPath,
+                              onDelete: () => _eliminarProyecto(proyecto),
                               onTap: () async {
                                 await Navigator.push(
                                   context,
@@ -189,12 +248,14 @@ class _ProyectoCard extends StatelessWidget {
   final String nombreCliente;
   final String? imagenAsset;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   const _ProyectoCard({
     required this.nombreProyecto,
     required this.nombreCliente,
     this.imagenAsset,
     required this.onTap,
+    required this.onDelete,
   });
 
   @override
@@ -270,6 +331,35 @@ class _ProyectoCard extends StatelessWidget {
                         ],
                         stops: const [0.3, 0.6, 1.0],
                       ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.35),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: PopupMenuButton<String>(
+                      tooltip: 'Opciones del proyecto',
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      onSelected: (value) {
+                        if (value == 'eliminar') {
+                          onDelete();
+                        }
+                      },
+                      itemBuilder:
+                          (context) => const [
+                            PopupMenuItem(
+                              value: 'eliminar',
+                              child: Text(
+                                'Eliminar proyecto',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
                     ),
                   ),
                 ),

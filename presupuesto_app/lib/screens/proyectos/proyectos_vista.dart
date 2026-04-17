@@ -52,12 +52,77 @@ class _ProyectosVistaState extends State<ProyectosVista> {
     }
   }
 
+  Future<void> _eliminarProyecto() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            title: const Text('Eliminar Proyecto'),
+            content: Text(
+              'Se eliminará el proyecto "${_proyecto.nombreProyecto}" y todos sus presupuestos asociados. Esta acción no se puede deshacer.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmar != true) {
+      return;
+    }
+
+    await _presupuestosService.eliminarPresupuestosPorProyecto(_proyecto.id);
+
+    final box = Hive.box<Proyecto>('proyectos');
+    dynamic keyAEliminar;
+    for (final key in box.keys) {
+      if (box.get(key)?.id == _proyecto.id) {
+        keyAEliminar = key;
+        break;
+      }
+    }
+
+    if (keyAEliminar != null) {
+      await box.delete(keyAEliminar);
+    }
+
+    if (!mounted) return;
+    Navigator.pop(context, true);
+  }
+
   void _cargarPresupuestos() {
     setState(() {
       _presupuestos = _presupuestosService.obtenerPresupuestosPorProyecto(
         _proyecto.id,
       );
     });
+  }
+
+  Future<void> _editarPresupuesto(Presupuesto presupuesto) async {
+    final presupuestoActualizado = await Navigator.push<Presupuesto>(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => WizardPresupuestoScreen(
+              proyectoId: _proyecto.id,
+              presupuesto: presupuesto,
+            ),
+      ),
+    );
+
+    if (presupuestoActualizado != null && mounted) {
+      _cargarPresupuestos();
+    }
   }
 
   void _eliminarPresupuesto(String presupuestoId) async {
@@ -77,6 +142,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
               TextButton(
                 onPressed: () async {
                   await _presupuestosService.eliminarPresupuesto(presupuestoId);
+                  if (!context.mounted) return;
                   Navigator.pop(context);
                   _cargarPresupuestos();
                 },
@@ -116,12 +182,17 @@ class _ProyectosVistaState extends State<ProyectosVista> {
           onPressed: _editarProyecto,
           tooltip: 'Editar proyecto',
         ),
+        IconButton(
+          icon: const Icon(Icons.delete_outline),
+          onPressed: _eliminarProyecto,
+          tooltip: 'Eliminar proyecto',
+        ),
       ],
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           fit: StackFit.expand,
           children: [
-                _proyecto.imagenPath !=
+            _proyecto.imagenPath !=
                         null && //esto es para mostrar la imagen del proyecto si es que tiene una, y si no tiene una imagen se muestra un contenedor gris
                     _proyecto
                         .imagenPath!
@@ -193,8 +264,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
         ],
 
         // Fechas
-        if (_proyecto.fechaInicio != null ||
-            _proyecto.fechaFin != null) ...[
+        if (_proyecto.fechaInicio != null || _proyecto.fechaFin != null) ...[
           const SizedBox(height: 14),
           Row(
             children: [
@@ -316,15 +386,22 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                                   ],
                                 ),
                               ),
-                              PopupMenuButton(
+                              PopupMenuButton<String>(
                                 onSelected: (value) {
+                                  if (value == 'editar') {
+                                    _editarPresupuesto(presupuesto);
+                                  }
                                   if (value == 'eliminar') {
                                     _eliminarPresupuesto(presupuesto.id);
                                   }
                                 },
                                 itemBuilder:
-                                    (context) => [
-                                      const PopupMenuItem(
+                                    (context) => const [
+                                      PopupMenuItem(
+                                        value: 'editar',
+                                        child: Text('Editar'),
+                                      ),
+                                      PopupMenuItem(
                                         value: 'eliminar',
                                         child: Text(
                                           'Eliminar',
@@ -370,7 +447,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -410,8 +487,8 @@ class _ProyectosVistaState extends State<ProyectosVista> {
             ),
           ).then((_) => _cargarPresupuestos()); // Recargar al volver
         },
-        child: const Icon(Icons.add),
         tooltip: 'Crear Presupuesto',
+        child: const Icon(Icons.add),
       ),
       body: CustomScrollView(
         slivers: [
