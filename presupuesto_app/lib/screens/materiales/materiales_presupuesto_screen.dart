@@ -201,6 +201,7 @@ class _MaterialesPresupuestoScreenState
                     final material = materiales[index];
                     return Card(
                       child: ListTile(
+                        isThreeLine: material.esPersonalizado,
                         leading: CircleAvatar(
                           backgroundColor: Colors.blue.shade100,
                           child: Text(
@@ -211,61 +212,60 @@ class _MaterialesPresupuestoScreenState
                         title: Text(material.nombre),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 4),
                             Text(
                               '${material.cantidad} ${material.unidad} × \$${material.precioUnitario.toStringAsFixed(2)}',
                               style: const TextStyle(fontSize: 12),
                             ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Total: \$${material.total.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
                             if (material.esPersonalizado)
-                              Chip(
-                                label: const Text('Personalizado'),
-                                visualDensity: VisualDensity.compact,
-                                side: const BorderSide(color: Colors.orange),
-                                labelStyle: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.orange,
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Chip(
+                                  label: const Text('Personalizado'),
+                                  visualDensity: VisualDensity.compact,
+                                  side: const BorderSide(color: Colors.orange),
+                                  labelStyle: const TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.orange,
+                                  ),
                                 ),
                               ),
                           ],
                         ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '\$${material.total.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'editar') {
-                                  _abrirEditarMaterial(material);
-                                }
-                                if (value == 'eliminar') {
-                                  _eliminarMaterial(material.id);
-                                }
-                              },
-                              itemBuilder:
-                                  (context) => const [
-                                    PopupMenuItem(
-                                      value: 'editar',
-                                      child: Text('Editar'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'eliminar',
-                                      child: Text(
-                                        'Eliminar',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                              offset: const Offset(-100, 0),
-                            ),
-                          ],
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'editar') {
+                              _abrirEditarMaterial(material);
+                            }
+                            if (value == 'eliminar') {
+                              _eliminarMaterial(material.id);
+                            }
+                          },
+                          itemBuilder:
+                              (context) => const [
+                                PopupMenuItem(
+                                  value: 'editar',
+                                  child: Text('Editar'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'eliminar',
+                                  child: Text(
+                                    'Eliminar',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                              ],
+                          offset: const Offset(-100, 0),
                         ),
                       ),
                     );

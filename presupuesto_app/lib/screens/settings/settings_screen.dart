@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:presupuesto_app/models/proyectos/proyecto.dart';
+import 'package:presupuesto_app/services/equipos_service.dart';
+import 'package:presupuesto_app/services/materiales_service.dart';
+import 'package:presupuesto_app/services/presupuestos_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -364,15 +369,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Datos eliminados'),
-                          backgroundColor: const Color(0xFFE74C3C),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
+                      await _eliminarTodosLosDatos();
                     },
                     child: const Padding(
                       padding: EdgeInsets.symmetric(
@@ -390,5 +389,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
     );
+  }
+
+  Future<void> _eliminarTodosLosDatos() async {
+    try {
+      final presupuestosService = PresupuestosService();
+      await presupuestosService.limpiarTodos();
+
+      final proyectosBox = Hive.box<Proyecto>('proyectos');
+      await proyectosBox.clear();
+
+      await MaterialesService().limpiarMaterialesPresupuesto();
+      await EquiposService().limpiarEquipos();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Datos eliminados correctamente'),
+          backgroundColor: Color(0xFFE74C3C),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al eliminar datos: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }

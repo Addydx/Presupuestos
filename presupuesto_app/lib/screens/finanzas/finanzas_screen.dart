@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
@@ -31,10 +33,20 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
   late TextEditingController _imprevistoController;
   late TextEditingController _utilidadController;
   late bool _aplicarIVA;
+  Timer? _debounceNotificacion;
+
+  double _ultimoImprevistos = -1;
+  double _ultimoUtilidad = -1;
+  bool _ultimoIva = false;
 
   final CalculadoraFinanzas _calculadora = CalculadoraFinanzas();
 
   late Map<String, double> _resultados;
+
+  double _parseNoNegativo(String texto) {
+    final valor = double.tryParse(texto.replaceAll(',', '.').trim()) ?? 0;
+    return valor < 0 ? 0 : valor;
+  }
 
   @override
   void initState() {
@@ -48,24 +60,22 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
       text: (widget.finanzasInicial?.porcentajeUtilidad ?? 20.0).toString(),
     );
 
-    // Calcular valores iniciales después de que el frame se construya
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _calcularValores();
-    });
+    // Calcular y notificar un único estado inicial.
+    _calcularValores(notificarPadre: true);
   }
 
   @override
   void dispose() {
+    _debounceNotificacion?.cancel();
     _imprevistoController.dispose();
     _utilidadController.dispose();
     super.dispose();
   }
 
   /// Calcula y actualiza todos los valores financieros
-  void _calcularValores() {
-    final porcentajeImprevistos =
-        double.tryParse(_imprevistoController.text) ?? 0;
-    final porcentajeUtilidad = double.tryParse(_utilidadController.text) ?? 0;
+  void _calcularValores({bool notificarPadre = true}) {
+    final porcentajeImprevistos = _parseNoNegativo(_imprevistoController.text);
+    final porcentajeUtilidad = _parseNoNegativo(_utilidadController.text);
 
     final finanzas = Finanzas(
       porcentajeImprevistos: porcentajeImprevistos,
@@ -73,17 +83,35 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
       aplicarIVA: _aplicarIVA,
     );
 
-    setState(() {
-      _resultados = _calculadora.calcularTodo(
-        totalMateriales: widget.totalMateriales,
-        totalManoObra: widget.totalManoObra,
-        totalEquipos: widget.totalEquipos,
-        finanzas: finanzas,
-      );
-    });
+    final nuevosResultados = _calculadora.calcularTodo(
+      totalMateriales: widget.totalMateriales,
+      totalManoObra: widget.totalManoObra,
+      totalEquipos: widget.totalEquipos,
+      finanzas: finanzas,
+    );
 
-    // Notificar cambios (diferido para evitar setState durante build)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
+      setState(() {
+        _resultados = nuevosResultados;
+      });
+    }
+
+    if (!notificarPadre) return;
+
+    final bool huboCambio =
+        _ultimoImprevistos != porcentajeImprevistos ||
+        _ultimoUtilidad != porcentajeUtilidad ||
+        _ultimoIva != _aplicarIVA;
+
+    if (!huboCambio) return;
+
+    _ultimoImprevistos = porcentajeImprevistos;
+    _ultimoUtilidad = porcentajeUtilidad;
+    _ultimoIva = _aplicarIVA;
+
+    _debounceNotificacion?.cancel();
+    _debounceNotificacion = Timer(const Duration(milliseconds: 180), () {
+      if (!mounted) return;
       widget.onFinanzasChanged(finanzas);
     });
   }
@@ -150,6 +178,9 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
               ),
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
             onChanged: (_) => _calcularValores(),
           ),
           const SizedBox(height: 8),
@@ -167,6 +198,9 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
               ),
             ),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
             onChanged: (_) => _calcularValores(),
           ),
           const SizedBox(height: 12),
@@ -321,22 +355,34 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
             : (esMarcado ? Colors.blue.shade700 : Colors.black87);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              color: color,
+            ),
           ),
         ),
-        Text(
-          _calculadora.formatoMoneda(valor),
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
+        const SizedBox(width: 8),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              _calculadora.formatoMoneda(valor),
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                color: color,
+              ),
+            ),
           ),
         ),
       ],
@@ -350,12 +396,29 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 12)),
-          Text(
-            '${porcentaje.toStringAsFixed(1)}%',
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${porcentaje.toStringAsFixed(1)}%',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
           ),
         ],
       ),

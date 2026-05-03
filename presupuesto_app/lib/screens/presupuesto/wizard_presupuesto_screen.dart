@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
@@ -29,6 +30,8 @@ class WizardPresupuestoScreen extends StatefulWidget {
 }
 
 class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
+  static const int _maxTituloPresupuesto = 100;
+
   late Proyecto proyecto;
   int _currentStep = 0;
   late MaterialesService _materialesService;
@@ -315,8 +318,18 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               contentPadding: EdgeInsets.all(8),
             ),
             controller: _tituloController,
-            validator: (value) => value!.isEmpty ? 'Ingrese un título' : null,
-            onSaved: (value) => _titulo = value!,
+            maxLength: _maxTituloPresupuesto,
+            validator: (value) {
+              final titulo = (value ?? '').trim();
+              if (titulo.isEmpty) {
+                return 'Ingrese un título';
+              }
+              if (titulo.length > _maxTituloPresupuesto) {
+                return 'El título no puede superar $_maxTituloPresupuesto caracteres';
+              }
+              return null;
+            },
+            onSaved: (value) => _titulo = (value ?? '').trim(),
           ),
           const SizedBox(height: 8),
           TextFormField(
@@ -326,13 +339,29 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
               contentPadding: EdgeInsets.all(8),
             ),
             controller: _superficieController,
-            keyboardType: TextInputType.number,
-            validator:
-                (value) =>
-                    double.tryParse(value!) == null
-                        ? 'Ingrese un número válido'
-                        : null,
-            onSaved: (value) => _superficie = double.parse(value!),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
+            validator: (value) {
+              final raw = (value ?? '').trim();
+              if (raw.isEmpty) {
+                return 'Ingrese la superficie';
+              }
+
+              final superficie = double.tryParse(raw.replaceAll(',', '.'));
+              if (superficie == null) {
+                return 'Ingrese un número válido';
+              }
+              if (superficie < 0) {
+                return 'La superficie no puede ser negativa';
+              }
+              return null;
+            },
+            onSaved: (value) {
+              _superficie =
+                  double.tryParse((value ?? '').replaceAll(',', '.')) ?? 0.0;
+            },
           ),
           const SizedBox(height: 8),
           Row(

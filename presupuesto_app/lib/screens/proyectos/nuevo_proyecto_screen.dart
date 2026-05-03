@@ -11,6 +11,8 @@ class NuevoProyectoScreen extends StatefulWidget {
 }
 
 class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
+  static const int _maxDescripcion = 100;
+
   final _formKey = GlobalKey<FormState>();
   final _nombreProyectoController = TextEditingController();
   final _nombreClienteController = TextEditingController();
@@ -48,6 +50,11 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
         _fechaInicio = picked;
         _fechaInicioController.text =
             '${picked.day}/${picked.month}/${picked.year}';
+
+        if (_fechaFin != null && _fechaFin!.isBefore(picked)) {
+          _fechaFin = null;
+          _fechaFinController.clear();
+        }
       });
     }
   }
@@ -55,8 +62,8 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
   Future<void> _seleccionarFechaFin() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _fechaFin ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: _fechaFin ?? _fechaInicio ?? DateTime.now(),
+      firstDate: _fechaInicio ?? DateTime(2000),
       lastDate: DateTime(2100),
     );
     if (picked != null && picked != _fechaFin) {
@@ -79,6 +86,21 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
         _imagenProyecto = File(imagenSeleccionada.path);
       });
     }
+  }
+
+  bool _validarRangoFechas() {
+    if (_fechaInicio != null && _fechaFin != null) {
+      if (_fechaFin!.isBefore(_fechaInicio!)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('La fecha de fin no puede ser menor a la de inicio'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return false;
+      }
+    }
+    return true;
   }
 
   @override
@@ -233,7 +255,15 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                   children: [
                     TextFormField(
                       controller: _descripcionController,
+                      maxLength: _maxDescripcion,
                       maxLines: 4,
+                      validator: (value) {
+                        final texto = (value ?? '').trim();
+                        if (texto.length > _maxDescripcion) {
+                          return 'La descripción no puede superar $_maxDescripcion caracteres';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
                         hintText: 'Detalles adicionales del proyecto...',
                         border: OutlineInputBorder(
@@ -318,6 +348,10 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                     child: InkWell(
                       onTap: () {
                         if (_formKey.currentState!.validate()) {
+                          if (!_validarRangoFechas()) {
+                            return;
+                          }
+
                           final nuevoProyecto = Proyecto(
                             id:
                                 DateTime.now().millisecondsSinceEpoch

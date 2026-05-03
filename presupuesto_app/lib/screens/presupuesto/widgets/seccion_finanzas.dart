@@ -104,22 +104,34 @@ class SeccionFinanzas extends StatelessWidget {
             : (esMarcado ? Colors.blue.shade700 : Colors.black87);
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: fontWeight,
+              color: color,
+            ),
           ),
         ),
-        Text(
-          '\$${valor.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: fontWeight,
-            color: color,
+        const SizedBox(width: 8),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              '\$${valor.toStringAsFixed(2)}',
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontWeight: fontWeight,
+                color: color,
+              ),
+            ),
           ),
         ),
       ],

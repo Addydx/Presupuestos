@@ -67,11 +67,19 @@ class SeccionEquipos extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Text(
-                          '\$${equipo.total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '\$${equipo.total.toStringAsFixed(2)}',
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -84,18 +92,32 @@ class SeccionEquipos extends StatelessWidget {
               Divider(color: Colors.grey.shade300, height: 1),
               const SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Total Equipos:',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  const Expanded(
+                    child: Text(
+                      'Total Equipos:',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                  Text(
-                    '\$${totalEquipos.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.orange,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '\$${totalEquipos.toStringAsFixed(2)}',
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.orange,
+                        ),
+                      ),
                     ),
                   ),
                 ],

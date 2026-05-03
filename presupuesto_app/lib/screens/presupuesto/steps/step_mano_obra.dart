@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 
 class StepManoObra extends StatefulWidget {
@@ -70,6 +71,10 @@ class StepManoObraState extends State<StepManoObra> {
     widget.onSaved?.call(manoObra);
   }
 
+  void _notificarCambioTiempoReal() {
+    _onFormSaved();
+  }
+
   String? _validarCampoRequerido(String? value, String nombreCampo) {
     if (value == null || value.isEmpty) {
       return 'El campo $nombreCampo es requerido';
@@ -89,6 +94,24 @@ class StepManoObraState extends State<StepManoObra> {
       return '$nombreCampo debe ser mayor a 0';
     }
     return null;
+  }
+
+  String? _validarEnteroPositivo(String? value, String nombreCampo) {
+    if (value == null || value.isEmpty) {
+      return 'El campo $nombreCampo es requerido';
+    }
+    final numero = int.tryParse(value);
+    if (numero == null) {
+      return 'Ingrese un número entero válido en $nombreCampo';
+    }
+    if (numero <= 0) {
+      return '$nombreCampo debe ser mayor a 0';
+    }
+    return null;
+  }
+
+  double _parseDecimal(String value) {
+    return double.parse(value.replaceAll(',', '.'));
   }
 
   @override
@@ -123,7 +146,15 @@ class StepManoObraState extends State<StepManoObra> {
                 if (value != null) {
                   setState(() {
                     _tipoPago = value;
+                    if (_tipoPago == TipoPago.porDia) {
+                      _montoContrato = null;
+                    } else {
+                      _cantidadPersonas = null;
+                      _diasEstimados = null;
+                      _costoPorDia = null;
+                    }
                   });
+                  _notificarCambioTiempoReal();
                 }
               },
               validator:
@@ -146,7 +177,11 @@ class StepManoObraState extends State<StepManoObra> {
                   prefixIcon: const Icon(Icons.person),
                 ),
                 validator: (value) => _validarCampoRequerido(value, 'Rol'),
-                onSaved: (value) => _rol = value,
+                onChanged: (value) {
+                  _rol = value.trim();
+                  _notificarCambioTiempoReal();
+                },
+                onSaved: (value) => _rol = value?.trim(),
               ),
               const SizedBox(height: 16),
 
@@ -162,9 +197,15 @@ class StepManoObraState extends State<StepManoObra> {
                   prefixIcon: const Icon(Icons.group),
                 ),
                 keyboardType: TextInputType.number,
-                validator:
-                    (value) =>
-                        _validarNumeroPositivo(value, 'Cantidad de personas'),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) =>
+                  _validarEnteroPositivo(value, 'Cantidad de personas'),
+                onChanged: (value) {
+                  setState(() {
+                    _cantidadPersonas = int.tryParse(value);
+                  });
+                  _notificarCambioTiempoReal();
+                },
                 onSaved: (value) => _cantidadPersonas = int.parse(value!),
               ),
               const SizedBox(height: 16),
@@ -181,8 +222,15 @@ class StepManoObraState extends State<StepManoObra> {
                   prefixIcon: const Icon(Icons.calendar_today),
                 ),
                 keyboardType: TextInputType.number,
-                validator:
-                    (value) => _validarNumeroPositivo(value, 'Días estimados'),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                validator: (value) =>
+                  _validarEnteroPositivo(value, 'Días estimados'),
+                onChanged: (value) {
+                  setState(() {
+                    _diasEstimados = int.tryParse(value);
+                  });
+                  _notificarCambioTiempoReal();
+                },
                 onSaved: (value) => _diasEstimados = int.parse(value!),
               ),
               const SizedBox(height: 16),
@@ -201,9 +249,20 @@ class StepManoObraState extends State<StepManoObra> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
                 validator:
                     (value) => _validarNumeroPositivo(value, 'Costo por día'),
-                onSaved: (value) => _costoPorDia = double.parse(value!),
+                onChanged: (value) {
+                  setState(() {
+                    _costoPorDia = value.trim().isEmpty
+                        ? null
+                        : double.tryParse(value.replaceAll(',', '.'));
+                  });
+                  _notificarCambioTiempoReal();
+                },
+                onSaved: (value) => _costoPorDia = _parseDecimal(value!),
               ),
               const SizedBox(height: 20),
 
@@ -227,9 +286,20 @@ class StepManoObraState extends State<StepManoObra> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
                 validator: (value) =>
                     _validarNumeroPositivo(value, 'Monto del contrato'),
-                onSaved: (value) => _montoContrato = double.parse(value!),
+                onChanged: (value) {
+                  setState(() {
+                    _montoContrato = value.trim().isEmpty
+                        ? null
+                        : double.tryParse(value.replaceAll(',', '.'));
+                  });
+                  _notificarCambioTiempoReal();
+                },
+                onSaved: (value) => _montoContrato = _parseDecimal(value!),
               ),
               const SizedBox(height: 16),
 
@@ -245,6 +315,10 @@ class StepManoObraState extends State<StepManoObra> {
                   prefixIcon: const Icon(Icons.notes),
                 ),
                 maxLines: 3,
+                onChanged: (value) {
+                  _observaciones = value.trim().isEmpty ? null : value.trim();
+                  _notificarCambioTiempoReal();
+                },
                 onSaved: (value) =>
                     _observaciones = value?.isEmpty ?? true ? null : value,
               ),

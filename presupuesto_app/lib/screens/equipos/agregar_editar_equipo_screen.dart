@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 
@@ -99,13 +100,18 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                   prefixIcon: Icon(Icons.construction),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  final nombre = (value ?? '').trim();
+                  if (nombre.isEmpty) {
                     return 'Ingrese el nombre del equipo';
+                  }
+                  if (nombre.length > 80) {
+                    return 'El nombre no puede superar 80 caracteres';
                   }
                   return null;
                 },
-                onSaved: (value) => _nombre = value!,
-                onChanged: (value) => _nombre = value,
+                maxLength: 80,
+                onSaved: (value) => _nombre = (value ?? '').trim(),
+                onChanged: (value) => _nombre = value.trim(),
               ),
               const SizedBox(height: 16),
 
@@ -124,19 +130,23 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Ingrese el costo por día';
                   }
-                  final parsed = double.tryParse(value);
+                  final parsed = double.tryParse(value.replaceAll(',', '.'));
                   if (parsed == null || parsed <= 0) {
                     return 'Ingrese un número válido mayor a 0';
                   }
                   return null;
                 },
-                onSaved: (value) => _costoPorDia = double.parse(value!),
+                onSaved: (value) =>
+                    _costoPorDia = double.parse(value!.replaceAll(',', '.')),
                 onChanged: (value) {
-                  final parsed = double.tryParse(value);
+                  final parsed = double.tryParse(value.replaceAll(',', '.'));
                   if (parsed != null) {
                     _costoPorDia = parsed;
                     _calcularTotal();
@@ -156,6 +166,7 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                   prefixIcon: Icon(Icons.calendar_today),
                 ),
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Ingrese el número de días';

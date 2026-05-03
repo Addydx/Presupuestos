@@ -70,11 +70,19 @@ class SeccionMateriales extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Text(
-                          '\$${material.total.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              '\$${material.total.toStringAsFixed(2)}',
+                              textAlign: TextAlign.right,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -87,18 +95,32 @@ class SeccionMateriales extends StatelessWidget {
               Divider(color: Colors.grey.shade300, height: 1),
               const SizedBox(height: 8),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Total Materiales:',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                  const Expanded(
+                    child: Text(
+                      'Total Materiales:',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                  Text(
-                    '\$${totalMateriales.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.blue,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        '\$${totalMateriales.toStringAsFixed(2)}',
+                        textAlign: TextAlign.right,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.blue,
+                        ),
+                      ),
                     ),
                   ),
                 ],
