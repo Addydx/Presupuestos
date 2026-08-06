@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
@@ -21,7 +22,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Configuración'), elevation: 0),
       body: Container(
-        color: const Color(0xFFF5F7FA),
+        color: AppColors.gray100,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -45,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildProfileSection(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,18 +66,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   height: 80,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                      colors: [AppColors.yellowPrimary, AppColors.yellowDark],
                     ),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
+                        color: AppColors.yellowDark.withValues(alpha: 0.4),
                         blurRadius: 12,
                       ),
                     ],
                   ),
                   child: const Center(
-                    child: Icon(Icons.person, size: 40, color: Colors.white),
+                    child: Icon(Icons.person, size: 40, color: AppColors.black),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -89,9 +90,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Version 1.0.0',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: const Color(0xFF6C757D),
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppColors.gray700),
                 ),
               ],
             ),
@@ -103,7 +104,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildPreferencesSection(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,7 +137,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _darkModeEnabled,
               onChanged: null,
-              activeThumbColor: const Color(0xFF00B4DB),
+              activeThumbColor: AppColors.black,
             ),
           ),
         ],
@@ -146,7 +147,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildInformationSection(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildDangerSection(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.white,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Peligro',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFFE74C3C),
+                color: AppColors.error,
               ),
             ),
           ),
@@ -204,7 +205,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.delete_outline,
             title: 'Eliminar todos los datos',
             subtitle: 'Esta acción no se puede deshacer',
-            titleColor: const Color(0xFFE74C3C),
+            titleColor: AppColors.error,
             onTap: () => _showDeleteConfirmDialog(context),
           ),
         ],
@@ -229,11 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: titleColor ?? const Color(0xFF2E5090),
-                size: 24,
-              ),
+              Icon(icon, color: titleColor ?? AppColors.black, size: 24),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -243,15 +240,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: titleColor ?? const Color(0xFF1A1A1A),
+                        color: titleColor ?? AppColors.black,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: const Color(0xFF6C757D),
-                      ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: AppColors.gray700),
                     ),
                   ],
                 ),
@@ -261,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: const Color(0xFFE8EEF5),
+                  color: AppColors.gray300,
                 ),
             ],
           ),
@@ -296,7 +293,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             (currency) => RadioListTile<String>(
                               title: Text(currency),
                               value: currency,
-                              activeColor: const Color(0xFF00B4DB),
+                              activeColor: AppColors.black,
                             ),
                           )
                           .toList(),
@@ -329,7 +326,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(height: 16),
                 Text(
                   'Versión: 1.0.0',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF6C757D)),
+                  style: TextStyle(fontSize: 12, color: AppColors.gray700),
                 ),
               ],
             ),
@@ -363,9 +360,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               Container(
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE74C3C), Color(0xFFC0392B)],
-                  ),
+                  color: AppColors.error,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Material(
@@ -382,7 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       child: Text(
                         'Eliminar',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: AppColors.white),
                       ),
                     ),
                   ),
@@ -408,7 +403,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Datos eliminados correctamente'),
-          backgroundColor: Color(0xFFE74C3C),
+          backgroundColor: AppColors.error,
           duration: Duration(seconds: 2),
         ),
       );
@@ -417,7 +412,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al eliminar datos: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           duration: const Duration(seconds: 3),
         ),
       );

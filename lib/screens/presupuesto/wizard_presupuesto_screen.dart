@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
@@ -150,7 +151,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
       body: Theme(
         data: Theme.of(context),
         child: Container(
-          color: const Color(0xFFF5F7FA),
+          color: AppColors.gray100,
           child: Stepper(
             currentStep: _currentStep,
             physics: const BouncingScrollPhysics(),
@@ -194,14 +195,15 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                     Container(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                          colors: [
+                            AppColors.yellowPrimary,
+                            AppColors.yellowDark,
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(
-                              0xFF00B4DB,
-                            ).withValues(alpha: 0.3),
+                            color: AppColors.yellowDark.withValues(alpha: 0.4),
                             blurRadius: 8,
                           ),
                         ],
@@ -221,7 +223,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                                   ? (_esEdicion ? 'Actualizar' : 'Guardar')
                                   : 'Siguiente',
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: AppColors.black,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -236,7 +238,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                         onPressed: details.onStepCancel,
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
-                            color: Color(0xFF2E5090),
+                            color: AppColors.black,
                             width: 1.5,
                           ),
                           padding: const EdgeInsets.symmetric(

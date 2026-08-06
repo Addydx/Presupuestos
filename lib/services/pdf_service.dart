@@ -14,13 +14,20 @@ class PdfService {
   factory PdfService() => _instance;
 
   // ─── Colores de la app ───────────────────────────────────────────────────
-  static const _azulPrimario = PdfColor.fromInt(0xFF2E5090);
-  static const _azulAcento = PdfColor.fromInt(0xFF00B4DB);
-  static const _verde = PdfColor.fromInt(0xFF388E3C);
-  static const _verdeClaro = PdfColor.fromInt(0xFFE8F5E9);
-  static const _grisClaro = PdfColor.fromInt(0xFFF5F7FA);
-  static const _grisMedio = PdfColor.fromInt(0xFF9E9E9E);
-  static const _negro = PdfColor.fromInt(0xFF212121);
+  // Espejo en PdfColor de lib/core/theme/app_colors.dart (el paquete pdf no
+  // puede consumir dart:ui Color directamente).
+  static const _amarillo = PdfColor.fromInt(0xFFFFC300);
+  static const _amarilloOscuro = PdfColor.fromInt(0xFFD9A400);
+  static const _amarilloSuave = PdfColor.fromInt(0xFFFFF3CC);
+  static const _negro = PdfColor.fromInt(0xFF101010);
+  static const _gris700 = PdfColor.fromInt(0xFF3D3D3D);
+  static const _gris300 = PdfColor.fromInt(0xFFD6D6D6);
+  static const _gris100 = PdfColor.fromInt(0xFFF2F2F2);
+  static const _blanco = PdfColor.fromInt(0xFFFFFFFF);
+  static const _exito = PdfColor.fromInt(0xFF2E7D32);
+  static const _advertencia = PdfColor.fromInt(0xFFED6C02);
+  static const _error = PdfColor.fromInt(0xFFC62828);
+  static const _info = PdfColor.fromInt(0xFF0277BD);
 
   /// Genera el PDF y abre el diálogo de impresión / compartir del sistema.
   Future<void> exportarPresupuesto({
@@ -95,7 +102,7 @@ class PdfService {
               pw.SizedBox(height: 12),
               // ── Materiales
               if (materiales.isNotEmpty) ...[
-                _seccionTitulo('Materiales', _azulAcento),
+                _seccionTitulo('Materiales'),
                 pw.SizedBox(height: 6),
                 _tablaMateriales(materiales),
                 pw.SizedBox(height: 4),
@@ -104,10 +111,7 @@ class PdfService {
               ],
               // ── Mano de Obra
               if (manoObra.isNotEmpty) ...[
-                _seccionTitulo(
-                  'Mano de Obra',
-                  const PdfColor.fromInt(0xFF7B1FA2),
-                ),
+                _seccionTitulo('Mano de Obra'),
                 pw.SizedBox(height: 6),
                 _tablaManoObra(manoObra),
                 pw.SizedBox(height: 4),
@@ -116,10 +120,7 @@ class PdfService {
               ],
               // ── Equipos
               if (equipos.isNotEmpty) ...[
-                _seccionTitulo(
-                  'Equipos Rentados',
-                  const PdfColor.fromInt(0xFFE65100),
-                ),
+                _seccionTitulo('Equipos Rentados'),
                 pw.SizedBox(height: 6),
                 _tablaEquipos(equipos),
                 pw.SizedBox(height: 4),
@@ -127,7 +128,7 @@ class PdfService {
                 pw.SizedBox(height: 16),
               ],
               // ── Resumen financiero
-              _seccionTitulo('Resumen Financiero', _azulPrimario),
+              _seccionTitulo('Resumen Financiero'),
               pw.SizedBox(height: 6),
               _tablaFinanzas(resultados, finanzas),
               pw.SizedBox(height: 20),
@@ -149,7 +150,7 @@ class PdfService {
   ) {
     return pw.Container(
       decoration: const pw.BoxDecoration(
-        color: _azulPrimario,
+        color: _negro,
         borderRadius: pw.BorderRadius.all(pw.Radius.circular(8)),
       ),
       padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -163,7 +164,7 @@ class PdfService {
               pw.Text(
                 'PRESUPUESTO',
                 style: pw.TextStyle(
-                  color: PdfColors.white,
+                  color: _blanco,
                   fontSize: 9,
                   fontWeight: pw.FontWeight.normal,
                   letterSpacing: 2,
@@ -173,7 +174,7 @@ class PdfService {
               pw.Text(
                 titulo ?? 'Sin título',
                 style: pw.TextStyle(
-                  color: PdfColors.white,
+                  color: _blanco,
                   fontSize: 16,
                   fontWeight: pw.FontWeight.bold,
                 ),
@@ -186,19 +187,13 @@ class PdfService {
               if (fecha != null)
                 pw.Text(
                   'Fecha: ${_formatearFecha(fecha)}',
-                  style: const pw.TextStyle(
-                    color: PdfColors.white,
-                    fontSize: 9,
-                  ),
+                  style: const pw.TextStyle(color: _blanco, fontSize: 9),
                 ),
               if (superficieM2 != null && superficieM2 > 0) ...[
                 pw.SizedBox(height: 2),
                 pw.Text(
                   'Superficie: ${superficieM2.toStringAsFixed(2)} m²',
-                  style: const pw.TextStyle(
-                    color: PdfColors.white,
-                    fontSize: 9,
-                  ),
+                  style: const pw.TextStyle(color: _blanco, fontSize: 9),
                 ),
               ],
               if (estado != null) ...[
@@ -216,8 +211,8 @@ class PdfService {
                   ),
                   child: pw.Text(
                     _etiquetaEstado(estado),
-                    style: const pw.TextStyle(
-                      color: PdfColors.white,
+                    style: pw.TextStyle(
+                      color: _colorTextoEstado(estado),
                       fontSize: 8,
                     ),
                   ),
@@ -239,11 +234,11 @@ class PdfService {
         children: [
           pw.Text(
             'Generado el ${_formatearFecha(DateTime.now())}',
-            style: const pw.TextStyle(color: _grisMedio, fontSize: 8),
+            style: const pw.TextStyle(color: _gris700, fontSize: 8),
           ),
           pw.Text(
             'Página ${ctx.pageNumber} de ${ctx.pagesCount}',
-            style: const pw.TextStyle(color: _grisMedio, fontSize: 8),
+            style: const pw.TextStyle(color: _gris700, fontSize: 8),
           ),
         ],
       ),
@@ -251,17 +246,17 @@ class PdfService {
   }
 
   // ─── Título de sección ───────────────────────────────────────────────────
-  pw.Widget _seccionTitulo(String texto, PdfColor color) {
+  pw.Widget _seccionTitulo(String texto) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: pw.BoxDecoration(
-        color: color,
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+      decoration: const pw.BoxDecoration(
+        color: _amarillo,
+        borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
       ),
       child: pw.Text(
         texto.toUpperCase(),
         style: pw.TextStyle(
-          color: PdfColors.white,
+          color: _negro,
           fontSize: 10,
           fontWeight: pw.FontWeight.bold,
           letterSpacing: 0.5,
@@ -356,10 +351,7 @@ class PdfService {
     ];
 
     return pw.Table(
-      border: pw.TableBorder.all(
-        color: const PdfColor.fromInt(0xFFE0E0E0),
-        width: 0.5,
-      ),
+      border: pw.TableBorder.all(color: _gris300, width: 0.5),
       columnWidths: {
         0: const pw.FlexColumnWidth(4),
         1: const pw.FlexColumnWidth(2),
@@ -367,7 +359,7 @@ class PdfService {
       children: [
         // Encabezado
         pw.TableRow(
-          decoration: const pw.BoxDecoration(color: _grisClaro),
+          decoration: const pw.BoxDecoration(color: _negro),
           children: [
             _celdaEncabezado('Concepto'),
             _celdaEncabezado('Monto', alinear: pw.Alignment.centerRight),
@@ -392,16 +384,16 @@ class PdfService {
       alignment: pw.Alignment.centerRight,
       child: pw.Container(
         padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        decoration: pw.BoxDecoration(
-          color: const PdfColor.fromInt(0xFFE3F2FD),
-          borderRadius: const pw.BorderRadius.all(pw.Radius.circular(4)),
+        decoration: const pw.BoxDecoration(
+          color: _gris100,
+          borderRadius: pw.BorderRadius.all(pw.Radius.circular(4)),
         ),
         child: pw.Text(
           '$etiqueta: \$${monto.toStringAsFixed(2)}',
           style: pw.TextStyle(
             fontSize: 9,
             fontWeight: pw.FontWeight.bold,
-            color: _azulPrimario,
+            color: _negro,
           ),
         ),
       ),
@@ -414,8 +406,8 @@ class PdfService {
       width: double.infinity,
       padding: const pw.EdgeInsets.all(16),
       decoration: pw.BoxDecoration(
-        color: _verdeClaro,
-        border: pw.Border.all(color: _verde, width: 1.5),
+        color: _amarilloSuave,
+        border: pw.Border.all(color: _amarilloOscuro, width: 1.5),
         borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
       ),
       child: pw.Column(
@@ -425,7 +417,7 @@ class PdfService {
             style: pw.TextStyle(
               fontSize: 10,
               fontWeight: pw.FontWeight.bold,
-              color: _verde,
+              color: _negro,
               letterSpacing: 1,
             ),
           ),
@@ -435,7 +427,7 @@ class PdfService {
             style: pw.TextStyle(
               fontSize: 26,
               fontWeight: pw.FontWeight.bold,
-              color: _verde,
+              color: _negro,
             ),
           ),
           pw.SizedBox(height: 4),
@@ -443,7 +435,7 @@ class PdfService {
             finanzas.aplicarIVA
                 ? 'Incluye IVA · ${finanzas.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos · ${finanzas.porcentajeUtilidad.toStringAsFixed(1)}% utilidad'
                 : 'Sin IVA · ${finanzas.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos · ${finanzas.porcentajeUtilidad.toStringAsFixed(1)}% utilidad',
-            style: const pw.TextStyle(fontSize: 8, color: _grisMedio),
+            style: const pw.TextStyle(fontSize: 8, color: _gris700),
           ),
         ],
       ),
@@ -462,15 +454,12 @@ class PdfService {
     }
 
     return pw.Table(
-      border: pw.TableBorder.all(
-        color: const PdfColor.fromInt(0xFFE0E0E0),
-        width: 0.5,
-      ),
+      border: pw.TableBorder.all(color: _gris300, width: 0.5),
       columnWidths: columnWidths,
       children: [
         // Encabezado
         pw.TableRow(
-          decoration: const pw.BoxDecoration(color: _grisClaro),
+          decoration: const pw.BoxDecoration(color: _negro),
           children: encabezados.map((e) => _celdaEncabezado(e)).toList(),
         ),
         // Filas alternadas
@@ -478,11 +467,7 @@ class PdfService {
           final esImpar = entry.key.isOdd;
           return pw.TableRow(
             decoration:
-                esImpar
-                    ? null
-                    : const pw.BoxDecoration(
-                      color: PdfColor.fromInt(0xFFFAFAFA),
-                    ),
+                esImpar ? null : const pw.BoxDecoration(color: _gris100),
             children: entry.value.map((c) => _celdaDato(c)).toList(),
           );
         }),
@@ -503,7 +488,7 @@ class PdfService {
         style: pw.TextStyle(
           fontSize: 8,
           fontWeight: pw.FontWeight.bold,
-          color: _negro,
+          color: _blanco,
         ),
       ),
     );
@@ -530,16 +515,21 @@ class PdfService {
   PdfColor _colorEstado(EstadoPresupuesto estado) {
     switch (estado) {
       case EstadoPresupuesto.aprobado:
-        return _verde;
+        return _exito;
       case EstadoPresupuesto.rechazado:
-        return const PdfColor.fromInt(0xFFD32F2F);
+        return _error;
       case EstadoPresupuesto.enviado:
-        return const PdfColor.fromInt(0xFF0288D1);
+        return _info;
       case EstadoPresupuesto.cancelado:
-        return const PdfColor.fromInt(0xFF757575);
+        return _gris700;
       case EstadoPresupuesto.borrador:
-        return const PdfColor.fromInt(0xFFFFA000);
+        return _advertencia;
     }
+  }
+
+  /// Color de texto legible (WCAG AA) sobre la superficie de [_colorEstado].
+  PdfColor _colorTextoEstado(EstadoPresupuesto estado) {
+    return estado == EstadoPresupuesto.borrador ? _negro : _blanco;
   }
 
   String _etiquetaEstado(EstadoPresupuesto estado) {

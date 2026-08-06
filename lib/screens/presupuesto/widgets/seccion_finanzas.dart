@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
@@ -41,7 +42,7 @@ class SeccionFinanzas extends StatelessWidget {
             // Costo directo
             _buildFila('Costo Directo:', resultados['costoDirecto']!),
             const SizedBox(height: 8),
-            Divider(color: Colors.grey.shade300, height: 1),
+            Divider(color: AppColors.gray300, height: 1),
             const SizedBox(height: 8),
             // Imprevistos
             _buildFila(
@@ -52,7 +53,7 @@ class SeccionFinanzas extends StatelessWidget {
             // Subtotal
             _buildFila('Subtotal:', resultados['subtotal']!, esMarcado: true),
             const SizedBox(height: 8),
-            Divider(color: Colors.grey.shade300, height: 1),
+            Divider(color: AppColors.gray300, height: 1),
             const SizedBox(height: 8),
             // Utilidad
             _buildFila(
@@ -68,12 +69,12 @@ class SeccionFinanzas extends StatelessWidget {
             ),
             if (finanzas.aplicarIVA) ...[
               const SizedBox(height: 8),
-              Divider(color: Colors.grey.shade300, height: 1),
+              Divider(color: AppColors.gray300, height: 1),
               const SizedBox(height: 8),
               _buildFila('IVA (16%):', resultados['iva']!),
             ],
             const SizedBox(height: 12),
-            Divider(color: Colors.grey.shade400, height: 2),
+            Divider(color: AppColors.gray500, height: 2),
             const SizedBox(height: 12),
             // Total final
             _buildFila(
@@ -100,8 +101,8 @@ class SeccionFinanzas extends StatelessWidget {
             : (esMarcado ? FontWeight.w600 : FontWeight.w500);
     final color =
         esTotal
-            ? Colors.green.shade700
-            : (esMarcado ? Colors.blue.shade700 : Colors.black87);
+            ? AppColors.success
+            : (esMarcado ? AppColors.info : AppColors.black);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

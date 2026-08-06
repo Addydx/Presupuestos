@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
@@ -101,7 +102,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error al generar PDF: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
       }
@@ -163,7 +164,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
             // Encabezado con título y fecha
             if (tituloText != null || fechaData != null)
               Card(
-                color: Colors.blue.shade50,
+                color: AppColors.gray100,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Column(
@@ -181,9 +182,9 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                         const SizedBox(height: 4),
                         Text(
                           'Fecha: ${fechaData.toLocal().toString().split(' ')[0]}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade700,
+                            color: AppColors.gray700,
                           ),
                         ),
                       ],
@@ -219,8 +220,8 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                border: Border.all(color: Colors.green.shade300, width: 2),
+                color: AppColors.yellowSoft,
+                border: Border.all(color: AppColors.yellowDark, width: 2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -230,17 +231,17 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Colors.grey,
+                      color: AppColors.gray700,
                       letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     '\$${totalFinal.toStringAsFixed(2)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green.shade700,
+                      color: AppColors.black,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -248,7 +249,10 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                     finanzasData.aplicarIVA
                         ? '(Incluye IVA ${finanzasData.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzasData.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)'
                         : '(Sin IVA - ${finanzasData.porcentajeImprevistos.toStringAsFixed(1)}% imprevistos + ${finanzasData.porcentajeUtilidad.toStringAsFixed(1)}% utilidad)',
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.gray700,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -258,7 +262,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
 
             // Resumen de componentes
             Card(
-              color: Colors.grey.shade50,
+              color: AppColors.white,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
@@ -276,38 +280,38 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                       'Materiales',
                       totalMateriales,
                       totalFinal,
-                      Colors.blue,
+                      AppColors.info,
                     ),
                     _buildComponente(
                       'Mano de Obra',
                       totalManoObra,
                       totalFinal,
-                      Colors.purple,
+                      AppColors.gray900,
                     ),
                     _buildComponente(
                       'Equipos Rentados',
                       totalEquipos,
                       totalFinal,
-                      Colors.orange,
+                      AppColors.warning,
                     ),
                     _buildComponente(
                       'Imprevistos',
                       resultados['imprevistos']!,
                       totalFinal,
-                      Colors.amber,
+                      AppColors.yellowDark,
                     ),
                     _buildComponente(
                       'Utilidad',
                       resultados['utilidad']!,
                       totalFinal,
-                      Colors.teal,
+                      AppColors.success,
                     ),
                     if (finanzasData.aplicarIVA)
                       _buildComponente(
                         'IVA',
                         resultados['iva']!,
                         totalFinal,
-                        Colors.red,
+                        AppColors.error,
                       ),
                   ],
                 ),
@@ -387,7 +391,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                   borderRadius: BorderRadius.circular(2),
                   child: LinearProgressIndicator(
                     value: porcentaje / 100,
-                    backgroundColor: Colors.grey.shade300,
+                    backgroundColor: AppColors.gray300,
                     valueColor: AlwaysStoppedAnimation<Color>(color),
                     minHeight: 4,
                   ),
@@ -408,7 +412,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
               ),
               Text(
                 '${porcentaje.toStringAsFixed(1)}%',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                style: const TextStyle(fontSize: 11, color: AppColors.gray700),
               ),
             ],
           ),

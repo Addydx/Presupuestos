@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/screens/equipos/agregar_editar_equipo_screen.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
@@ -51,7 +52,7 @@ class _StepEquiposState extends State<StepEquipos> {
                 },
                 child: const Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
               ),
             ],
@@ -120,23 +121,17 @@ class _StepEquiposState extends State<StepEquipos> {
                     Icon(
                       Icons.construction,
                       size: 64,
-                      color: Colors.grey.shade400,
+                      color: AppColors.gray500,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'Sin equipos agregados',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: TextStyle(fontSize: 16, color: AppColors.gray700),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'Agrega equipos rentados para tu presupuesto',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
-                      ),
+                      style: TextStyle(fontSize: 14, color: AppColors.gray700),
                     ),
                   ],
                 ),
@@ -156,10 +151,10 @@ class _StepEquiposState extends State<StepEquipos> {
                     return Card(
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: Colors.orange.shade100,
+                          backgroundColor: AppColors.yellowSoft,
                           child: const Icon(
                             Icons.construction,
-                            color: Colors.orange,
+                            color: AppColors.black,
                           ),
                         ),
                         title: Text(equipo.nombre),
@@ -203,7 +198,9 @@ class _StepEquiposState extends State<StepEquipos> {
                                       value: 'eliminar',
                                       child: Text(
                                         'Eliminar',
-                                        style: TextStyle(color: Colors.red),
+                                        style: TextStyle(
+                                          color: AppColors.error,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -218,7 +215,7 @@ class _StepEquiposState extends State<StepEquipos> {
                 const SizedBox(height: 8),
                 // Total general
                 Card(
-                  color: Colors.orange.shade50,
+                  color: AppColors.gray100,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
@@ -239,7 +236,7 @@ class _StepEquiposState extends State<StepEquipos> {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange,
+                            color: AppColors.black,
                           ),
                         ),
                       ],

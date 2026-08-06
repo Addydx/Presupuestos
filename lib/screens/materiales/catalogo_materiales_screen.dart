@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 import 'package:presupuesto_app/models/presupuesto/material_catalogo.dart';
 import 'package:presupuesto_app/screens/materiales/agregar_editar_material_screen.dart';
@@ -165,14 +166,14 @@ class _CatalogoMaterialesScreenState extends State<CatalogoMaterialesScreen> {
                           Icon(
                             Icons.search_off,
                             size: 64,
-                            color: Colors.grey.shade400,
+                            color: AppColors.gray500,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'Sin resultados',
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.grey.shade600,
+                              color: AppColors.gray700,
                             ),
                           ),
                         ],
@@ -188,10 +189,10 @@ class _CatalogoMaterialesScreenState extends State<CatalogoMaterialesScreen> {
                         return Card(
                           child: ListTile(
                             leading: CircleAvatar(
-                              backgroundColor: Colors.green.shade100,
+                              backgroundColor: AppColors.yellowSoft,
                               child: Text(
                                 material.nombre[0].toUpperCase(),
-                                style: const TextStyle(color: Colors.green),
+                                style: const TextStyle(color: AppColors.black),
                               ),
                             ),
                             title: Text(material.nombre),
@@ -203,7 +204,7 @@ class _CatalogoMaterialesScreenState extends State<CatalogoMaterialesScreen> {
                                   material.categoria,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: Colors.grey.shade600,
+                                    color: AppColors.gray700,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -219,7 +220,8 @@ class _CatalogoMaterialesScreenState extends State<CatalogoMaterialesScreen> {
                             trailing: ElevatedButton(
                               onPressed: () => _agregarDelCatalogo(material),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                                backgroundColor: AppColors.success,
+                                foregroundColor: AppColors.white,
                               ),
                               child: const Text('Agregar'),
                             ),

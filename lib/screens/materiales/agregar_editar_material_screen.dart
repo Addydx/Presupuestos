@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 import 'package:presupuesto_app/models/presupuesto/material_catalogo.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
@@ -314,7 +315,7 @@ class _AgregarEditarMaterialScreenState
 
               // Total calculado
               Card(
-                color: Colors.blue.shade50,
+                color: AppColors.gray100,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -332,7 +333,7 @@ class _AgregarEditarMaterialScreenState
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: AppColors.info,
                         ),
                       ),
                     ],
@@ -344,7 +345,7 @@ class _AgregarEditarMaterialScreenState
               // Checkbox: Personalizado
               if (!esEdicion || widget.materialEditando!.esPersonalizado)
                 Card(
-                  color: Colors.orange.shade50,
+                  color: AppColors.yellowSoft,
                   child: CheckboxListTile(
                     title: const Text('Material Personalizado'),
                     subtitle: const Text(

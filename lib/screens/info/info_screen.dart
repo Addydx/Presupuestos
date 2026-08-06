@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -8,13 +9,7 @@ class InfoScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Información'), elevation: 0),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFF5F7FA), Color(0xFFE8EEF5)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        decoration: const BoxDecoration(color: AppColors.gray100),
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -22,14 +17,14 @@ class InfoScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                  colors: [AppColors.gray900, AppColors.black],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF2E5090).withValues(alpha: 0.2),
+                    color: AppColors.black.withValues(alpha: 0.2),
                     blurRadius: 18,
                     offset: const Offset(0, 8),
                   ),
@@ -40,14 +35,14 @@ class InfoScreen extends StatelessWidget {
                 children: const [
                   Icon(
                     Icons.home_repair_service,
-                    color: Colors.white,
+                    color: AppColors.white,
                     size: 40,
                   ),
                   SizedBox(height: 16),
                   Text(
                     'Presupuesto App',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
@@ -56,7 +51,7 @@ class InfoScreen extends StatelessWidget {
                   Text(
                     'Aplicación enfocada en crear presupuestos claros, rápidos y ordenados para trabajos de construcción.',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 15,
                       height: 1.5,
                     ),
@@ -117,11 +112,11 @@ class _InfoCard extends StatelessWidget {
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00B4DB).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
+                  decoration: const BoxDecoration(
+                    color: AppColors.yellowSoft,
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
                   ),
-                  child: Icon(icon, color: const Color(0xFF2E5090)),
+                  child: Icon(icon, color: AppColors.black),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -139,7 +134,7 @@ class _InfoCard extends StatelessWidget {
               content,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 height: 1.6,
-                color: const Color(0xFF4B5563),
+                color: AppColors.gray700,
               ),
             ),
           ],

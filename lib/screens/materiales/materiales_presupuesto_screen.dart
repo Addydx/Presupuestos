@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 import 'package:presupuesto_app/screens/materiales/agregar_editar_material_screen.dart';
 import 'package:presupuesto_app/screens/materiales/catalogo_materiales_screen.dart';
@@ -61,7 +62,7 @@ class _MaterialesPresupuestoScreenState
                 },
                 child: const Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
               ),
             ],
@@ -148,7 +149,8 @@ class _MaterialesPresupuestoScreenState
                   label: const Text('Catálogo'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.black,
+                    foregroundColor: AppColors.white,
                   ),
                 ),
               ),
@@ -163,26 +165,16 @@ class _MaterialesPresupuestoScreenState
                 padding: const EdgeInsets.symmetric(vertical: 32.0),
                 child: Column(
                   children: [
-                    Icon(
-                      Icons.inventory_2,
-                      size: 64,
-                      color: Colors.grey.shade400,
-                    ),
+                    Icon(Icons.inventory_2, size: 64, color: AppColors.gray500),
                     const SizedBox(height: 16),
                     Text(
                       'Sin materiales agregados',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                      ),
+                      style: TextStyle(fontSize: 16, color: AppColors.gray700),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       'Agrega materiales para tu presupuesto',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
-                      ),
+                      style: TextStyle(fontSize: 14, color: AppColors.gray700),
                     ),
                   ],
                 ),
@@ -203,10 +195,10 @@ class _MaterialesPresupuestoScreenState
                       child: ListTile(
                         isThreeLine: material.esPersonalizado,
                         leading: CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
+                          backgroundColor: AppColors.yellowSoft,
                           child: Text(
                             material.nombre[0].toUpperCase(),
-                            style: const TextStyle(color: Colors.blue),
+                            style: const TextStyle(color: AppColors.black),
                           ),
                         ),
                         title: Text(material.nombre),
@@ -233,10 +225,11 @@ class _MaterialesPresupuestoScreenState
                                 child: Chip(
                                   label: const Text('Personalizado'),
                                   visualDensity: VisualDensity.compact,
-                                  side: const BorderSide(color: Colors.orange),
+                                  backgroundColor: AppColors.yellowSoft,
+                                  side: BorderSide.none,
                                   labelStyle: const TextStyle(
                                     fontSize: 11,
-                                    color: Colors.orange,
+                                    color: AppColors.black,
                                   ),
                                 ),
                               ),
@@ -261,7 +254,7 @@ class _MaterialesPresupuestoScreenState
                                   value: 'eliminar',
                                   child: Text(
                                     'Eliminar',
-                                    style: TextStyle(color: Colors.red),
+                                    style: TextStyle(color: AppColors.error),
                                   ),
                                 ),
                               ],
@@ -274,7 +267,7 @@ class _MaterialesPresupuestoScreenState
                 const SizedBox(height: 8),
                 // Total general
                 Card(
-                  color: Colors.blue.shade50,
+                  color: AppColors.gray100,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10.0,
@@ -295,7 +288,7 @@ class _MaterialesPresupuestoScreenState
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue,
+                            color: AppColors.info,
                           ),
                         ),
                       ],

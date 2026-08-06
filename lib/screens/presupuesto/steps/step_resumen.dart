@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
@@ -56,7 +57,7 @@ class StepResumen extends StatelessWidget {
           // Encabezado con título y fecha
           if (titulo != null || fecha != null)
             Card(
-              color: Colors.blue.shade50,
+              color: AppColors.gray100,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
@@ -74,9 +75,9 @@ class StepResumen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         'Fecha: ${fecha!.toLocal().toString().split(' ')[0]}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade700,
+                          color: AppColors.gray700,
                         ),
                       ),
                     ],
@@ -112,8 +113,8 @@ class StepResumen extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              border: Border.all(color: Colors.green.shade300, width: 2),
+              color: AppColors.yellowSoft,
+              border: Border.all(color: AppColors.yellowDark, width: 2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -123,17 +124,17 @@ class StepResumen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: AppColors.gray700,
                     letterSpacing: 0.5,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '\$${totalFinal.toStringAsFixed(2)}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
+                    color: AppColors.black,
                   ),
                 ),
               ],

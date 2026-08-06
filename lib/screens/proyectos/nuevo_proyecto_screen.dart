@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import '../../models/proyectos/proyecto.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -108,7 +109,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Nuevo Proyecto'), elevation: 0),
       body: Container(
-        color: const Color(0xFFF5F7FA),
+        color: AppColors.gray100,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -128,25 +129,18 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                           _imagenProyecto == null
                               ? LinearGradient(
                                 colors: [
-                                  const Color(
-                                    0xFF2E5090,
-                                  ).withValues(alpha: 0.1),
-                                  const Color(
-                                    0xFF00B4DB,
-                                  ).withValues(alpha: 0.1),
+                                  AppColors.gray300.withValues(alpha: 0.4),
+                                  AppColors.gray300.withValues(alpha: 0.15),
                                 ],
                               )
                               : null,
-                      border: Border.all(
-                        color: const Color(0xFFE8EEF5),
-                        width: 2,
-                      ),
+                      border: Border.all(color: AppColors.gray300, width: 2),
                       boxShadow:
                           _imagenProyecto == null
                               ? []
                               : [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.1),
+                                  color: AppColors.black.withValues(alpha: 0.1),
                                   blurRadius: 12,
                                 ),
                               ],
@@ -171,16 +165,14 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xFF00B4DB,
-                                        ).withValues(alpha: 0.15),
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.yellowSoft,
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
                                         Icons.add_a_photo,
                                         size: 40,
-                                        color: Color(0xFF00B4DB),
+                                        color: AppColors.black,
                                       ),
                                     ),
                                     const SizedBox(height: 12),
@@ -189,18 +181,17 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium?.copyWith(
-                                        color: const Color(0xFF6C757D),
+                                        color: AppColors.gray700,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       'Toca para seleccionar o haz doble clic',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall?.copyWith(
-                                        color: const Color(0xFFB0BCC4),
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(color: AppColors.gray700),
                                     ),
                                   ],
                                 ),
@@ -273,26 +264,26 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color(0xFFE8EEF5),
+                            color: AppColors.gray500,
                             width: 1,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color(0xFFE8EEF5),
+                            color: AppColors.gray500,
                             width: 1,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Color(0xFF00B4DB),
+                            color: AppColors.black,
                             width: 2,
                           ),
                         ),
                         filled: true,
-                        fillColor: Colors.white,
+                        fillColor: AppColors.gray100,
                         contentPadding: const EdgeInsets.all(14),
                       ),
                     ),
@@ -336,12 +327,12 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                   height: 56,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF00B4DB), Color(0xFF2E5090)],
+                      colors: [AppColors.yellowPrimary, AppColors.yellowDark],
                     ),
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
+                        color: AppColors.yellowDark.withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -381,7 +372,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                               content: const Text(
                                 'Proyecto guardado correctamente',
                               ),
-                              backgroundColor: const Color(0xFF4CAF50),
+                              backgroundColor: AppColors.success,
                               duration: const Duration(seconds: 2),
                             ),
                           );
@@ -395,7 +386,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                         children: [
                           const Icon(
                             Icons.check,
-                            color: Colors.white,
+                            color: AppColors.black,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -404,7 +395,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                             style: Theme.of(
                               context,
                             ).textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
+                              color: AppColors.black,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -429,9 +420,9 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE8EEF5), width: 1),
+        border: Border.all(color: AppColors.gray300, width: 1),
       ),
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -464,7 +455,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
         Text(
           label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: const Color(0xFF1A1A1A),
+            color: AppColors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -473,21 +464,21 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
           controller: controller,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, color: const Color(0xFF00B4DB)),
+            prefixIcon: Icon(icon, color: AppColors.black),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+              borderSide: const BorderSide(color: AppColors.gray500, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+              borderSide: const BorderSide(color: AppColors.gray500, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF00B4DB), width: 2),
+              borderSide: const BorderSide(color: AppColors.black, width: 2),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.gray100,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,
@@ -511,7 +502,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
         Text(
           label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: const Color(0xFF1A1A1A),
+            color: AppColors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -523,22 +514,22 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
             hintText: 'Selecciona una fecha',
             prefixIcon: const Icon(
               Icons.calendar_today,
-              color: Color(0xFF00B4DB),
+              color: AppColors.black,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+              borderSide: const BorderSide(color: AppColors.gray500, width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFFE8EEF5), width: 1),
+              borderSide: const BorderSide(color: AppColors.gray500, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(color: Color(0xFF00B4DB), width: 2),
+              borderSide: const BorderSide(color: AppColors.black, width: 2),
             ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AppColors.gray100,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 12,

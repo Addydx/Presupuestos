@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 
 class StepManoObra extends StatefulWidget {
@@ -349,7 +350,7 @@ class StepManoObraState extends State<StepManoObra> {
     final totalCosto = totalPersonasDias * costoDia;
 
     return Card(
-      color: Colors.blue.shade50,
+      color: AppColors.gray100,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -385,7 +386,7 @@ class StepManoObraState extends State<StepManoObra> {
     final monto = double.tryParse(_montoContrato?.toString() ?? '') ?? 0.0;
 
     return Card(
-      color: Colors.green.shade50,
+      color: AppColors.gray100,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -412,7 +413,10 @@ class StepManoObraState extends State<StepManoObra> {
                   const SizedBox(height: 4),
                   Text(
                     _observaciones ?? '',
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.gray700,
+                    ),
                   ),
                 ],
               ),
@@ -438,7 +442,7 @@ class StepManoObraState extends State<StepManoObra> {
           style: TextStyle(
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
             fontSize: isTotal ? 14 : 13,
-            color: isTotal ? Colors.blue : Colors.black87,
+            color: isTotal ? AppColors.info : AppColors.black,
           ),
         ),
       ],

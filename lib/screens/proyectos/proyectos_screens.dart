@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'proyectos_vista.dart';
 import 'nuevo_proyecto_screen.dart';
 import '../../models/proyectos/proyecto.dart';
@@ -66,7 +67,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                 onPressed: () => Navigator.pop(dialogContext, true),
                 child: const Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
               ),
             ],
@@ -122,18 +123,15 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
             // Botón crear nuevo proyecto - estilo mejorado
             Container(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    const Color(0xFF00B4DB),
-                    const Color(0xFF2E5090).withValues(alpha: 0.8),
-                  ],
+                gradient: const LinearGradient(
+                  colors: [AppColors.yellowPrimary, AppColors.yellowDark],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
+                    color: AppColors.yellowDark.withValues(alpha: 0.4),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -149,14 +147,14 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.add, color: Colors.white, size: 24),
+                        const Icon(Icons.add, color: AppColors.black, size: 24),
                         const SizedBox(width: 8),
                         Text(
                           'Nuevo Proyecto',
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
+                            color: AppColors.black,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -177,16 +175,14 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                           children: [
                             Container(
                               padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF2E5090,
-                                ).withValues(alpha: 0.08),
+                              decoration: const BoxDecoration(
+                                color: AppColors.gray100,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.folder_open,
                                 size: 64,
-                                color: Color(0xFF2E5090),
+                                color: AppColors.gray700,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -199,7 +195,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                             Text(
                               'Crea tu primer proyecto para comenzar',
                               style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: const Color(0xFF6C757D)),
+                                  ?.copyWith(color: AppColors.gray700),
                             ),
                           ],
                         ),
@@ -267,7 +263,7 @@ class _ProyectoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: AppColors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -288,7 +284,7 @@ class _ProyectoCard extends StatelessWidget {
                 // Imagen de fondo
                 Positioned.fill(
                   child: Container(
-                    decoration: BoxDecoration(color: Colors.grey[200]),
+                    decoration: const BoxDecoration(color: AppColors.gray300),
                     child:
                         imagenAsset != null && imagenAsset!.isNotEmpty
                             ? Image.file(
@@ -296,26 +292,19 @@ class _ProyectoCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               width: double.infinity,
                             )
-                            : Container(
+                            : const DecoratedBox(
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [
-                                    const Color(
-                                      0xFF2E5090,
-                                    ).withValues(alpha: 0.9),
-                                    const Color(
-                                      0xFF00B4DB,
-                                    ).withValues(alpha: 0.7),
-                                  ],
+                                  colors: [AppColors.gray900, AppColors.black],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.home_work,
                                   size: 80,
-                                  color: Colors.white,
+                                  color: AppColors.yellowPrimary,
                                 ),
                               ),
                             ),
@@ -330,8 +319,8 @@ class _ProyectoCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.5),
-                          Colors.black.withValues(alpha: 0.7),
+                          AppColors.black.withValues(alpha: 0.5),
+                          AppColors.black.withValues(alpha: 0.7),
                         ],
                         stops: const [0.3, 0.6, 1.0],
                       ),
@@ -343,12 +332,12 @@ class _ProyectoCard extends StatelessWidget {
                   right: 12,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.35),
+                      color: AppColors.black.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: PopupMenuButton<String>(
                       tooltip: 'Opciones del proyecto',
-                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      icon: const Icon(Icons.more_vert, color: AppColors.white),
                       onSelected: (value) {
                         if (value == 'eliminar') {
                           onDelete();
@@ -360,7 +349,7 @@ class _ProyectoCard extends StatelessWidget {
                               value: 'eliminar',
                               child: Text(
                                 'Eliminar proyecto',
-                                style: TextStyle(color: Colors.red),
+                                style: TextStyle(color: AppColors.error),
                               ),
                             ),
                           ],
@@ -383,7 +372,7 @@ class _ProyectoCard extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppColors.white,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -391,18 +380,18 @@ class _ProyectoCard extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.person_outline,
                               size: 16,
-                              color: Colors.white70,
+                              color: AppColors.white.withValues(alpha: 0.7),
                             ),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
                                 nombreCliente,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: Colors.white70,
+                                  color: AppColors.white.withValues(alpha: 0.7),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 maxLines: 1,
@@ -412,7 +401,7 @@ class _ProyectoCard extends StatelessWidget {
                             Icon(
                               Icons.arrow_forward_ios,
                               size: 16,
-                              color: Colors.white.withValues(alpha: 0.6),
+                              color: AppColors.white.withValues(alpha: 0.6),
                             ),
                           ],
                         ),

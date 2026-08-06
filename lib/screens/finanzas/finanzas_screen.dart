@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
@@ -126,7 +127,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
           // ================ COSTO DIRECTO ================
           const SizedBox(height: 8),
           Card(
-            color: Colors.blue.shade50,
+            color: AppColors.gray100,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -142,7 +143,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                   _buildFilaValor('Equipos:', widget.totalEquipos),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: Divider(color: Colors.grey.shade400, height: 1),
+                    child: Divider(color: AppColors.gray500, height: 1),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -243,7 +244,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
 
           // Card con todos los resultados
           Card(
-            color: Colors.grey.shade50,
+            color: AppColors.white,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -254,17 +255,17 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: Colors.grey.shade300, height: 1),
+                    child: Divider(color: AppColors.gray300, height: 1),
                   ),
                   _buildFilaValor('Subtotal:', _resultados['subtotal'] ?? 0),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: Colors.grey.shade300, height: 1),
+                    child: Divider(color: AppColors.gray300, height: 1),
                   ),
                   _buildFilaValor('Utilidad:', _resultados['utilidad'] ?? 0),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: Colors.grey.shade300, height: 1),
+                    child: Divider(color: AppColors.gray300, height: 1),
                   ),
                   _buildFilaValor(
                     'Precio Final:',
@@ -274,13 +275,13 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
                   if (_aplicarIVA) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
-                      child: Divider(color: Colors.grey.shade300, height: 1),
+                      child: Divider(color: AppColors.gray300, height: 1),
                     ),
                     _buildFilaValor('IVA (16%):', _resultados['iva'] ?? 0),
                   ],
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(color: Colors.grey.shade400, height: 2),
+                    child: Divider(color: AppColors.gray500, height: 2),
                   ),
                   _buildFilaValor(
                     'TOTAL FINAL:',
@@ -297,7 +298,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
 
           // Resumen de porcentajes
           Card(
-            color: Colors.orange.shade50,
+            color: AppColors.gray100,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
@@ -351,8 +352,8 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
     final fontWeight = esTotal ? FontWeight.bold : FontWeight.w500;
     final color =
         esTotal
-            ? Colors.green.shade700
-            : (esMarcado ? Colors.blue.shade700 : Colors.black87);
+            ? AppColors.success
+            : (esMarcado ? AppColors.info : AppColors.black);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,

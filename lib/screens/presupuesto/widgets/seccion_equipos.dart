@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 
 class SeccionEquipos extends StatelessWidget {
@@ -27,7 +28,7 @@ class SeccionEquipos extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
                     'Sin equipos agregados',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: AppColors.gray700, fontSize: 13),
                   ),
                 ),
               )
@@ -42,7 +43,7 @@ class SeccionEquipos extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: AppColors.gray100,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -89,7 +90,7 @@ class SeccionEquipos extends StatelessWidget {
               ),
             if (equipos.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Divider(color: Colors.grey.shade300, height: 1),
+              Divider(color: AppColors.gray300, height: 1),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -115,7 +116,7 @@ class SeccionEquipos extends StatelessWidget {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: Colors.orange,
+                          color: AppColors.warning,
                         ),
                       ),
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 
 class SeccionManoObra extends StatelessWidget {
@@ -31,7 +32,7 @@ class SeccionManoObra extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
                     'Sin mano de obra agregada',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: AppColors.gray700, fontSize: 13),
                   ),
                 ),
               )
@@ -47,7 +48,7 @@ class SeccionManoObra extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: AppColors.gray100,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Column(
@@ -88,7 +89,7 @@ class SeccionManoObra extends StatelessWidget {
               ),
             if (manoObra.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Divider(color: Colors.grey.shade300, height: 1),
+              Divider(color: AppColors.gray300, height: 1),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -102,7 +103,7 @@ class SeccionManoObra extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
-                      color: Colors.purple,
+                      color: AppColors.gray900,
                     ),
                   ),
                 ],

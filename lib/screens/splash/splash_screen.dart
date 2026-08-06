@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/screens/home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -62,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen>
         height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF2E5090), Color(0xFF00B4DB)],
+            colors: [AppColors.gray900, AppColors.black],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -84,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     'Presupuesto App',
                     style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -92,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
                   Text(
                     'Gestión profesional de presupuestos',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.white70,
+                      color: AppColors.white.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

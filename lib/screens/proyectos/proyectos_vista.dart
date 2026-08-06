@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/screens/presupuesto/wizard_presupuesto_screen.dart';
@@ -70,7 +71,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                 onPressed: () => Navigator.pop(dialogContext, true),
                 child: const Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
               ),
             ],
@@ -148,7 +149,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                 },
                 child: const Text(
                   'Eliminar',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppColors.error),
                 ),
               ),
             ],
@@ -175,7 +176,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
           180, //esto es para que el header tenga una altura de 180 pixeles
       pinned: true,
       backgroundColor:
-          Colors.white, //esto es para que el header tenga un fondo blanco
+          AppColors.white, //esto es para que el header tenga un fondo blanco
       actions: [
         IconButton(
           icon: const Icon(Icons.edit_outlined),
@@ -206,11 +207,14 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                       BoxFit
                           .cover, //esto es para que la imagen ocupe todo el espacio del header y se recorte si es necesario
                 )
-                : Container(color: Colors.grey[300]),
+                : Container(color: AppColors.gray300),
             Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black54],
+                  colors: [
+                    Colors.transparent,
+                    AppColors.black.withValues(alpha: 0.54),
+                  ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
@@ -236,7 +240,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
 
         Text(
           _proyecto.nombreCliente,
-          style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+          style: TextStyle(fontSize: 16, color: AppColors.gray700),
         ),
 
         if (_proyecto.descripcion != null &&
@@ -251,12 +255,12 @@ class _ProyectosVistaState extends State<ProyectosVista> {
           const SizedBox(height: 14),
           Row(
             children: [
-              Icon(Icons.location_on, size: 18, color: Colors.grey[600]),
+              Icon(Icons.location_on, size: 18, color: AppColors.gray700),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   _proyecto.ubicacion!,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 14, color: AppColors.gray700),
                 ),
               ),
             ],
@@ -268,7 +272,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
           const SizedBox(height: 14),
           Row(
             children: [
-              Icon(Icons.calendar_today, size: 18, color: Colors.grey[600]),
+              Icon(Icons.calendar_today, size: 18, color: AppColors.gray700),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -276,7 +280,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                     _proyecto.fechaInicio,
                     _proyecto.fechaFin,
                   ),
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 14, color: AppColors.gray700),
                 ),
               ),
             ],
@@ -286,7 +290,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
         const SizedBox(height: 24),
 
         // DIVISIÓN VISUAL
-        Divider(color: Colors.grey[300]),
+        Divider(color: AppColors.gray300),
 
         const SizedBox(height: 16),
 
@@ -380,7 +384,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                                       'Creado: ${presupuesto.fechaCreacion.day}/${presupuesto.fechaCreacion.month}/${presupuesto.fechaCreacion.year}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey[600],
+                                        color: AppColors.gray700,
                                       ),
                                     ),
                                   ],
@@ -405,7 +409,9 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                                         value: 'eliminar',
                                         child: Text(
                                           'Eliminar',
-                                          style: TextStyle(color: Colors.red),
+                                          style: TextStyle(
+                                            color: AppColors.error,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -421,7 +427,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
+                                  color: AppColors.info,
                                 ),
                               ),
                               Chip(
@@ -437,8 +443,8 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                                     presupuesto.estado.toString().contains(
                                           'borrador',
                                         )
-                                        ? Colors.orange[100]
-                                        : Colors.green[100],
+                                        ? AppColors.yellowSoft
+                                        : AppColors.gray100,
                               ),
                             ],
                           ),

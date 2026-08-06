@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 
@@ -193,7 +194,7 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
 
               // Cálculo automático
               Card(
-                color: Colors.blue.shade50,
+                color: AppColors.gray100,
                 child: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
@@ -202,11 +203,11 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             'Cálculo Automático:',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: AppColors.gray700,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -221,7 +222,7 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue,
+                          color: AppColors.info,
                         ),
                       ),
                     ],
@@ -243,7 +244,6 @@ class _AgregarEditarEquipoScreenState extends State<AgregarEditarEquipoScreen> {
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    backgroundColor: Colors.blue,
                   ),
                 ),
               ),

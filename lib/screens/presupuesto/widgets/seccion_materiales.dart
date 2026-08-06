@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:presupuesto_app/core/theme/app_colors.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 
 class SeccionMateriales extends StatelessWidget {
@@ -30,7 +31,7 @@ class SeccionMateriales extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
                     'Sin materiales agregados',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    style: TextStyle(color: AppColors.gray700, fontSize: 13),
                   ),
                 ),
               )
@@ -45,7 +46,7 @@ class SeccionMateriales extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: AppColors.gray100,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -92,7 +93,7 @@ class SeccionMateriales extends StatelessWidget {
               ),
             if (materiales.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Divider(color: Colors.grey.shade300, height: 1),
+              Divider(color: AppColors.gray300, height: 1),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -118,7 +119,7 @@ class SeccionMateriales extends StatelessWidget {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
-                          color: Colors.blue,
+                          color: AppColors.info,
                         ),
                       ),
                     ),
