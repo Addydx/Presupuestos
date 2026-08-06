@@ -125,7 +125,7 @@ class StepManoObraState extends State<StepManoObra> {
           children: [
             // Dropdown: Tipo de Pago
             DropdownButtonFormField<TipoPago>(
-              value: _tipoPago,
+              initialValue: _tipoPago,
               decoration: InputDecoration(
                 labelText: 'Tipo de Pago',
                 border: OutlineInputBorder(

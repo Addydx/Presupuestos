@@ -128,8 +128,12 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                           _imagenProyecto == null
                               ? LinearGradient(
                                 colors: [
-                                  const Color(0xFF2E5090).withOpacity(0.1),
-                                  const Color(0xFF00B4DB).withOpacity(0.1),
+                                  const Color(
+                                    0xFF2E5090,
+                                  ).withValues(alpha: 0.1),
+                                  const Color(
+                                    0xFF00B4DB,
+                                  ).withValues(alpha: 0.1),
                                 ],
                               )
                               : null,
@@ -142,7 +146,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                               ? []
                               : [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 12,
                                 ),
                               ],
@@ -170,7 +174,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                                       decoration: BoxDecoration(
                                         color: const Color(
                                           0xFF00B4DB,
-                                        ).withOpacity(0.15),
+                                        ).withValues(alpha: 0.15),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -337,7 +341,7 @@ class _NuevoProyectoScreenState extends State<NuevoProyectoScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00B4DB).withOpacity(0.3),
+                        color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

@@ -148,7 +148,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
         elevation: 0,
       ),
       body: Theme(
-        data: Theme.of(context).copyWith(useMaterial3: true),
+        data: Theme.of(context),
         child: Container(
           color: const Color(0xFFF5F7FA),
           child: Stepper(
@@ -199,7 +199,9 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF00B4DB).withOpacity(0.3),
+                            color: const Color(
+                              0xFF00B4DB,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 8,
                           ),
                         ],
@@ -386,7 +388,7 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<EstadoPresupuesto>(
-            value: _estado,
+            initialValue: _estado,
             decoration: const InputDecoration(
               labelText: 'Estado',
               isDense: true,

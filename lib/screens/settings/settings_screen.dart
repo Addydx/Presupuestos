@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF00B4DB).withOpacity(0.3),
+                        color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
                         blurRadius: 12,
                       ),
                     ],
@@ -136,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Switch(
               value: _darkModeEnabled,
               onChanged: null,
-              activeColor: const Color(0xFF00B4DB),
+              activeThumbColor: const Color(0xFF00B4DB),
             ),
           ),
         ],
@@ -280,25 +280,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             title: const Text('Seleccionar Moneda'),
             content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children:
-                    ['USD', 'EUR', 'COP', 'MXN', 'ARS', 'CLP']
-                        .map(
-                          (currency) => RadioListTile<String>(
-                            title: Text(currency),
-                            value: currency,
-                            groupValue: _selectedCurrency,
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCurrency = value ?? 'USD';
-                              });
-                              Navigator.pop(context);
-                            },
-                            activeColor: const Color(0xFF00B4DB),
-                          ),
-                        )
-                        .toList(),
+              child: RadioGroup<String>(
+                groupValue: _selectedCurrency,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCurrency = value ?? 'USD';
+                  });
+                  Navigator.pop(context);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children:
+                      ['USD', 'EUR', 'COP', 'MXN', 'ARS', 'CLP']
+                          .map(
+                            (currency) => RadioListTile<String>(
+                              title: Text(currency),
+                              value: currency,
+                              activeColor: const Color(0xFF00B4DB),
+                            ),
+                          )
+                          .toList(),
+                ),
               ),
             ),
           ),

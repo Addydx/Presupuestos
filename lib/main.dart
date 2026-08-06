@@ -84,12 +84,10 @@ class MyApp extends StatelessWidget {
         primary: primaryColor,
         secondary: accentColor,
         surface: surfaceColor,
-        background: backgroundLight,
         error: dangerColor,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textDark,
-        onBackground: textDark,
       ),
       scaffoldBackgroundColor: backgroundLight,
       appBarTheme: AppBarTheme(

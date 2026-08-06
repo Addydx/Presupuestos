@@ -125,7 +125,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF00B4DB),
-                    const Color(0xFF2E5090).withOpacity(0.8),
+                    const Color(0xFF2E5090).withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -133,7 +133,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00B4DB).withOpacity(0.3),
+                    color: const Color(0xFF00B4DB).withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -180,7 +180,7 @@ class _ProyectosScreensState extends State<ProyectosScreens> {
                               decoration: BoxDecoration(
                                 color: const Color(
                                   0xFF2E5090,
-                                ).withOpacity(0.08),
+                                ).withValues(alpha: 0.08),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -267,7 +267,7 @@ class _ProyectoCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -300,8 +300,12 @@ class _ProyectoCard extends StatelessWidget {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    const Color(0xFF2E5090).withOpacity(0.9),
-                                    const Color(0xFF00B4DB).withOpacity(0.7),
+                                    const Color(
+                                      0xFF2E5090,
+                                    ).withValues(alpha: 0.9),
+                                    const Color(
+                                      0xFF00B4DB,
+                                    ).withValues(alpha: 0.7),
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -326,8 +330,8 @@ class _ProyectoCard extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.5),
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.5),
+                          Colors.black.withValues(alpha: 0.7),
                         ],
                         stops: const [0.3, 0.6, 1.0],
                       ),
@@ -339,7 +343,7 @@ class _ProyectoCard extends StatelessWidget {
                   right: 12,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.35),
+                      color: Colors.black.withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: PopupMenuButton<String>(
@@ -408,7 +412,7 @@ class _ProyectoCard extends StatelessWidget {
                             Icon(
                               Icons.arrow_forward_ios,
                               size: 16,
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.white.withValues(alpha: 0.6),
                             ),
                           ],
                         ),
