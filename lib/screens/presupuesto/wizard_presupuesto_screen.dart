@@ -1522,31 +1522,35 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen>
   // ---------- Contenido: finanzas ----------
 
   Widget _pasoImprevistos() {
-    return SelectorPorcentaje(
-      valoresComunes: _valoresImprevistos,
-      valorSeleccionado: _finanzas.porcentajeImprevistos,
-      modoOtro: _imprevistosModoOtro,
-      controladorOtro: _imprevistosOtroController,
-      focoOtro: _focoImprevistosOtro,
-      base: _costoDirectoActual,
-      onSeleccionarComun: _seleccionarImprevistos,
-      onActivarOtro: _activarImprevistosOtro,
-      onCambiarOtro: _cambiarImprevistosOtro,
+    return SingleChildScrollView(
+      child: SelectorPorcentaje(
+        valoresComunes: _valoresImprevistos,
+        valorSeleccionado: _finanzas.porcentajeImprevistos,
+        modoOtro: _imprevistosModoOtro,
+        controladorOtro: _imprevistosOtroController,
+        focoOtro: _focoImprevistosOtro,
+        base: _costoDirectoActual,
+        onSeleccionarComun: _seleccionarImprevistos,
+        onActivarOtro: _activarImprevistosOtro,
+        onCambiarOtro: _cambiarImprevistosOtro,
+      ),
     );
   }
 
   Widget _pasoUtilidad() {
     final base = _resultadosActuales['subtotal'] ?? 0;
-    return SelectorPorcentaje(
-      valoresComunes: _valoresUtilidad,
-      valorSeleccionado: _finanzas.porcentajeUtilidad,
-      modoOtro: _utilidadModoOtro,
-      controladorOtro: _utilidadOtroController,
-      focoOtro: _focoUtilidadOtro,
-      base: base,
-      onSeleccionarComun: _seleccionarUtilidad,
-      onActivarOtro: _activarUtilidadOtro,
-      onCambiarOtro: _cambiarUtilidadOtro,
+    return SingleChildScrollView(
+      child: SelectorPorcentaje(
+        valoresComunes: _valoresUtilidad,
+        valorSeleccionado: _finanzas.porcentajeUtilidad,
+        modoOtro: _utilidadModoOtro,
+        controladorOtro: _utilidadOtroController,
+        focoOtro: _focoUtilidadOtro,
+        base: base,
+        onSeleccionarComun: _seleccionarUtilidad,
+        onActivarOtro: _activarUtilidadOtro,
+        onCambiarOtro: _cambiarUtilidadOtro,
+      ),
     );
   }
 
