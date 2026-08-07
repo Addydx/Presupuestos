@@ -151,6 +151,12 @@ class _StepEquiposState extends State<StepEquipos> {
                     final equipo = equipos[index];
                     return Card(
                       child: ListTile(
+                        // El total ya no vive apilado en `trailing` junto al
+                        // botón de menú (ese patrón desbordaba la altura
+                        // fija del ListTile). Sigue el mismo patrón que la
+                        // lista de materiales: total dentro del subtítulo,
+                        // trailing = solo el botón de menú.
+                        isThreeLine: true,
                         leading: CircleAvatar(
                           backgroundColor: AppColors.yellowSoft,
                           child: const Icon(
@@ -161,53 +167,45 @@ class _StepEquiposState extends State<StepEquipos> {
                         title: Text(equipo.nombre),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(height: 4),
                             Text(
                               '${equipo.dias} días × ${MonedaUtils.formatear(equipo.costoPorDia)}/día',
                               style: const TextStyle(fontSize: 12),
                             ),
-                          ],
-                        ),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
                             Text(
-                              MonedaUtils.formatear(equipo.total),
+                              'Total: ${MonedaUtils.formatear(equipo.total)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                                fontSize: 13,
                               ),
                             ),
-                            PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'editar') {
-                                  _abrirEditarEquipo(equipo);
-                                }
-                                if (value == 'eliminar') {
-                                  _eliminarEquipo(equipo.id);
-                                }
-                              },
-                              itemBuilder:
-                                  (context) => const [
-                                    PopupMenuItem(
-                                      value: 'editar',
-                                      child: Text('Editar'),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'eliminar',
-                                      child: Text(
-                                        'Eliminar',
-                                        style: TextStyle(
-                                          color: AppColors.error,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                              offset: const Offset(-100, 0),
-                            ),
                           ],
+                        ),
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'editar') {
+                              _abrirEditarEquipo(equipo);
+                            }
+                            if (value == 'eliminar') {
+                              _eliminarEquipo(equipo.id);
+                            }
+                          },
+                          itemBuilder:
+                              (context) => const [
+                                PopupMenuItem(
+                                  value: 'editar',
+                                  child: Text('Editar'),
+                                ),
+                                PopupMenuItem(
+                                  value: 'eliminar',
+                                  child: Text(
+                                    'Eliminar',
+                                    style: TextStyle(color: AppColors.error),
+                                  ),
+                                ),
+                              ],
+                          offset: const Offset(-100, 0),
                         ),
                       ),
                     );

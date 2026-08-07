@@ -81,6 +81,21 @@ class FinanzasScreenState extends State<FinanzasScreen> {
   }
 
   @override
+  void didUpdateWidget(covariant FinanzasScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Los totales de materiales/mano de obra/equipos vienen del wizard y
+    // cambian cuando el usuario vuelve a un paso anterior a editarlos. Sin
+    // esto, "Costo Directo" se queda con el valor calculado la primera vez
+    // que se entró a este paso, aunque las líneas individuales sí se
+    // actualicen (vienen directo de los props, no de este estado).
+    if (oldWidget.totalMateriales != widget.totalMateriales ||
+        oldWidget.totalManoObra != widget.totalManoObra ||
+        oldWidget.totalEquipos != widget.totalEquipos) {
+      _calcularValores(notificarPadre: false);
+    }
+  }
+
+  @override
   void dispose() {
     _debounceNotificacion?.cancel();
     _imprevistoController.dispose();
