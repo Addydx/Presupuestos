@@ -27,6 +27,7 @@ class CampoValidado extends StatefulWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final bool autofocus;
+  final TextStyle? style;
 
   const CampoValidado({
     super.key,
@@ -46,6 +47,7 @@ class CampoValidado extends StatefulWidget {
     this.readOnly = false,
     this.onTap,
     this.autofocus = false,
+    this.style,
   });
 
   @override
@@ -78,7 +80,9 @@ class _CampoValidadoState extends State<CampoValidado> {
     if (error != null && _autovalidateMode == AutovalidateMode.disabled) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && _autovalidateMode == AutovalidateMode.disabled) {
-          setState(() => _autovalidateMode = AutovalidateMode.onUserInteraction);
+          setState(
+            () => _autovalidateMode = AutovalidateMode.onUserInteraction,
+          );
         }
       });
     }
@@ -92,6 +96,7 @@ class _CampoValidadoState extends State<CampoValidado> {
       controller: widget.controller,
       focusNode: widget.focusNode,
       decoration: widget.decoration,
+      style: widget.style,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
       textInputAction:
