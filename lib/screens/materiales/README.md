@@ -3,6 +3,12 @@
 ## Resumen
 Arquitectura completa para gestionar materiales en presupuestos de construcción. Implementa catálogos reutilizables y materiales personalizados con persistencia en Hive.
 
+Desde 2026-08-07 la captura de materiales dentro del presupuesto sigue el
+flujo de **"una pregunta por pantalla"** del wizard (ver
+`lib/screens/presupuesto/README.md`). La gestión del catálogo (búsqueda,
+alta/edición de materiales de catálogo) sigue siendo un formulario
+tradicional, sin cambios.
+
 ---
 
 ## 1. ESTRUCTURA DE CARPETAS
@@ -19,19 +25,18 @@ lib/
 │   └── materiales_service.dart        # Servicio con toda la lógica
 ├── screens/
 │   ├── presupuesto/
-│   │   └── steps/
-│   │       └── step_materiales.dart   # Step para integrar en Wizard
+│   │   └── wizard/
+│   │       └── agregar_material_screen.dart   # Mini-flujo de 3 preguntas para agregar/editar
 │   └── materiales/
-│       ├── materiales_presupuesto_screen.dart    # Lista de materiales
 │       ├── catalogo_materiales_screen.dart       # Catálogo con búsqueda
-│       └── agregar_editar_material_screen.dart   # Agregar/editar/personalizado
+│       └── agregar_editar_material_screen.dart   # Alta/edición de materiales de catálogo
 ```
 
 ---
 
 ## 2. MODELOS HIVE
 
-### MaterialCatalogo (typeId: 5)
+### MaterialCatalogo (typeId: 7)
 Material base disponible para reutilizar:
 - `id`: Identificador único
 - `nombre`: Nombre del material
@@ -42,11 +47,13 @@ Material base disponible para reutilizar:
 - `tienda`: Tienda o proveedor (opcional)
 - `fechaCreacion`: Timestamp
 
-### MaterialPresupuesto (typeId: 4)
+### MaterialPresupuesto (typeId: 0)
 Material utilizado en un presupuesto específico:
 - `id`: ID único
 - `nombre`: Nombre del material
-- `categoria`: Categoría
+- `categoria`: Categoría (los materiales agregados a mano dentro del wizard
+  se guardan con categoría `"General"`; los que vienen del catálogo heredan
+  la categoría del catálogo)
 - `unidad`: Unidad de medida
 - `cantidad`: Cantidad usada
 - `precioUnitario`: Precio pagado
@@ -91,23 +98,43 @@ obtenerCantidadMateriales()     // int
 
 ## 4. PANTALLAS
 
-### MaterialesPresupuestoScreen
-**Propósito**: Listar y gestionar materiales del presupuesto
+### Pregunta "¿Qué materiales vas a usar?" (dentro del wizard)
+**Ubicación**: `_pasoMateriales()` en `lib/screens/presupuesto/wizard_presupuesto_screen.dart`
+
+**Propósito**: Listar y gestionar los materiales ya agregados al presupuesto que se está capturando.
 
 **Características**:
-- Lista de materiales con scroll
-- Botón flotante "Agregar Material"
-- Botón "Catálogo" para seleccionar del catálogo
-- Eliminar material (con confirmación)
-- Editar material
-- Total general calculado automáticamente
-- Estado vacío (empty state)
+- Tarjetas grandes con nombre, cantidad × unidad × precio, y total
+- Botón "Agregar material" (abre `AgregarMaterialScreen`)
+- Botón "Catálogo" (abre `CatalogoMaterialesScreen`)
+- Editar/eliminar por tarjeta (con confirmación al eliminar)
+- Estado vacío: "Todavía no agregas materiales. Toca el botón para agregar el primero."
+- Siempre se puede tocar "Siguiente" sin agregar nada
 
-**Acciones**:
-- Agregar: Abre `AgregarEditarMaterialScreen`
-- Catálogo: Abre `CatalogoMaterialesScreen`
-- Editar: Abre `AgregarEditarMaterialScreen` con datos
-- Eliminar: Elimina de Hive
+---
+
+### AgregarMaterialScreen (mini-flujo de una pregunta por pantalla)
+**Ubicación**: `lib/screens/presupuesto/wizard/agregar_material_screen.dart`
+
+**Propósito**: Capturar o editar un material, una pregunta a la vez.
+
+**Pasos**:
+1. ¿Qué material vas a agregar? (se salta si el material viene del catálogo, que ya trae nombre fijo)
+2. ¿Cuánto vas a necesitar? — cantidad + unidad (chips: pieza, kg, bulto, litro, m, m², m³, Otro)
+3. ¿Cuánto cuesta cada unidad?
+
+**Cálculos automáticos**:
+- Total = Cantidad × Precio Unitario (mostrado en vivo en el paso 3)
+
+**Validaciones**:
+- Nombre requerido (si no viene del catálogo)
+- Cantidad: número mayor a cero + unidad elegida
+- Precio: número mayor a cero
+- Aviso no bloqueante si el precio parece un error de dedo (`AdvertenciaMontoAlto`)
+
+Al terminar (`Navigator.pop` con el `MaterialPresupuesto` resultante), quien
+llamó a la pantalla (`_abrirAgregarMaterial`/`_abrirEditarMaterial` en el
+wizard) es responsable de guardarlo con `MaterialesService`.
 
 ---
 
@@ -132,23 +159,21 @@ obtenerCantidadMateriales()     // int
 ---
 
 ### AgregarEditarMaterialScreen
-**Propósito**: Capturar datos de materiales (nuevo, edición o desde catálogo)
+**Propósito**: Capturar datos de un material de catálogo (nombre/categoría/unidad fijos, cantidad y precio editables). Es un formulario tradicional (varios campos por pantalla), no sigue el patrón de una pregunta por pantalla — se usa únicamente desde el flujo de `CatalogoMaterialesScreen`.
 
 **Campos**:
-- Nombre (read-only si viene del catálogo)
-- Categoría (read-only si viene del catálogo)
-- Unidad (read-only si viene del catálogo)
+- Nombre (read-only, viene del catálogo)
+- Categoría (read-only, viene del catálogo)
+- Unidad (read-only, viene del catálogo)
 - Cantidad (editable, decimal)
 - Precio Unitario (editable, decimal)
-- Checkbox "Material Personalizado"
 
 **Cálculos automáticos**:
 - Total = Cantidad × Precio Unitario (actualización en tiempo real)
 
 **Validaciones**:
-- Campo requerido: nombre, categoría, unidad, cantidad, precio
-- Número válido: cantidad, precio
-- Número positivo (implícito)
+- Cantidad: requerido, número válido, > 0
+- Precio: requerido, número válido, > 0
 
 **Botones**:
 - Cancelar: Vuelve atrás
@@ -156,19 +181,27 @@ obtenerCantidadMateriales()     // int
 
 ---
 
-## 5. INTEGRACIÓN EN WIZARD
+## 5. INTEGRACIÓN EN EL WIZARD
 
-### StepMateriales
-Wrapper que envuelve `MaterialesPresupuestoScreen` para integración en el Stepper.
+El paso "Materiales" es uno más de la lista dinámica de preguntas que arma
+`_pasos` en `wizard_presupuesto_screen.dart`. No hay un `Stepper` ni pasos
+numerados fijos: el wizard avanza pantalla por pantalla y el usuario puede
+volver a "Materiales" en cualquier momento desde la pantalla de resumen
+final (tocando el renglón "Materiales").
 
 ```dart
-Step(
-  title: const Text('Materiales'),
-  content: StepMateriales(
-    materialesService: MaterialesService(),
-  ),
-  isActive: _currentStep >= 2,
-),
+// Dentro de _pasoMateriales() en wizard_presupuesto_screen.dart
+Future<void> _abrirAgregarMaterial() async {
+  final resultado = await Navigator.push<MaterialPresupuesto>(
+    context,
+    MaterialPageRoute(builder: (context) => const AgregarMaterialScreen()),
+  );
+  if (resultado == null) return;
+  await _materialesService.agregarMaterialPresupuesto(resultado);
+  if (!mounted) return;
+  setState(() {});
+  _programarAutoguardado();
+}
 ```
 
 ---
@@ -176,42 +209,39 @@ Step(
 ## 6. FLUJO DE USUARIO
 
 ### Caso 1: Agregar material del catálogo
-1. Usuario en paso "Materiales" del Wizard
+1. Usuario en la pantalla "¿Qué materiales vas a usar?"
 2. Presiona "Catálogo"
-3. CatalogoMaterialesScreen se abre
+3. `CatalogoMaterialesScreen` se abre
 4. Busca/filtra material
 5. Presiona "Agregar"
-6. AgregarEditarMaterialScreen se abre con datos del catálogo (nombre, categoría, unidad, precio ref)
+6. `AgregarEditarMaterialScreen` se abre con datos del catálogo (nombre, categoría, unidad, precio ref)
 7. Usuario ajusta cantidad y precio
 8. Presiona "Guardar"
-9. MaterialPresupuesto se agrega a Hive
-10. Vuelve a MaterialesPresupuestoScreen actualizada
+9. `MaterialPresupuesto` se agrega a Hive
+10. Vuelve a la pantalla de lista de materiales, actualizada
 
 ### Caso 2: Crear material personalizado
-1. Usuario en paso "Materiales"
-2. Presiona "Agregar Material"
-3. AgregarEditarMaterialScreen se abre vacío
-4. Usuario completa: nombre, categoría, unidad, cantidad, precio
-5. Checkbox "Material Personalizado" está marcado automáticamente
-6. Presiona "Guardar"
-7. MaterialPresupuesto se agrega con `esPersonalizado = true`
+1. Usuario en "¿Qué materiales vas a usar?"
+2. Presiona "Agregar material"
+3. `AgregarMaterialScreen` se abre en la pregunta 1 de 3 ("¿Qué material vas a agregar?")
+4. Usuario responde nombre → cantidad + unidad → precio, una pantalla a la vez
+5. Presiona "Guardar material" en el último paso
+6. `MaterialPresupuesto` se agrega con `esPersonalizado = true`
 
 ### Caso 3: Editar material
-1. Usuario en lista de materiales
-2. Presiona menú (three dots) en material
-3. Selecciona "Editar"
-4. AgregarEditarMaterialScreen se abre con datos
-5. Usuario modifica cantidad/precio
-6. Presiona "Actualizar"
-7. MaterialPresupuesto se actualiza en Hive
+1. Usuario en la lista de materiales del wizard
+2. Toca el ícono de editar en la tarjeta
+3. `AgregarMaterialScreen` se abre precargada con los datos existentes
+4. Usuario modifica cantidad/precio (o nombre/unidad si no viene del catálogo)
+5. Presiona "Guardar material"
+6. `MaterialPresupuesto` se actualiza en Hive
 
 ### Caso 4: Eliminar material
-1. Usuario en lista
-2. Presiona menú en material
-3. Selecciona "Eliminar"
-4. Diálogo de confirmación
-5. Se elimina de Hive
-6. Lista se actualiza
+1. Usuario en la lista
+2. Toca el ícono de eliminar en la tarjeta
+3. Diálogo de confirmación
+4. Se elimina de Hive
+5. Lista se actualiza
 
 ---
 
@@ -251,10 +281,8 @@ await service.initialize(); // Abre las boxes de Hive
 ## 9. VALIDACIONES
 
 ### Nivel de Campo
-- Nombre: requerido, no vacío
-- Categoría: requerido, no vacío
-- Unidad: requerido, no vacío
-- Cantidad: requerido, número válido, > 0
+- Nombre: requerido, no vacío (solo si el material no viene del catálogo)
+- Cantidad: requerido, número válido, > 0, unidad elegida
 - Precio: requerido, número válido, > 0
 
 ### Nivel de Lógica
@@ -269,25 +297,14 @@ await service.initialize(); // Abre las boxes de Hive
 ```dart
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Inicializar Hive
   await Hive.initFlutter();
   Hive.registerAdapter(MaterialCatalogoAdapter());
   Hive.registerAdapter(MaterialPresupuestoAdapter());
-  
+
   runApp(const MyApp());
 }
-```
-
-### Usar en Wizard
-```dart
-Step(
-  title: const Text('Materiales'),
-  content: StepMateriales(
-    materialesService: MaterialesService(),
-  ),
-  isActive: _currentStep >= 2,
-),
 ```
 
 ### Acceder a materiales del presupuesto
@@ -311,7 +328,7 @@ final subtotales = service.calcularSubtotalPorCategoria();
 ✅ **Persistente**: Todo se guarda en Hive automáticamente
 ✅ **Cálculos automáticos**: Totales y subtotales en tiempo real
 ✅ **Validaciones robustas**: A nivel campo y lógica
-✅ **UX limpia**: Estado vacío, diálogos de confirmación, feedback visual
+✅ **UX simple**: una pregunta por pantalla al capturar, sin formularios largos
 
 ---
 

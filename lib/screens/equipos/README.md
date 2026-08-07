@@ -13,42 +13,41 @@ lib/
 │       └── equipo.dart              # Modelo Equipo con Hive
 ├── services/
 │   └── equipos_service.dart         # Singleton service para CRUD y cálculos
-├── screens/
-│   ├── equipos/
-│   │   └── equipo_form_sheet.dart   # Bottom sheet add/edit
-│   └── presupuesto/steps/
-│       └── step_equipos.dart        # Listado + integración en el wizard
+└── screens/presupuesto/
+    ├── wizard_presupuesto_screen.dart          # Pantalla "¿Vas a rentar o usar equipo...?" (lista)
+    └── wizard/agregar_equipo_screen.dart       # Mini-flujo de 3 preguntas para agregar/editar
 ```
 
-> Nota: existió una pantalla independiente `equipos_screen.dart` con el
-> mismo listado que `step_equipos.dart`, pero nunca se enlazó desde
-> ninguna otra pantalla (dead code). Se eliminó en la auditoría de
-> 2026-08-06; `StepEquipos` es la única vía real para listar/editar
-> equipos.
+> Nota histórica: existió una pantalla independiente `equipos_screen.dart`
+> con el mismo listado, nunca enlazada desde ninguna otra pantalla (dead
+> code). Se eliminó en la auditoría de 2026-08-06.
 >
-> Nota (2026-08-06): `agregar_editar_equipo_screen.dart` (pantalla
-> completa) se reemplazó por `equipo_form_sheet.dart` (bottom sheet con
-> "Guardar y agregar otro") para reducir la navegación al capturar varios
-> equipos seguidos. El archivo de pantalla completa se eliminó por quedar
-> sin ninguna referencia.
+> Nota histórica (2026-08-06): `agregar_editar_equipo_screen.dart` (pantalla
+> completa) se reemplazó por `equipo_form_sheet.dart` (bottom sheet).
+>
+> Nota histórica (2026-08-07): el wizard completo se rediseñó a "una
+> pregunta por pantalla". `step_equipos.dart` (listado embebido en un
+> `Stepper`) y `equipo_form_sheet.dart` (bottom sheet de alta/edición) se
+> eliminaron; los reemplazan la pantalla de lista dentro del wizard y
+> `agregar_equipo_screen.dart` respectivamente, descritos abajo.
 
 ## Modelo: Equipo
 
 ```dart
-@HiveType(typeId: 3)
+@HiveType(typeId: 2)
 class Equipo {
   @HiveField(0)
   String id;                           // ID único (auto-generado)
-  
+
   @HiveField(1)
   String nombre;                       // Nombre del equipo
-  
+
   @HiveField(2)
   double costoPorDia;                  // Costo diario de renta
-  
+
   @HiveField(3)
   int dias;                            // Cantidad de días de renta
-  
+
   // Getter: total = costoPorDia * dias
   double get total => costoPorDia * dias;
 }
@@ -105,60 +104,50 @@ double promedioDias = equiposService.calcularPromedioDias();
 
 ## Pantallas
 
-### 1. StepEquipos
+### 1. Pregunta "¿Vas a rentar o usar equipo para esta obra?"
 
-Listado de equipos rentados embebido como paso del wizard, con:
-- Lista de equipos (sin scroll propio, vive dentro del wizard)
-- Información: nombre, días, costo/día, total
-- Total general destacado
-- Botón para agregar nuevo equipo
-- Menú de opciones (editar, eliminar) por equipo
+**Ubicación**: `_pasoEquipos()` en `lib/screens/presupuesto/wizard_presupuesto_screen.dart`
 
-```dart
-StepEquipos(
-  equiposService: equiposService,
-)
-```
-
-### 2. equipo_form_sheet.dart (mostrarHojaEquipo)
-
-Bottom sheet para agregar o editar equipos con:
-- Campo: Nombre del equipo (validación requerida)
-- Campo: Costo por Día (validación numérica > 0, formato de moneda en vivo)
-- Campo: Número de Días (validación numérica > 0)
-- Cálculo automático: total = costoPorDia × días
-- Botones: Guardar, Cancelar y "Guardar y agregar otro" (solo al agregar)
+Listado de equipos ya agregados, con:
+- Tarjetas grandes: nombre, días × costo/día, total
+- Botón "Agregar equipo" (abre `AgregarEquipoScreen`)
+- Editar/eliminar por tarjeta (con confirmación al eliminar)
+- Estado vacío: "Todavía no agregas equipos. Toca el botón para agregar el primero."
+- Siempre se puede tocar "Siguiente" sin agregar nada
 
 ```dart
-// Agregar nuevo
-mostrarHojaEquipo(
-  context: context,
-  equiposService: equiposService,
-  onCambio: _cargarEquipos,
-)
-
-// Editar existente
-mostrarHojaEquipo(
-  context: context,
-  equiposService: equiposService,
-  equipoEditando: equipo,
-  onCambio: _cargarEquipos,
-)
+Future<void> _abrirAgregarEquipo() async {
+  final resultado = await Navigator.push<Equipo>(
+    context,
+    MaterialPageRoute(builder: (context) => const AgregarEquipoScreen()),
+  );
+  if (resultado == null) return;
+  await _equiposService.agregarEquipo(resultado);
+  if (!mounted) return;
+  setState(() {});
+  _programarAutoguardado();
+}
 ```
 
-## Integración en Wizard
+### 2. AgregarEquipoScreen (mini-flujo de una pregunta por pantalla)
 
-El módulo se integra en el wizard presupuesto como Step 4.
+**Ubicación**: `lib/screens/presupuesto/wizard/agregar_equipo_screen.dart`
 
-En `wizard_presupuesto_screen.dart`:
+Reemplaza al bottom sheet anterior. Tres preguntas, una por pantalla:
+1. ¿Qué equipo vas a usar? (nombre, validación requerida)
+2. ¿Cuántos días lo vas a usar? (validación numérica entera > 0)
+3. ¿Cuánto cuesta por día? (validación numérica > 0, formato de moneda en vivo, con caja de "Total de este equipo" en vivo)
 
-```dart
-Step(
-  title: const Text('Equipos'),
-  content: StepEquipos(equiposService: _equiposService),
-  isActive: _currentStep >= 3,
-),
-```
+Al terminar (`Navigator.pop` con el `Equipo` resultante), quien llamó a la
+pantalla (`_abrirAgregarEquipo`/`_abrirEditarEquipo` en el wizard) es
+responsable de guardarlo con `EquiposService`.
+
+## Integración en el Wizard
+
+El paso "Equipos" es una pregunta más dentro de la lista dinámica `_pasos`
+de `wizard_presupuesto_screen.dart` — no hay `Stepper` ni pasos numerados
+fijos. El usuario puede volver a "Equipos" en cualquier momento desde la
+pantalla de resumen final (tocando el renglón "Equipos").
 
 ## Inicialización en main.dart
 
@@ -187,21 +176,18 @@ await equiposService.agregarEquipo(equipo);
 
 // Obtener total
 double totalEquipos = equiposService.calcularTotalEquipos();
-
-// El listado se muestra dentro del wizard vía StepEquipos(equiposService: equiposService)
 ```
 
 ## Características
 
-✅ Modelo Hive con persistencia local  
-✅ Singleton service pattern  
-✅ CRUD completo (Create, Read, Update, Delete)  
-✅ Cálculo automático y en tiempo real  
-✅ Validaciones en formulario  
-✅ UI intuitiva con Material Design  
-✅ Total general destacado  
-✅ Integración completa en wizard  
-✅ Iconografía consistente (naranja para equipos)  
+✅ Modelo Hive con persistencia local
+✅ Singleton service pattern
+✅ CRUD completo (Create, Read, Update, Delete)
+✅ Cálculo automático y en tiempo real
+✅ Validaciones en formulario
+✅ UI de una pregunta por pantalla, lenguaje simple
+✅ Total general destacado
+✅ Integración completa en el wizard
 
 ## Hive TypeId
 

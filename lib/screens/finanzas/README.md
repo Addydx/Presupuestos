@@ -4,6 +4,12 @@
 
 El módulo de Finanzas proporciona herramientas para calcular y gestionar los aspectos financieros de un presupuesto de construcción. Incluye cálculos automáticos de imprevistos, utilidad, IVA y generación de totales finales.
 
+Desde 2026-08-07 la captura de estos tres parámetros (imprevistos, utilidad,
+IVA) es parte del flujo de **"una pregunta por pantalla"** del wizard — ya
+no existe una pantalla `FinanzasScreen` independiente. Ver el detalle en la
+sección "Preguntas de Finanzas en el Wizard" más abajo. La lógica de
+cálculo (`CalculadoraFinanzas`) no cambió.
+
 ## Estructura de Archivos
 
 ```
@@ -12,16 +18,15 @@ lib/
 │   └── finanzas.dart                 # Modelo de datos Hive
 ├── services/
 │   └── calculadora_finanzas.dart     # Servicio singleton de cálculos
-├── screens/finanzas/
-│   └── finanzas_screen.dart          # Pantalla principal
-└── screens/presupuesto/steps/
-    └── step_finanzas.dart             # Integración con wizard
+└── screens/presupuesto/
+    ├── wizard_presupuesto_screen.dart              # Preguntas de imprevistos/utilidad/IVA + resumen
+    └── wizard/widgets/selector_porcentaje.dart     # Widget compartido: botones % + "Otro" + monto en vivo
 ```
 
 ## Modelo: Finanzas
 
 ```dart
-@HiveType(typeId: 6)
+@HiveType(typeId: 3)
 class Finanzas {
   @HiveField(0)
   double porcentajeImprevistos;    // Ej: 5, 10, 15
@@ -170,102 +175,29 @@ String texto = calculadora.formatoMoneda(14616.50);
 // Resultado: "$14616.50"
 ```
 
-## Pantalla: FinanzasScreen
+## Preguntas de Finanzas en el Wizard
 
-### Propiedades
+No hay pantalla ni widget "Finanzas" independiente: son tres preguntas más
+dentro de la lista dinámica `_pasos` de `wizard_presupuesto_screen.dart`,
+cada una en lenguaje simple (sin usar los términos contables "imprevistos"
+o "utilidad" en la pregunta que ve el usuario):
 
-```dart
-FinanzasScreen(
-  // Totales de otros módulos
-  totalMateriales: 5000,
-  totalManoObra: 3000,
-  totalEquipos: 2000,
-  
-  // Callback cuando cambien los parámetros
-  onFinanzasChanged: (finanzas) {
-    print('Nuevos parámetros: $finanzas');
-  },
-  
-  // Valores iniciales (opcional)
-  finanzasInicial: Finanzas(
-    porcentajeImprevistos: 5,
-    porcentajeUtilidad: 20,
-    aplicarIVA: true,
-  ),
-)
-```
+| Paso | Pregunta | Ayuda | Widget |
+|---|---|---|---|
+| Imprevistos | ¿Cuánto dinero extra quieres guardar por si algo sale mal? | Lo normal es 5%. Si dejas 5%, guardas $500 de cada $10,000. | `SelectorPorcentaje` (botones 5/10/15% + "Otro", con el monto resultante en pesos siempre visible) |
+| Utilidad | ¿Cuánto quieres ganar en este trabajo? | Es tu pago por hacer el trabajo, después de cubrir materiales, mano de obra y el dinero extra. | `SelectorPorcentaje` (botones 10/15/20/25% + "Otro") |
+| IVA | ¿El cliente necesita factura? | Si pide factura, se suma el 16% de IVA. | `SiNoGrande` (Sí/No) |
 
-### Características
+`SelectorPorcentaje` (`lib/screens/presupuesto/wizard/widgets/selector_porcentaje.dart`)
+es un widget de exhibición pura: el estado (qué botón está activo, el texto
+de "Otro") lo posee `WizardPresupuestoScreen`, para poder restaurarlo desde
+un borrador sin duplicar lógica. Los totales se leen en vivo con
+`_resultadosActuales` (que llama a `CalculadoraFinanzas.calcularTodo()` en
+cada `build()`), igual que antes.
 
-✅ **Mostrar Costos Directos:**
-- Desglose de materiales, mano de obra y equipos
-- Total de costo directo
-
-✅ **Campos Editables:**
-- Porcentaje de imprevistos (con spinner)
-- Porcentaje de utilidad (con spinner)
-
-✅ **Switch Opcional:**
-- Activar/desactivar IVA
-
-✅ **Cálculos en Tiempo Real:**
-- Se actualizan automáticamente cuando el usuario modifica los campos
-
-✅ **Resultados Visuales:**
-- Imprevistos, Subtotal, Utilidad, Precio Final, IVA, Total Final
-- Cards con colores distintivos para fácil lectura
-
-✅ **Resumen de Márgenes:**
-- Muestra el porcentaje que representa cada componente del total
-
-### Uso Básico
-
-```dart
-void _abrirFinanzas() async {
-  final resultado = await Navigator.push<Finanzas>(
-    context,
-    MaterialPageRoute(
-      builder: (context) => FinanzasScreen(
-        totalMateriales: 5000,
-        totalManoObra: 3000,
-        totalEquipos: 2000,
-        onFinanzasChanged: (finanzas) {
-          // Hacer algo con los parámetros
-          guardarFinanzas(finanzas);
-        },
-      ),
-    ),
-  );
-  
-  if (resultado != null) {
-    print('Finanzas guardadas: $resultado');
-  }
-}
-```
-
-## Integración con el Wizard
-
-El módulo se integra automáticamente en el **Paso 5** del wizard de presupuestos.
-
-### En `wizard_presupuesto_screen.dart`
-
-```dart
-Step(
-  title: const Text('Finanzas'),
-  content: StepFinanzas(
-    totalMateriales: _materialesService.calcularTotalMateriales(),
-    totalManoObra: _manoObra?.costo ?? 0,
-    totalEquipos: _equiposService.calcularTotalEquipos(),
-    onFinanzasChanged: (finanzas) {
-      setState(() {
-        _finanzas = finanzas;
-      });
-    },
-    finanzasInicial: _finanzas,
-  ),
-  isActive: _currentStep >= 4,
-)
-```
+La pantalla de resumen final (`_pasoResumen()`) muestra el desglose completo
+("Dinero extra (5%)", "Tu ganancia (20%)", "IVA (16%)", "TOTAL") y cada
+renglón es tocable para volver a la pregunta correspondiente.
 
 ## Fórmulas Matemáticas
 
@@ -331,35 +263,6 @@ Cálculos:
 7. TOTAL = $14,616
 ```
 
-## Casos de Uso
-
-### Caso 1: Cliente Exento de IVA
-```dart
-final finanzas = Finanzas(
-  porcentajeImprevistos: 5,
-  porcentajeUtilidad: 20,
-  aplicarIVA: false,  // ← Sin IVA
-);
-```
-
-### Caso 2: Presupuesto Agresivo (baja ganancia)
-```dart
-final finanzas = Finanzas(
-  porcentajeImprevistos: 2,  // Mínimo riesgo
-  porcentajeUtilidad: 10,    // Ganancia baja
-  aplicarIVA: true,
-);
-```
-
-### Caso 3: Presupuesto Conservador (alta ganancia)
-```dart
-final finanzas = Finanzas(
-  porcentajeImprevistos: 10,  // Mayor cobertura
-  porcentajeUtilidad: 30,     // Ganancia alta
-  aplicarIVA: true,
-);
-```
-
 ## Testing
 
 Para verificar los cálculos, ejecuta:
@@ -374,25 +277,23 @@ Esto muestra 6 ejemplos diferentes de cálculos financieros.
 
 ✅ **El TotalFinal es el precio que se facturaría al cliente**
 
-✅ **Los cálculos se pueden actualizar en tiempo real moviendo los sliders**
+✅ **Los totales se recalculan en vivo mientras el usuario toca los botones de porcentaje o cambia materiales/mano de obra/equipos**
 
-✅ **El modelo se guarda automáticamente en Hive cuando se avanza al siguiente paso**
+✅ **El modelo se guarda automáticamente como borrador (Hive) con cada cambio, y como Presupuesto final al terminar el wizard**
 
 ✅ **El IVA solo se aplica si la opción está habilitada**
-
-✅ **Los márgenes se calculan como porcentajes del total final**
 
 ## Constantes
 
 ```dart
-static const double IVA_RATE = 0.16;  // 16% IVA colombiano
+static const double IVA_RATE = 0.16;  // 16% IVA
 ```
 
 ## Limitaciones Conocidas
 
 - Los porcentajes no pueden ser negativos
-- Lee validación en `FinanzasScreen`
-- El servicio es singleton, instancia global única
+- La validación de "Otro" vive en `wizard_presupuesto_screen.dart` (0–100%)
+- El servicio `CalculadoraFinanzas` es singleton, instancia global única
 
 ## Mejoras Futuras
 
