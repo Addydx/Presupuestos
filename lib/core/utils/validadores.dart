@@ -30,12 +30,12 @@ abstract final class Validadores {
     }
     final numero = MonedaUtils.aDouble(texto);
     if (numero == null) {
-      return 'Ingresa un número válido en $campo';
+      return 'Escribe solo números aquí';
     }
     if (permitirCero ? numero < 0 : numero <= 0) {
       return permitirCero
           ? '$campo no puede ser negativo'
-          : '$campo debe ser mayor que 0';
+          : 'Escribe un número mayor a cero';
     }
     return null;
   }
@@ -50,7 +50,7 @@ abstract final class Validadores {
       return 'Ingresa un número entero válido en $campo';
     }
     if (numero <= 0) {
-      return '$campo debe ser mayor que 0';
+      return 'Escribe un número mayor a cero';
     }
     return null;
   }

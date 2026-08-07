@@ -827,8 +827,8 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen>
         SnackBar(
           content: Text(
             _esEdicion
-                ? 'Presupuesto actualizado exitosamente'
-                : 'Presupuesto guardado exitosamente',
+                ? 'Actualizamos tu presupuesto'
+                : 'Guardamos tu presupuesto',
           ),
           duration: const Duration(seconds: 2),
         ),
@@ -839,7 +839,9 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen>
       if (!mounted) return;
       setState(() => _guardando = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No se pudo guardar el presupuesto: $e')),
+        const SnackBar(
+          content: Text('No pudimos guardar tu presupuesto. Intenta de nuevo.'),
+        ),
       );
     }
   }
@@ -1056,7 +1058,8 @@ class _WizardPresupuestoScreenState extends State<WizardPresupuestoScreen>
               final raw = (value ?? '').trim();
               if (raw.isEmpty) return null;
               final superficie = MonedaUtils.aDouble(raw);
-              if (superficie == null) return 'Ingresa un número válido';
+              if (superficie == null)
+                return 'Escribe un número, por ejemplo 90';
               if (superficie < 0) return 'El tamaño no puede ser negativo';
               return null;
             },

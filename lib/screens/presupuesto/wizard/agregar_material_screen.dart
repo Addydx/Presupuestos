@@ -116,21 +116,28 @@ class _AgregarMaterialScreenState extends State<AgregarMaterialScreen> {
       MonedaInputFormatter.valorDe(_precioController.text);
   double get _totalCalculado => _cantidadValor * _precioValor;
 
+  bool get _cantidadValida =>
+      Validadores.numeroPositivo(
+        _cantidadController.text,
+        campo: 'la cantidad',
+      ) ==
+      null;
+
+  /// El usuario ya escribió una cantidad correcta pero todavía no toca
+  /// ningún chip de unidad: sin este aviso, "Siguiente" se queda gris sin
+  /// que se vea por qué.
+  bool get _cantidadCompletaSinUnidad =>
+      _cantidadValida && _unidad == null && !_unidadModoOtro;
+
   bool get _puedeAvanzar {
     switch (_pasosActivos[_paso]) {
       case 0:
         return _nombreController.text.trim().isNotEmpty;
       case 1:
-        final cantidadValida =
-            Validadores.numeroPositivo(
-              _cantidadController.text,
-              campo: 'la cantidad',
-            ) ==
-            null;
         final unidadValida =
             _unidad != null ||
             (_unidadModoOtro && _unidadOtroController.text.trim().isNotEmpty);
-        return cantidadValida && unidadValida;
+        return _cantidadValida && unidadValida;
       case 2:
         return Validadores.numeroPositivo(
               _precioController.text,
@@ -330,6 +337,13 @@ class _AgregarMaterialScreenState extends State<AgregarMaterialScreen> {
               ),
             ],
           ),
+          if (_cantidadCompletaSinUnidad) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Elige una unidad',
+              style: TextStyle(fontSize: 13, color: AppColors.error),
+            ),
+          ],
           if (_unidadModoOtro) ...[
             const SizedBox(height: 12),
             TextField(
