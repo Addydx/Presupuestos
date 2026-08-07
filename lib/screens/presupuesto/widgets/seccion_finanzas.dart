@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
@@ -125,7 +126,7 @@ class SeccionFinanzas extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerRight,
             child: Text(
-              '\$${valor.toStringAsFixed(2)}',
+              MonedaUtils.formatear(valor),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: fontSize,

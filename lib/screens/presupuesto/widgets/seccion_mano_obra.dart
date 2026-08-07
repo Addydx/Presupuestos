@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 
 class SeccionManoObra extends StatelessWidget {
@@ -59,7 +60,7 @@ class SeccionManoObra extends StatelessWidget {
                           children: [
                             Expanded(
                               child: Text(
-                                mo.rol ?? 'Sin especificar',
+                                mo.rol ?? 'Personal',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 13,
@@ -67,7 +68,7 @@ class SeccionManoObra extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '\$${mo.costo.toStringAsFixed(2)}',
+                              MonedaUtils.formatear(mo.costo),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -78,7 +79,7 @@ class SeccionManoObra extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           mo.tipoPago == TipoPago.porDia
-                              ? '${mo.cantidadPersonas} personas × ${mo.diasEstimados} días × \$${mo.costoPorDia}'
+                              ? '${mo.cantidadPersonas} personas × ${mo.diasEstimados} días × ${MonedaUtils.formatear(mo.costoPorDia ?? 0)}'
                               : 'Costo por contrato',
                           style: const TextStyle(fontSize: 12),
                         ),
@@ -99,7 +100,7 @@ class SeccionManoObra extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                   ),
                   Text(
-                    '\$${totalManoObra.toStringAsFixed(2)}',
+                    MonedaUtils.formatear(totalManoObra),
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,

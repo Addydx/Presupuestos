@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/proyectos/proyecto.dart';
 import 'package:presupuesto_app/models/presupuesto/presupuesto.dart';
 import 'package:presupuesto_app/screens/presupuesto/wizard_presupuesto_screen.dart';
@@ -423,7 +424,7 @@ class _ProyectosVistaState extends State<ProyectosVista> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                'Total: \$${total.toStringAsFixed(2)}',
+                                'Total: ${MonedaUtils.formatear(total)}',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

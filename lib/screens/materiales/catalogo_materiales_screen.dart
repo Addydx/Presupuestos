@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 import 'package:presupuesto_app/models/presupuesto/material_catalogo.dart';
 import 'package:presupuesto_app/screens/materiales/agregar_editar_material_screen.dart';
@@ -209,7 +210,7 @@ class _CatalogoMaterialesScreenState extends State<CatalogoMaterialesScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Precio ref: \$${material.precioReferencia.toStringAsFixed(2)} / ${material.unidad}',
+                                  'Precio ref: ${MonedaUtils.formatear(material.precioReferencia)} / ${material.unidad}',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,

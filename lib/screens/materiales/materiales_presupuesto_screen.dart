@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
-import 'package:presupuesto_app/screens/materiales/agregar_editar_material_screen.dart';
 import 'package:presupuesto_app/screens/materiales/catalogo_materiales_screen.dart';
+import 'package:presupuesto_app/screens/materiales/material_form_sheet.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
 
 class MaterialesPresupuestoScreen extends StatefulWidget {
   final MaterialesService materialesService;
 
+  /// Se llama cada vez que cambia la lista, para que el wizard (dueño de
+  /// la barra de total persistente y del autoguardado) se entere aunque
+  /// el cambio haya ocurrido dentro de una hoja modal.
+  final VoidCallback? onCambio;
+
   const MaterialesPresupuestoScreen({
     super.key,
     required this.materialesService,
+    this.onCambio,
   });
 
   @override
@@ -32,6 +39,15 @@ class _MaterialesPresupuestoScreenState
     setState(() {
       materiales = widget.materialesService.obtenerMaterialesPresupuesto();
     });
+    // Diferido: si esto se dispara desde initState() (primera carga), el
+    // wizard todavía puede estar construyéndose y no admite un setState
+    // síncrono en ese momento.
+    final onCambio = widget.onCambio;
+    if (onCambio != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) onCambio();
+      });
+    }
   }
 
   void _eliminarMaterial(String id) {
@@ -70,37 +86,21 @@ class _MaterialesPresupuestoScreenState
     );
   }
 
-  void _abrirAgregarMaterial() async {
-    final resultado = await Navigator.push<MaterialPresupuesto>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => AgregarEditarMaterialScreen(
-              materialesService: widget.materialesService,
-            ),
-      ),
+  void _abrirAgregarMaterial() {
+    mostrarHojaMaterial(
+      context: context,
+      materialesService: widget.materialesService,
+      onCambio: _cargarMateriales,
     );
-    if (resultado != null) {
-      await widget.materialesService.agregarMaterialPresupuesto(resultado);
-      _cargarMateriales();
-    }
   }
 
-  void _abrirEditarMaterial(MaterialPresupuesto material) async {
-    final resultado = await Navigator.push<MaterialPresupuesto>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => AgregarEditarMaterialScreen(
-              materialesService: widget.materialesService,
-              materialEditando: material,
-            ),
-      ),
+  void _abrirEditarMaterial(MaterialPresupuesto material) {
+    mostrarHojaMaterial(
+      context: context,
+      materialesService: widget.materialesService,
+      materialEditando: material,
+      onCambio: _cargarMateriales,
     );
-    if (resultado != null) {
-      await widget.materialesService.actualizarMaterialPresupuesto(resultado);
-      _cargarMateriales();
-    }
   }
 
   @override
@@ -208,12 +208,12 @@ class _MaterialesPresupuestoScreenState
                           children: [
                             const SizedBox(height: 4),
                             Text(
-                              '${material.cantidad} ${material.unidad} × \$${material.precioUnitario.toStringAsFixed(2)}',
+                              '${material.cantidad} ${material.unidad} × ${MonedaUtils.formatear(material.precioUnitario)}',
                               style: const TextStyle(fontSize: 12),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Total: \$${material.total.toStringAsFixed(2)}',
+                              'Total: ${MonedaUtils.formatear(material.total)}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 13,
@@ -284,7 +284,7 @@ class _MaterialesPresupuestoScreenState
                           ),
                         ),
                         Text(
-                          '\$${totalGeneral.toStringAsFixed(2)}',
+                          MonedaUtils.formatear(totalGeneral),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

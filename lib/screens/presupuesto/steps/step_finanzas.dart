@@ -14,6 +14,13 @@ class StepFinanzas extends StatefulWidget {
   /// Finanzas inicial (opcional)
   final Finanzas? finanzasInicial;
 
+  /// Permite al wizard validar este paso antes de avanzar.
+  final GlobalKey<FormState>? formKey;
+
+  /// Permite al wizard acceder al [FinanzasScreenState] (para hacer scroll
+  /// hasta el primer campo inválido).
+  final Key? finanzasScreenKey;
+
   const StepFinanzas({
     super.key,
     required this.totalMateriales,
@@ -21,6 +28,8 @@ class StepFinanzas extends StatefulWidget {
     required this.totalEquipos,
     required this.onFinanzasChanged,
     this.finanzasInicial,
+    this.formKey,
+    this.finanzasScreenKey,
   });
 
   @override
@@ -31,11 +40,13 @@ class _StepFinanzasState extends State<StepFinanzas> {
   @override
   Widget build(BuildContext context) {
     return FinanzasScreen(
+      key: widget.finanzasScreenKey,
       totalMateriales: widget.totalMateriales,
       totalManoObra: widget.totalManoObra,
       totalEquipos: widget.totalEquipos,
       onFinanzasChanged: widget.onFinanzasChanged,
       finanzasInicial: widget.finanzasInicial,
+      formKey: widget.formKey,
     );
   }
 }

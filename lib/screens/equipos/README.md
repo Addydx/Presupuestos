@@ -15,7 +15,7 @@ lib/
 │   └── equipos_service.dart         # Singleton service para CRUD y cálculos
 ├── screens/
 │   ├── equipos/
-│   │   └── agregar_editar_equipo_screen.dart  # Formulario add/edit
+│   │   └── equipo_form_sheet.dart   # Bottom sheet add/edit
 │   └── presupuesto/steps/
 │       └── step_equipos.dart        # Listado + integración en el wizard
 ```
@@ -25,6 +25,12 @@ lib/
 > ninguna otra pantalla (dead code). Se eliminó en la auditoría de
 > 2026-08-06; `StepEquipos` es la única vía real para listar/editar
 > equipos.
+>
+> Nota (2026-08-06): `agregar_editar_equipo_screen.dart` (pantalla
+> completa) se reemplazó por `equipo_form_sheet.dart` (bottom sheet con
+> "Guardar y agregar otro") para reducir la navegación al capturar varios
+> equipos seguidos. El archivo de pantalla completa se eliminó por quedar
+> sin ninguna referencia.
 
 ## Modelo: Equipo
 
@@ -114,26 +120,29 @@ StepEquipos(
 )
 ```
 
-### 2. AgregarEditarEquipoScreen
+### 2. equipo_form_sheet.dart (mostrarHojaEquipo)
 
-Formulario para agregar o editar equipos con:
+Bottom sheet para agregar o editar equipos con:
 - Campo: Nombre del equipo (validación requerida)
-- Campo: Costo por Día (validación numérica > 0)
+- Campo: Costo por Día (validación numérica > 0, formato de moneda en vivo)
 - Campo: Número de Días (validación numérica > 0)
 - Cálculo automático: total = costoPorDia × días
-- Visualización en tiempo real del total
-- Botones: Guardar, Cancelar
+- Botones: Guardar, Cancelar y "Guardar y agregar otro" (solo al agregar)
 
 ```dart
 // Agregar nuevo
-AgregarEditarEquipoScreen(
+mostrarHojaEquipo(
+  context: context,
   equiposService: equiposService,
+  onCambio: _cargarEquipos,
 )
 
 // Editar existente
-AgregarEditarEquipoScreen(
+mostrarHojaEquipo(
+  context: context,
   equiposService: equiposService,
   equipoEditando: equipo,
+  onCambio: _cargarEquipos,
 )
 ```
 

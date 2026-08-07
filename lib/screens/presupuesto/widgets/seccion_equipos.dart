@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 
 class SeccionEquipos extends StatelessWidget {
@@ -62,7 +63,7 @@ class SeccionEquipos extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${equipo.dias} días × \$${equipo.costoPorDia.toStringAsFixed(2)}/día',
+                                '${equipo.dias} días × ${MonedaUtils.formatear(equipo.costoPorDia)}/día',
                                 style: const TextStyle(fontSize: 12),
                               ),
                             ],
@@ -74,7 +75,7 @@ class SeccionEquipos extends StatelessWidget {
                             fit: BoxFit.scaleDown,
                             alignment: Alignment.centerRight,
                             child: Text(
-                              '\$${equipo.total.toStringAsFixed(2)}',
+                              MonedaUtils.formatear(equipo.total),
                               textAlign: TextAlign.right,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -111,7 +112,7 @@ class SeccionEquipos extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '\$${totalEquipos.toStringAsFixed(2)}',
+                        MonedaUtils.formatear(totalEquipos),
                         textAlign: TextAlign.right,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,

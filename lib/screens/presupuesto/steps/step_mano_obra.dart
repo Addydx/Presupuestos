@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
+import 'package:presupuesto_app/core/utils/validadores.dart';
+import 'package:presupuesto_app/core/widgets/advertencia_monto_alto.dart';
+import 'package:presupuesto_app/core/widgets/campo_validado.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
 
 class StepManoObra extends StatefulWidget {
   final GlobalKey<FormState>? formKey;
-  final Function(ManoObra)? onSaved;
+
+  /// `null` cuando el usuario marca "sin mano de obra" para este
+  /// presupuesto.
+  final void Function(ManoObra?)? onSaved;
   final ManoObra? initialData;
 
   const StepManoObra({super.key, this.formKey, this.onSaved, this.initialData});
@@ -17,13 +24,31 @@ class StepManoObra extends StatefulWidget {
 class StepManoObraState extends State<StepManoObra> {
   late GlobalKey<FormState> _formKey;
 
+  late bool _sinManoObra;
   late TipoPago _tipoPago;
-  late String? _rol;
-  late int? _cantidadPersonas;
-  late int? _diasEstimados;
-  late double? _costoPorDia;
-  late double? _montoContrato;
   late String? _observaciones;
+
+  final _rolController = TextEditingController();
+  final _cantidadController = TextEditingController();
+  final _diasController = TextEditingController();
+  final _costoPorDiaController = TextEditingController();
+  final _montoContratoController = TextEditingController();
+  final _observacionesController = TextEditingController();
+
+  final _focoRol = FocusNode();
+  final _focoCantidad = FocusNode();
+  final _focoDias = FocusNode();
+  final _focoCostoPorDia = FocusNode();
+  final _focoMontoContrato = FocusNode();
+  final _focoObservaciones = FocusNode();
+
+  final _campoCantidadKey = GlobalKey<FormFieldState<String>>();
+  final _campoDiasKey = GlobalKey<FormFieldState<String>>();
+  final _campoCostoPorDiaKey = GlobalKey<FormFieldState<String>>();
+  final _campoMontoContratoKey = GlobalKey<FormFieldState<String>>();
+
+  bool _costoPorDiaSospechoso = false;
+  bool _montoContratoSospechoso = false;
 
   @override
   void initState() {
@@ -33,318 +58,339 @@ class StepManoObraState extends State<StepManoObra> {
   }
 
   void _inicializarDatos() {
-    if (widget.initialData != null) {
-      _tipoPago = widget.initialData!.tipoPago;
-      _rol = widget.initialData!.rol;
-      _cantidadPersonas = widget.initialData!.cantidadPersonas;
-      _diasEstimados = widget.initialData!.diasEstimados;
-      _costoPorDia = widget.initialData!.costoPorDia;
-      _montoContrato = widget.initialData!.montoContrato;
-      _observaciones = widget.initialData!.observaciones;
+    final datos = widget.initialData;
+    _sinManoObra = false;
+    if (datos != null) {
+      _tipoPago = datos.tipoPago;
+      _rolController.text = datos.rol ?? '';
+      _cantidadController.text = datos.cantidadPersonas?.toString() ?? '';
+      _diasController.text = datos.diasEstimados?.toString() ?? '';
+      _costoPorDiaController.text = MonedaInputFormatter.textoInicial(
+        datos.costoPorDia ?? 0,
+      );
+      _montoContratoController.text = MonedaInputFormatter.textoInicial(
+        datos.montoContrato ?? 0,
+      );
+      _observaciones = datos.observaciones;
+      _observacionesController.text = datos.observaciones ?? '';
     } else {
       _tipoPago = TipoPago.porDia;
-      _rol = null;
-      _cantidadPersonas = null;
-      _diasEstimados = null;
-      _costoPorDia = null;
-      _montoContrato = null;
       _observaciones = null;
     }
   }
 
-  void saveForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      _onFormSaved();
-    }
+  @override
+  void dispose() {
+    _rolController.dispose();
+    _cantidadController.dispose();
+    _diasController.dispose();
+    _costoPorDiaController.dispose();
+    _montoContratoController.dispose();
+    _observacionesController.dispose();
+    _focoRol.dispose();
+    _focoCantidad.dispose();
+    _focoDias.dispose();
+    _focoCostoPorDia.dispose();
+    _focoMontoContrato.dispose();
+    _focoObservaciones.dispose();
+    super.dispose();
   }
 
-  void _onFormSaved() {
+  List<CampoRef> get _camposEnOrden {
+    if (_tipoPago == TipoPago.porDia) {
+      return [
+        (_campoCantidadKey, _focoCantidad),
+        (_campoDiasKey, _focoDias),
+        (_campoCostoPorDiaKey, _focoCostoPorDia),
+      ];
+    }
+    return [(_campoMontoContratoKey, _focoMontoContrato)];
+  }
+
+  /// Valida y guarda el paso. Devuelve `true` si se puede avanzar.
+  bool saveForm() {
+    if (_sinManoObra) {
+      widget.onSaved?.call(null);
+      return true;
+    }
+
+    final valido = validarPasoYEnfocarError(
+      formKey: _formKey,
+      camposEnOrden: _camposEnOrden,
+    );
+    if (!valido) return false;
+
+    _guardar();
+    return true;
+  }
+
+  void _guardar() {
+    final rolTexto = _rolController.text.trim();
     final manoObra = ManoObra(
       tipoPago: _tipoPago,
-      rol: _rol,
-      cantidadPersonas: _cantidadPersonas,
-      diasEstimados: _diasEstimados,
-      costoPorDia: _costoPorDia,
-      montoContrato: _montoContrato,
+      rol: rolTexto.isEmpty ? null : rolTexto,
+      cantidadPersonas: int.tryParse(_cantidadController.text.trim()),
+      diasEstimados: int.tryParse(_diasController.text.trim()),
+      costoPorDia: MonedaInputFormatter.valorDe(_costoPorDiaController.text),
+      montoContrato: MonedaInputFormatter.valorDe(
+        _montoContratoController.text,
+      ),
       observaciones: _observaciones,
     );
     widget.onSaved?.call(manoObra);
-  }
-
-  void _notificarCambioTiempoReal() {
-    _onFormSaved();
-  }
-
-  String? _validarCampoRequerido(String? value, String nombreCampo) {
-    if (value == null || value.isEmpty) {
-      return 'El campo $nombreCampo es requerido';
-    }
-    return null;
-  }
-
-  String? _validarNumeroPositivo(String? value, String nombreCampo) {
-    if (value == null || value.isEmpty) {
-      return 'El campo $nombreCampo es requerido';
-    }
-    final numero = num.tryParse(value);
-    if (numero == null) {
-      return 'Ingrese un número válido en $nombreCampo';
-    }
-    if (numero <= 0) {
-      return '$nombreCampo debe ser mayor a 0';
-    }
-    return null;
-  }
-
-  String? _validarEnteroPositivo(String? value, String nombreCampo) {
-    if (value == null || value.isEmpty) {
-      return 'El campo $nombreCampo es requerido';
-    }
-    final numero = int.tryParse(value);
-    if (numero == null) {
-      return 'Ingrese un número entero válido en $nombreCampo';
-    }
-    if (numero <= 0) {
-      return '$nombreCampo debe ser mayor a 0';
-    }
-    return null;
-  }
-
-  double _parseDecimal(String value) {
-    return double.parse(value.replaceAll(',', '.'));
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Dropdown: Tipo de Pago
-            DropdownButtonFormField<TipoPago>(
-              initialValue: _tipoPago,
-              decoration: InputDecoration(
-                labelText: 'Tipo de Pago',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                prefixIcon: const Icon(Icons.payment),
-              ),
-              items:
-                  TipoPago.values.map((tipo) {
-                    return DropdownMenuItem(
-                      value: tipo,
-                      child: Text(
-                        tipo == TipoPago.porDia ? 'Por Día' : 'Por Contrato',
-                      ),
-                    );
-                  }).toList(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Permite dejar el paso vacío: un presupuesto de solo
+          // materiales es un caso de uso válido.
+          Card(
+            color: _sinManoObra ? AppColors.yellowSoft : AppColors.white,
+            child: SwitchListTile(
+              value: _sinManoObra,
               onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _tipoPago = value;
-                    if (_tipoPago == TipoPago.porDia) {
-                      _montoContrato = null;
-                    } else {
-                      _cantidadPersonas = null;
-                      _diasEstimados = null;
-                      _costoPorDia = null;
-                    }
-                  });
-                  _notificarCambioTiempoReal();
-                }
+                setState(() => _sinManoObra = value);
               },
-              validator:
-                  (value) =>
-                      value == null ? 'Seleccione un tipo de pago' : null,
+              title: const Text(
+                'Este presupuesto no incluye mano de obra',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              ),
+              subtitle: Text(
+                _sinManoObra
+                    ? 'No se registrará personal ni costo de mano de obra. Puedes activarlo de nuevo cuando quieras.'
+                    : 'Actívalo si este presupuesto es solo de materiales o equipos.',
+                style: const TextStyle(fontSize: 12),
+              ),
             ),
+          ),
+          if (!_sinManoObra) ...[
             const SizedBox(height: 20),
-
-            // Campos para "Por Día"
-            if (_tipoPago == TipoPago.porDia) ...[
-              // Campo: Rol
-              TextFormField(
-                initialValue: _rol,
-                decoration: InputDecoration(
-                  labelText: 'Rol',
-                  hintText: 'Ej: Albañil, Chalán',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Dropdown: Tipo de Pago
+                  DropdownButtonFormField<TipoPago>(
+                    initialValue: _tipoPago,
+                    decoration: InputDecoration(
+                      labelText: 'Tipo de Pago',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      prefixIcon: const Icon(Icons.payment),
+                    ),
+                    items:
+                        TipoPago.values.map((tipo) {
+                          return DropdownMenuItem(
+                            value: tipo,
+                            child: Text(
+                              tipo == TipoPago.porDia
+                                  ? 'Por Día'
+                                  : 'Por Contrato',
+                            ),
+                          );
+                        }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _tipoPago = value);
+                      }
+                    },
                   ),
-                  prefixIcon: const Icon(Icons.person),
-                ),
-                validator: (value) => _validarCampoRequerido(value, 'Rol'),
-                onChanged: (value) {
-                  _rol = value.trim();
-                  _notificarCambioTiempoReal();
-                },
-                onSaved: (value) => _rol = value?.trim(),
-              ),
-              const SizedBox(height: 16),
+                  const SizedBox(height: 20),
 
-              // Campo: Cantidad de Personas
-              TextFormField(
-                initialValue: _cantidadPersonas?.toString(),
-                decoration: InputDecoration(
-                  labelText: 'Cantidad de Personas',
-                  hintText: 'Ej: 2',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.group),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator:
-                    (value) =>
-                        _validarEnteroPositivo(value, 'Cantidad de personas'),
-                onChanged: (value) {
-                  setState(() {
-                    _cantidadPersonas = int.tryParse(value);
-                  });
-                  _notificarCambioTiempoReal();
-                },
-                onSaved: (value) => _cantidadPersonas = int.parse(value!),
-              ),
-              const SizedBox(height: 16),
+                  // Campos para "Por Día"
+                  if (_tipoPago == TipoPago.porDia) ...[
+                    // Campo: Rol (opcional, "Personal" por defecto)
+                    TextFormField(
+                      controller: _rolController,
+                      focusNode: _focoRol,
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: 'Rol (opcional)',
+                        hintText: 'Ej: Albañil, Chalán — por defecto "Personal"',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.person),
+                      ),
+                      onFieldSubmitted: (_) => _focoCantidad.requestFocus(),
+                    ),
+                    const SizedBox(height: 16),
 
-              // Campo: Días Estimados
-              TextFormField(
-                initialValue: _diasEstimados?.toString(),
-                decoration: InputDecoration(
-                  labelText: 'Días Estimados',
-                  hintText: 'Ej: 10',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.calendar_today),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator:
-                    (value) => _validarEnteroPositivo(value, 'Días estimados'),
-                onChanged: (value) {
-                  setState(() {
-                    _diasEstimados = int.tryParse(value);
-                  });
-                  _notificarCambioTiempoReal();
-                },
-                onSaved: (value) => _diasEstimados = int.parse(value!),
-              ),
-              const SizedBox(height: 16),
+                    // Campo: Cantidad de Personas
+                    CampoValidado(
+                      fieldKey: _campoCantidadKey,
+                      focusNode: _focoCantidad,
+                      controller: _cantidadController,
+                      siguienteFoco: _focoDias,
+                      decoration: InputDecoration(
+                        labelText: 'Cantidad de Personas',
+                        hintText: 'Ej: 2',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.group),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      validator:
+                          (value) => Validadores.enteroPositivo(
+                            value,
+                            campo: 'la cantidad de personas',
+                          ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 16),
 
-              // Campo: Costo por Día
-              TextFormField(
-                initialValue: _costoPorDia?.toString(),
-                decoration: InputDecoration(
-                  labelText: 'Costo por Día',
-                  hintText: 'Ej: 150.50',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.attach_money),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    // Campo: Días Estimados
+                    CampoValidado(
+                      fieldKey: _campoDiasKey,
+                      focusNode: _focoDias,
+                      controller: _diasController,
+                      siguienteFoco: _focoCostoPorDia,
+                      decoration: InputDecoration(
+                        labelText: 'Días Estimados',
+                        hintText: 'Ej: 10',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.calendar_today),
+                      ),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      validator:
+                          (value) => Validadores.enteroPositivo(
+                            value,
+                            campo: 'los días estimados',
+                          ),
+                      onChanged: (_) => setState(() {}),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Campo: Costo por Día
+                    CampoValidado(
+                      fieldKey: _campoCostoPorDiaKey,
+                      focusNode: _focoCostoPorDia,
+                      controller: _costoPorDiaController,
+                      textInputAction: TextInputAction.done,
+                      decoration: InputDecoration(
+                        labelText: 'Costo por Día',
+                        hintText: 'Ej: 150.50',
+                        prefixText: '\$ ',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.attach_money),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: const [MonedaInputFormatter()],
+                      validator:
+                          (value) => Validadores.numeroPositivo(
+                            value,
+                            campo: 'el costo por día',
+                          ),
+                      onChanged: (value) {
+                        setState(() {
+                          _costoPorDiaSospechoso = Validadores.esSospechosamenteAlto(
+                            MonedaInputFormatter.valorDe(value),
+                          );
+                        });
+                      },
+                    ),
+                    AdvertenciaMontoAlto(visible: _costoPorDiaSospechoso),
+                    const SizedBox(height: 20),
+
+                    // Resumen para "Por Día"
+                    _buildResumenPorDia(),
+                  ],
+
+                  // Campos para "Por Contrato"
+                  if (_tipoPago == TipoPago.porContrato) ...[
+                    // Campo: Monto del Contrato
+                    CampoValidado(
+                      fieldKey: _campoMontoContratoKey,
+                      focusNode: _focoMontoContrato,
+                      controller: _montoContratoController,
+                      siguienteFoco: _focoObservaciones,
+                      decoration: InputDecoration(
+                        labelText: 'Monto del Contrato',
+                        hintText: 'Ej: 1,500.00',
+                        prefixText: '\$ ',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.attach_money),
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: const [MonedaInputFormatter()],
+                      validator:
+                          (value) => Validadores.numeroPositivo(
+                            value,
+                            campo: 'el monto del contrato',
+                          ),
+                      onChanged: (value) {
+                        setState(() {
+                          _montoContratoSospechoso = Validadores.esSospechosamenteAlto(
+                            MonedaInputFormatter.valorDe(value),
+                          );
+                        });
+                      },
+                    ),
+                    AdvertenciaMontoAlto(visible: _montoContratoSospechoso),
+                    const SizedBox(height: 16),
+
+                    // Campo: Observaciones
+                    TextFormField(
+                      controller: _observacionesController,
+                      focusNode: _focoObservaciones,
+                      decoration: InputDecoration(
+                        labelText: 'Observaciones (opcional)',
+                        hintText: 'Ej: Incluye materiales',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        prefixIcon: const Icon(Icons.notes),
+                      ),
+                      maxLines: 3,
+                      textInputAction: TextInputAction.done,
+                      onChanged: (value) {
+                        _observaciones = value.trim().isEmpty ? null : value.trim();
+                      },
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Resumen para "Por Contrato"
+                    _buildResumenPorContrato(),
+                  ],
+
+                  const SizedBox(height: 24),
                 ],
-                validator:
-                    (value) => _validarNumeroPositivo(value, 'Costo por día'),
-                onChanged: (value) {
-                  setState(() {
-                    _costoPorDia =
-                        value.trim().isEmpty
-                            ? null
-                            : double.tryParse(value.replaceAll(',', '.'));
-                  });
-                  _notificarCambioTiempoReal();
-                },
-                onSaved: (value) => _costoPorDia = _parseDecimal(value!),
               ),
-              const SizedBox(height: 20),
-
-              // Resumen para "Por Día"
-              _buildResumenPorDia(),
-            ],
-
-            // Campos para "Por Contrato"
-            if (_tipoPago == TipoPago.porContrato) ...[
-              // Campo: Monto del Contrato
-              TextFormField(
-                initialValue: _montoContrato?.toString(),
-                decoration: InputDecoration(
-                  labelText: 'Monto del Contrato',
-                  hintText: 'Ej: 1500.00',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.attach_money),
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                ],
-                validator:
-                    (value) =>
-                        _validarNumeroPositivo(value, 'Monto del contrato'),
-                onChanged: (value) {
-                  setState(() {
-                    _montoContrato =
-                        value.trim().isEmpty
-                            ? null
-                            : double.tryParse(value.replaceAll(',', '.'));
-                  });
-                  _notificarCambioTiempoReal();
-                },
-                onSaved: (value) => _montoContrato = _parseDecimal(value!),
-              ),
-              const SizedBox(height: 16),
-
-              // Campo: Observaciones
-              TextFormField(
-                initialValue: _observaciones,
-                decoration: InputDecoration(
-                  labelText: 'Observaciones',
-                  hintText: 'Ej: Incluye materiales',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  prefixIcon: const Icon(Icons.notes),
-                ),
-                maxLines: 3,
-                onChanged: (value) {
-                  _observaciones = value.trim().isEmpty ? null : value.trim();
-                  _notificarCambioTiempoReal();
-                },
-                onSaved:
-                    (value) =>
-                        _observaciones = value?.isEmpty ?? true ? null : value,
-              ),
-              const SizedBox(height: 20),
-
-              // Resumen para "Por Contrato"
-              _buildResumenPorContrato(),
-            ],
-
-            const SizedBox(height: 24),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildResumenPorDia() {
-    final cantPersonas = int.tryParse(_cantidadPersonas?.toString() ?? '') ?? 0;
-    final diasEst = int.tryParse(_diasEstimados?.toString() ?? '') ?? 0;
-    final costoDia = double.tryParse(_costoPorDia?.toString() ?? '') ?? 0.0;
+    final cantPersonas = int.tryParse(_cantidadController.text) ?? 0;
+    final diasEst = int.tryParse(_diasController.text) ?? 0;
+    final costoDia = MonedaInputFormatter.valorDe(_costoPorDiaController.text);
 
     final totalPersonasDias = cantPersonas * diasEst;
     final totalCosto = totalPersonasDias * costoDia;
@@ -368,12 +414,12 @@ class StepManoObraState extends State<StepManoObra> {
             const SizedBox(height: 8),
             _buildResumenRow(
               'Costo por jornada:',
-              '\$${costoDia.toStringAsFixed(2)}',
+              MonedaUtils.formatear(costoDia),
             ),
             const Divider(),
             _buildResumenRow(
               'Total:',
-              '\$${totalCosto.toStringAsFixed(2)}',
+              MonedaUtils.formatear(totalCosto),
               isTotal: true,
             ),
           ],
@@ -383,7 +429,7 @@ class StepManoObraState extends State<StepManoObra> {
   }
 
   Widget _buildResumenPorContrato() {
-    final monto = double.tryParse(_montoContrato?.toString() ?? '') ?? 0.0;
+    final monto = MonedaInputFormatter.valorDe(_montoContratoController.text);
 
     return Card(
       color: AppColors.gray100,
@@ -399,10 +445,10 @@ class StepManoObraState extends State<StepManoObra> {
             const SizedBox(height: 12),
             _buildResumenRow(
               'Monto Total:',
-              '\$${monto.toStringAsFixed(2)}',
+              MonedaUtils.formatear(monto),
               isTotal: true,
             ),
-            if ((_observaciones?.isNotEmpty ?? false))
+            if (_observaciones?.isNotEmpty ?? false)
               Column(
                 children: [
                   const Divider(),

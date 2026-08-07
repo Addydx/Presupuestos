@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
+import 'package:presupuesto_app/core/utils/validadores.dart';
+import 'package:presupuesto_app/core/widgets/campo_validado.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/services/calculadora_finanzas.dart';
 
@@ -17,6 +20,9 @@ class FinanzasScreen extends StatefulWidget {
   /// Datos iniciales (opcional)
   final Finanzas? finanzasInicial;
 
+  /// Permite al wizard validar este paso antes de avanzar.
+  final GlobalKey<FormState>? formKey;
+
   const FinanzasScreen({
     super.key,
     required this.totalMateriales,
@@ -24,17 +30,24 @@ class FinanzasScreen extends StatefulWidget {
     required this.totalEquipos,
     required this.onFinanzasChanged,
     this.finanzasInicial,
+    this.formKey,
   });
 
   @override
-  State<FinanzasScreen> createState() => _FinanzasScreenState();
+  State<FinanzasScreen> createState() => FinanzasScreenState();
 }
 
-class _FinanzasScreenState extends State<FinanzasScreen> {
+class FinanzasScreenState extends State<FinanzasScreen> {
+  late final GlobalKey<FormState> _formKey;
   late TextEditingController _imprevistoController;
   late TextEditingController _utilidadController;
   late bool _aplicarIVA;
   Timer? _debounceNotificacion;
+
+  final FocusNode _focoImprevistos = FocusNode();
+  final FocusNode _focoUtilidad = FocusNode();
+  final GlobalKey<FormFieldState<String>> _campoImprevistosKey = GlobalKey();
+  final GlobalKey<FormFieldState<String>> _campoUtilidadKey = GlobalKey();
 
   double _ultimoImprevistos = -1;
   double _ultimoUtilidad = -1;
@@ -44,15 +57,16 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
 
   late Map<String, double> _resultados;
 
-  double _parseNoNegativo(String texto) {
-    final valor = double.tryParse(texto.replaceAll(',', '.').trim()) ?? 0;
-    return valor < 0 ? 0 : valor;
-  }
+  /// Lista ordenada de campos para "scroll + enfoque al primer error".
+  List<CampoRef> get camposEnOrden => [
+    (_campoImprevistosKey, _focoImprevistos),
+    (_campoUtilidadKey, _focoUtilidad),
+  ];
 
   @override
   void initState() {
     super.initState();
-    // Inicializar valores
+    _formKey = widget.formKey ?? GlobalKey<FormState>();
     _aplicarIVA = widget.finanzasInicial?.aplicarIVA ?? true;
     _imprevistoController = TextEditingController(
       text: (widget.finanzasInicial?.porcentajeImprevistos ?? 5.0).toString(),
@@ -61,7 +75,8 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
       text: (widget.finanzasInicial?.porcentajeUtilidad ?? 20.0).toString(),
     );
 
-    // Calcular y notificar un único estado inicial.
+    // Calcular y notificar un único estado inicial (los defaults son
+    // siempre válidos, así que esto nunca dispara la ruta de error).
     _calcularValores(notificarPadre: true);
   }
 
@@ -70,13 +85,37 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
     _debounceNotificacion?.cancel();
     _imprevistoController.dispose();
     _utilidadController.dispose();
+    _focoImprevistos.dispose();
+    _focoUtilidad.dispose();
     super.dispose();
   }
 
-  /// Calcula y actualiza todos los valores financieros
+  /// Calcula y actualiza los valores financieros a partir de los campos.
+  ///
+  /// Si algún porcentaje es inválido (vacío, no numérico o fuera de
+  /// 0–100), NO recalcula ni notifica al padre: el resultado mostrado se
+  /// congela en el último valor válido y el campo muestra su propio
+  /// mensaje de error. Antes, un valor inválido se convertía
+  /// silenciosamente en 0, lo que podía dejar un presupuesto con 0% de
+  /// utilidad sin que el usuario lo notara.
   void _calcularValores({bool notificarPadre = true}) {
-    final porcentajeImprevistos = _parseNoNegativo(_imprevistoController.text);
-    final porcentajeUtilidad = _parseNoNegativo(_utilidadController.text);
+    final porcentajeImprevistos = MonedaUtils.aDouble(
+      _imprevistoController.text,
+    );
+    final porcentajeUtilidad = MonedaUtils.aDouble(_utilidadController.text);
+
+    final imprevistosValido =
+        porcentajeImprevistos != null &&
+        porcentajeImprevistos >= 0 &&
+        porcentajeImprevistos <= 100;
+    final utilidadValido =
+        porcentajeUtilidad != null &&
+        porcentajeUtilidad >= 0 &&
+        porcentajeUtilidad <= 100;
+
+    if (!imprevistosValido || !utilidadValido) {
+      return;
+    }
 
     final finanzas = Finanzas(
       porcentajeImprevistos: porcentajeImprevistos,
@@ -119,224 +158,242 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ================ COSTO DIRECTO ================
-          const SizedBox(height: 8),
-          Card(
-            color: AppColors.gray100,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Costo Directo',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildFilaValor('Materiales:', widget.totalMateriales),
-                  _buildFilaValor('Mano de Obra:', widget.totalManoObra),
-                  _buildFilaValor('Equipos:', widget.totalEquipos),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Divider(color: AppColors.gray500, height: 1),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: _buildFilaValor(
-                      'Total Costo Directo:',
-                      _resultados['costoDirecto'] ?? 0,
-                      esMarcado: true,
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ================ COSTO DIRECTO ================
+            const SizedBox(height: 8),
+            Card(
+              color: AppColors.gray100,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Costo Directo',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    _buildFilaValor('Materiales:', widget.totalMateriales),
+                    _buildFilaValor('Mano de Obra:', widget.totalManoObra),
+                    _buildFilaValor('Equipos:', widget.totalEquipos),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Divider(color: AppColors.gray500, height: 1),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: _buildFilaValor(
+                        'Total Costo Directo:',
+                        _resultados['costoDirecto'] ?? 0,
+                        esMarcado: true,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // ================ PARÁMETROS EDITABLES ================
-          const SizedBox(height: 12),
-          const Text(
-            'Parámetros Financieros',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
+            // ================ PARÁMETROS EDITABLES ================
+            const SizedBox(height: 12),
+            const Text(
+              'Parámetros Financieros',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
 
-          // Campo: Porcentaje Imprevistos
-          TextFormField(
-            controller: _imprevistoController,
-            decoration: InputDecoration(
-              labelText: 'Porcentaje Imprevistos (%)',
-              isDense: true,
-              contentPadding: const EdgeInsets.all(8),
-              suffixIcon: const Icon(Icons.percent),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+            // Campo: Porcentaje Imprevistos
+            CampoValidado(
+              fieldKey: _campoImprevistosKey,
+              focusNode: _focoImprevistos,
+              controller: _imprevistoController,
+              siguienteFoco: _focoUtilidad,
+              decoration: InputDecoration(
+                labelText: 'Porcentaje Imprevistos (%)',
+                isDense: true,
+                contentPadding: const EdgeInsets.all(8),
+                suffixIcon: const Icon(Icons.percent),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+              ],
+              validator:
+                  (value) =>
+                      Validadores.porcentaje(value, campo: 'Imprevistos'),
+              onChanged: (_) => _calcularValores(),
+            ),
+            const SizedBox(height: 8),
+
+            // Campo: Porcentaje Utilidad
+            CampoValidado(
+              fieldKey: _campoUtilidadKey,
+              focusNode: _focoUtilidad,
+              controller: _utilidadController,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: 'Porcentaje Utilidad (%)',
+                isDense: true,
+                contentPadding: const EdgeInsets.all(8),
+                suffixIcon: const Icon(Icons.percent),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+              ],
+              validator:
+                  (value) => Validadores.porcentaje(value, campo: 'Utilidad'),
+              onChanged: (_) => _calcularValores(),
+            ),
+            const SizedBox(height: 12),
+
+            // Switch: Aplicar IVA
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Aplicar IVA (16%)',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                    Switch(
+                      value: _aplicarIVA,
+                      onChanged: (value) {
+                        setState(() {
+                          _aplicarIVA = value;
+                        });
+                        _calcularValores();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-            ],
-            onChanged: (_) => _calcularValores(),
-          ),
-          const SizedBox(height: 8),
 
-          // Campo: Porcentaje Utilidad
-          TextFormField(
-            controller: _utilidadController,
-            decoration: InputDecoration(
-              labelText: 'Porcentaje Utilidad (%)',
-              isDense: true,
-              contentPadding: const EdgeInsets.all(8),
-              suffixIcon: const Icon(Icons.percent),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+            // ================ RESULTADOS ================
+            const SizedBox(height: 12),
+            const Text(
+              'Cálculos Financieros',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-            ],
-            onChanged: (_) => _calcularValores(),
-          ),
-          const SizedBox(height: 12),
+            const SizedBox(height: 8),
 
-          // Switch: Aplicar IVA
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 8.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Aplicar IVA (16%)',
-                    style: TextStyle(fontSize: 13),
-                  ),
-                  Switch(
-                    value: _aplicarIVA,
-                    onChanged: (value) {
-                      setState(() {
-                        _aplicarIVA = value;
-                      });
-                      _calcularValores();
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ================ RESULTADOS ================
-          const SizedBox(height: 12),
-          const Text(
-            'Cálculos Financieros',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-
-          // Card con todos los resultados
-          Card(
-            color: AppColors.white,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                children: [
-                  _buildFilaValor(
-                    'Imprevistos:',
-                    _resultados['imprevistos'] ?? 0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: AppColors.gray300, height: 1),
-                  ),
-                  _buildFilaValor('Subtotal:', _resultados['subtotal'] ?? 0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: AppColors.gray300, height: 1),
-                  ),
-                  _buildFilaValor('Utilidad:', _resultados['utilidad'] ?? 0),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6.0),
-                    child: Divider(color: AppColors.gray300, height: 1),
-                  ),
-                  _buildFilaValor(
-                    'Precio Final:',
-                    _resultados['precioFinal'] ?? 0,
-                    esMarcado: true,
-                  ),
-                  if (_aplicarIVA) ...[
+            // Card con todos los resultados
+            Card(
+              color: AppColors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    _buildFilaValor(
+                      'Imprevistos:',
+                      _resultados['imprevistos'] ?? 0,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6.0),
                       child: Divider(color: AppColors.gray300, height: 1),
                     ),
-                    _buildFilaValor('IVA (16%):', _resultados['iva'] ?? 0),
+                    _buildFilaValor('Subtotal:', _resultados['subtotal'] ?? 0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Divider(color: AppColors.gray300, height: 1),
+                    ),
+                    _buildFilaValor('Utilidad:', _resultados['utilidad'] ?? 0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6.0),
+                      child: Divider(color: AppColors.gray300, height: 1),
+                    ),
+                    _buildFilaValor(
+                      'Precio Final:',
+                      _resultados['precioFinal'] ?? 0,
+                      esMarcado: true,
+                    ),
+                    if (_aplicarIVA) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6.0),
+                        child: Divider(color: AppColors.gray300, height: 1),
+                      ),
+                      _buildFilaValor('IVA (16%):', _resultados['iva'] ?? 0),
+                    ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Divider(color: AppColors.gray500, height: 2),
+                    ),
+                    _buildFilaValor(
+                      'TOTAL FINAL:',
+                      _resultados['totalFinal'] ?? 0,
+                      esMarcado: true,
+                      esTotal: true,
+                    ),
                   ],
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Divider(color: AppColors.gray500, height: 2),
-                  ),
-                  _buildFilaValor(
-                    'TOTAL FINAL:',
-                    _resultados['totalFinal'] ?? 0,
-                    esMarcado: true,
-                    esTotal: true,
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-          // Resumen de porcentajes
-          Card(
-            color: AppColors.gray100,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Resumen de Márgenes',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildResumenFila(
-                    'Costo Directo:',
-                    _resultados['costoDirecto'] ?? 0,
-                    _resultados['totalFinal'] ?? 1,
-                  ),
-                  _buildResumenFila(
-                    'Margen Imprevistos:',
-                    _resultados['imprevistos'] ?? 0,
-                    _resultados['totalFinal'] ?? 1,
-                  ),
-                  _buildResumenFila(
-                    'Margen Utilidad:',
-                    _resultados['utilidad'] ?? 0,
-                    _resultados['totalFinal'] ?? 1,
-                  ),
-                  if (_aplicarIVA)
+            // Resumen de porcentajes
+            Card(
+              color: AppColors.gray100,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Resumen de Márgenes',
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
                     _buildResumenFila(
-                      'Margen IVA:',
-                      _resultados['iva'] ?? 0,
+                      'Costo Directo:',
+                      _resultados['costoDirecto'] ?? 0,
                       _resultados['totalFinal'] ?? 1,
                     ),
-                ],
+                    _buildResumenFila(
+                      'Margen Imprevistos:',
+                      _resultados['imprevistos'] ?? 0,
+                      _resultados['totalFinal'] ?? 1,
+                    ),
+                    _buildResumenFila(
+                      'Margen Utilidad:',
+                      _resultados['utilidad'] ?? 0,
+                      _resultados['totalFinal'] ?? 1,
+                    ),
+                    if (_aplicarIVA)
+                      _buildResumenFila(
+                        'Margen IVA:',
+                        _resultados['iva'] ?? 0,
+                        _resultados['totalFinal'] ?? 1,
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
-        ],
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }
@@ -376,7 +433,7 @@ class _FinanzasScreenState extends State<FinanzasScreen> {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerRight,
             child: Text(
-              _calculadora.formatoMoneda(valor),
+              MonedaUtils.formatear(valor),
               textAlign: TextAlign.right,
               style: TextStyle(
                 fontSize: fontSize,

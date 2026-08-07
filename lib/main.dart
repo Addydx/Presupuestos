@@ -8,9 +8,11 @@ import 'package:presupuesto_app/services/materiales_seed.dart';
 import 'package:presupuesto_app/services/materiales_service.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 import 'package:presupuesto_app/services/presupuestos_service.dart';
+import 'package:presupuesto_app/services/borrador_presupuesto_service.dart';
 
 import 'package:presupuesto_app/screens/splash/splash_screen.dart';
 
+import 'models/presupuesto/borrador_presupuesto.dart';
 import 'models/presupuesto/equipo.dart';
 import 'models/presupuesto/finanzas.dart';
 import 'models/presupuesto/mano_obra.dart';
@@ -33,6 +35,7 @@ void main() async {
   Hive.registerAdapter(EstadoPresupuestoAdapter());
   Hive.registerAdapter(TipoPagoAdapter());
   Hive.registerAdapter(EstadoProyectoAdapter());
+  Hive.registerAdapter(BorradorPresupuestoAdapter());
 
   await Hive.openBox<Proyecto>('proyectos');
   await Hive.openBox<Presupuesto>('presupuestos');
@@ -51,6 +54,10 @@ void main() async {
   // Inicializar PresupuestosService (singleton)
   final presupuestosService = PresupuestosService();
   await presupuestosService.initialize();
+
+  // Inicializar BorradorPresupuestoService (singleton)
+  final borradorPresupuestoService = BorradorPresupuestoService();
+  await borradorPresupuestoService.initialize();
 
   runApp(const MyApp());
 }

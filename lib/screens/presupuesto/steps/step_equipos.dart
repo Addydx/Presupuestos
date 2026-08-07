@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
-import 'package:presupuesto_app/screens/equipos/agregar_editar_equipo_screen.dart';
+import 'package:presupuesto_app/screens/equipos/equipo_form_sheet.dart';
 import 'package:presupuesto_app/services/equipos_service.dart';
 
 class StepEquipos extends StatefulWidget {
   final EquiposService equiposService;
 
-  const StepEquipos({super.key, required this.equiposService});
+  /// Se llama cada vez que cambia la lista, para que el wizard (dueño de
+  /// la barra de total persistente y del autoguardado) se entere aunque
+  /// el cambio haya ocurrido dentro de una hoja modal.
+  final VoidCallback? onCambio;
+
+  const StepEquipos({super.key, required this.equiposService, this.onCambio});
 
   @override
   State<StepEquipos> createState() => _StepEquiposState();
@@ -26,6 +32,15 @@ class _StepEquiposState extends State<StepEquipos> {
     setState(() {
       equipos = widget.equiposService.obtenerEquipos();
     });
+    // Diferido: si esto se dispara desde initState() (primera carga), el
+    // wizard todavía puede estar construyéndose y no admite un setState
+    // síncrono en ese momento.
+    final onCambio = widget.onCambio;
+    if (onCambio != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) onCambio();
+      });
+    }
   }
 
   void _eliminarEquipo(String id) {
@@ -60,35 +75,21 @@ class _StepEquiposState extends State<StepEquipos> {
     );
   }
 
-  void _abrirAgregarEquipo() async {
-    final resultado = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => AgregarEditarEquipoScreen(
-              equiposService: widget.equiposService,
-            ),
-      ),
+  void _abrirAgregarEquipo() {
+    mostrarHojaEquipo(
+      context: context,
+      equiposService: widget.equiposService,
+      onCambio: _cargarEquipos,
     );
-    if (resultado == true) {
-      _cargarEquipos();
-    }
   }
 
-  void _abrirEditarEquipo(Equipo equipo) async {
-    final resultado = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => AgregarEditarEquipoScreen(
-              equiposService: widget.equiposService,
-              equipoEditando: equipo,
-            ),
-      ),
+  void _abrirEditarEquipo(Equipo equipo) {
+    mostrarHojaEquipo(
+      context: context,
+      equiposService: widget.equiposService,
+      equipoEditando: equipo,
+      onCambio: _cargarEquipos,
     );
-    if (resultado == true) {
-      _cargarEquipos();
-    }
   }
 
   @override
@@ -163,7 +164,7 @@ class _StepEquiposState extends State<StepEquipos> {
                           children: [
                             const SizedBox(height: 4),
                             Text(
-                              '${equipo.dias} días × \$${equipo.costoPorDia.toStringAsFixed(2)}/día',
+                              '${equipo.dias} días × ${MonedaUtils.formatear(equipo.costoPorDia)}/día',
                               style: const TextStyle(fontSize: 12),
                             ),
                           ],
@@ -173,7 +174,7 @@ class _StepEquiposState extends State<StepEquipos> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              '\$${equipo.total.toStringAsFixed(2)}',
+                              MonedaUtils.formatear(equipo.total),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
@@ -232,7 +233,7 @@ class _StepEquiposState extends State<StepEquipos> {
                           ),
                         ),
                         Text(
-                          '\$${totalGeneral.toStringAsFixed(2)}',
+                          MonedaUtils.formatear(totalGeneral),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

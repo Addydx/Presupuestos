@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/material.dart';
 
 class SeccionMateriales extends StatelessWidget {
@@ -65,7 +66,7 @@ class SeccionMateriales extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${material.cantidad} × \$${material.precioUnitario.toStringAsFixed(2)}',
+                                '${material.cantidad} × ${MonedaUtils.formatear(material.precioUnitario)}',
                                 style: const TextStyle(fontSize: 12),
                               ),
                             ],
@@ -77,7 +78,7 @@ class SeccionMateriales extends StatelessWidget {
                             fit: BoxFit.scaleDown,
                             alignment: Alignment.centerRight,
                             child: Text(
-                              '\$${material.total.toStringAsFixed(2)}',
+                              MonedaUtils.formatear(material.total),
                               textAlign: TextAlign.right,
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -114,7 +115,7 @@ class SeccionMateriales extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        '\$${totalMateriales.toStringAsFixed(2)}',
+                        MonedaUtils.formatear(totalMateriales),
                         textAlign: TextAlign.right,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,

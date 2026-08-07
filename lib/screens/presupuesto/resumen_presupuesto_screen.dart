@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:presupuesto_app/core/theme/app_colors.dart';
+import 'package:presupuesto_app/core/utils/moneda_utils.dart';
 import 'package:presupuesto_app/models/presupuesto/equipo.dart';
 import 'package:presupuesto_app/models/presupuesto/finanzas.dart';
 import 'package:presupuesto_app/models/presupuesto/mano_obra.dart';
@@ -237,7 +238,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${totalFinal.toStringAsFixed(2)}',
+                    MonedaUtils.formatear(totalFinal),
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -404,7 +405,7 @@ class _ResumenPresupuestoScreenState extends State<ResumenPresupuestoScreen> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '\$${monto.toStringAsFixed(2)}',
+                MonedaUtils.formatear(monto),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
